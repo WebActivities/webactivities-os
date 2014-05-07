@@ -13,7 +13,7 @@ angular.module('webActivitiesApp.controllers', [])
 		$(".top-bar").each(function() {
 			gap += $(this).height();
 		});
-		$("#viewport").height($(window).height() - gap - 4);
+		$(".full-size").height($(window).height() - gap - 10);
 	});
 
 	// Declaration of scope variables
@@ -34,17 +34,9 @@ angular.module('webActivitiesApp.controllers', [])
 	});
 
 	$rootScope.$on('displayActivity', function(event, o) {
+		console.log(o.view);
+		$("#viewport").empty().append(o.view);
 		$(window).resize();
-		var iframeWindow = $("#viewport")[0].contentWindow;
-		var doc = iframeWindow.document;
-		doc.open();
-		doc.write("<script type=\"text/javascript\">window.parent = null;</script>");
-		doc.write("<script type=\"text/javascript\">window.top = null;</script>");
-		doc.write("<div id=\"internalViewport\"></div>");
-		doc.close();
-
-		var viewport = $("#viewport").contents().find("#internalViewport")[0];
-		o.view.resolve(viewport);
 		$scope.displayActivity = true;
 		$scope.activity = o.activity;
 		$scope.$apply();

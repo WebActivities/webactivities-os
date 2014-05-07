@@ -124,7 +124,7 @@ angular.module('webActivitiesApp.framework', [])
 	webActivities.startMode.CHILD = function() {
 
 	};
-	webActivities.startMode.PRIMARY = function() {
+	webActivities.startMode.ROOT = function() {
 
 	};
 
@@ -182,8 +182,15 @@ angular.module('webActivitiesApp.framework', [])
 		} else if (app.status == webActivities.status.REGISTERED) {
 			$rootScope.$broadcast('appStarting', $.extend({}, app));
 			app.status = webActivities.status.STARTING;
+			var resourcesIncluded = "";
+			if ($.isArray(app.resources)) {
+				$.each(app.resources, function(index, value) {
+					resourcesIncluded += "<script src='" + resolveUrl(app, value) + "' type='application/javascript'><\/script>";
+				});
+			}
 			var iframe = $('<iframe />', {
-				style : "border: 0; width: 0; height: 0"
+				style : "border: 0; width: 0; height: 0",
+				srcDoc : "<script type=\"text/javascript\">var top = null; var opener = null; var parent = null; window.opener = null; window.parent = null;</script>" + resourcesIncluded
 			}).appendTo($("#app-class-loader"));
 
 			app.iframe = iframe;
@@ -197,19 +204,6 @@ angular.module('webActivitiesApp.framework', [])
 					callback(app);
 				}
 			});
-
-			var iframeWindow = iframe[0].contentWindow.window;
-			var doc = iframeWindow.document;
-			doc.open();
-			doc.write("<script type=\"text/javascript\">window.parent = null;</script>");
-			doc.write("<script type=\"text/javascript\">window.top = null;</script>");
-			doc.write(app.businessCard());
-			if ($.isArray(app.resources)) {
-				$.each(app.resources, function(index, value) {
-					doc.write("<script src='" + resolveUrl(app, value) + "' type='application/javascript'><\/script>");
-				});
-			}
-			doc.close();
 		} else if (app.status == webActivities.status.STARTING) {
 			// do nothing... wait for start
 		} else if (app.status == webActivities.status.STARTED) {
@@ -228,7 +222,7 @@ angular.module('webActivitiesApp.framework', [])
 		} else if (!app.main) {
 			log("The application <" + appId + "> not have a main activity");
 		} else {
-			webActivities.startActivity(app.main, appId, null, webActivities.startMode.PRIMARY);
+			webActivities.startActivity(app.main, appId, null, webActivities.startMode.ROOT);
 		}
 	};
 
@@ -286,12 +280,20 @@ angular.module('webActivitiesApp.framework', [])
 				$rootScope.$broadcast('activityStarting', clonedActivity);
 				activity.context = createContext(webActivities);
 				activity.activatorImpl = new app.iframe[0].contentWindow.window[activity.activator](activity.context, parameters);
+				activity.iframe = $("<iframe class=\"full-size\" src=\"activity-viewport.html\" style=\"border: 0px; padding: 0px; margin: 0px; width: 100%;\"></iframe>")[0];
 				runningActivity = activity;
 
 				$rootScope.$broadcast('displayActivity', {
-					view : viewDeferred,
+					view : activity.iframe,
 					activity : activity
 				});
+				
+				$(activity.iframe).load(function() {
+					var viewport = $(activity.iframe).contents().find("#internalViewport")[0];
+					console.log(viewport);
+					viewDeferred.resolve(viewport);
+				});
+
 
 				$rootScope.$broadcast('activityStarted', clonedActivity);
 			}
