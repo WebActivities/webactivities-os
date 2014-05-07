@@ -1,0 +1,20 @@
+{
+	"id" : "it.test.app.one",
+	"name" : "Application One",
+	"icon" : "/res/app.png",
+	"main" : "activity1",
+	"version" : "1.0.0",
+	"activities" : {
+		"activity1" : {
+			"name" : "Attività number one",
+			"icon" : "/res/activity.png",
+			"activator" : "Activity1"	
+		}
+	},
+	"resources" : [
+		"/res/jquery-2.1.1.min.js",
+		"/activities/activity1/activity1.js?%v&%d"
+    ],
+    "settings" : {
+    }
+}

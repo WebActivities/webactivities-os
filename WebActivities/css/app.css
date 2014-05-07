@@ -1,0 +1,31 @@
+/* app css stylesheet */
+#shared-spinner {
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	z-index: 10000;
+}
+
+#shared-spinner img {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	margin-top: -33px;
+	margin-left: -33px;
+}
+
+.handle {
+	cursor: move;
+}
+
+.pointer {
+	cursor: pointer;
+}
+
+.app {
+	width: 150px;
+	float: left;
+	margin: 1em;
+}

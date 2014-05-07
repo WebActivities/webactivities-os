@@ -1,0 +1,13 @@
+<html>
+<head>
+<script type="text/javascript">
+	window.addEventListener('message', function(event) {
+		console.log(event.data);
+		event.source.postMessage('holla back youngin!', event.origin);
+	}, false);
+</script>
+</head>
+<body>
+		<small>This is a sandbox</small>
+</body>
+</html>

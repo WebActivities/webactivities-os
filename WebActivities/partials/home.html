@@ -1,0 +1,43 @@
+<nav class="navbar navbar-inverse navbar-static-top top-bar" role="navigation" style="margin-bottom: 0px;">
+		<div class="container-fluid">
+				<!-- Brand and toggle get grouped for better mobile display -->
+				<div class="navbar-header">
+						<button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#top-bar-collapse" onclick="$(window).resize()">
+								<span class="sr-only">Toggle navigation</span> <span class="icon-bar"></span> <span class="icon-bar"></span> <span class="icon-bar"></span>
+						</button>
+						<a class="navbar-brand" href="" onClick="window.location.reload()"><i class="fa fa-home"></i></a>
+				</div>
+
+				<div class="collapse navbar-collapse" id="top-bar-collapse">
+						<ul class="nav navbar-nav navbar-right">
+								<li class="dropdown"><a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-bullhorn"></i> Notifiche <span class="badge badge-warning">5</span> <b class="caret"></b></a>
+										<ul class="dropdown-menu">
+												<li><a href="#">Action</a></li>
+												<li><a href="#">Another action</a></li>
+												<li><a href="#">Something else here</a></li>
+										</ul></li>
+								<li class="dropdown"><a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-cogs"></i> Impostazioni <b class="caret"></b></a>
+										<ul class="dropdown-menu">
+												<li><a href="#">Action</a></li>
+												<li><a href="#">Another action</a></li>
+												<li><a href="#">Something else here</a></li>
+										</ul></li>
+
+								<li><a href="" class="btn-danger"><i class="fa fa-step-backward"></i> indietro</a></li>
+						</ul>
+
+				</div>
+		</div>
+		<!-- /.container-fluid -->
+</nav>
+<div data-ng-hide="displayActivity">
+		<div class="pointer app text-center" data-ng-repeat="app in apps" data-ng-click="startApp(app.id)">
+				<img data-ng-src="{{app.icon}}" alt="">
+				<div class="caption">
+						<p>{{app.name}}</p>
+				</div>
+		</div>
+</div>
+<div data-ng-show="displayActivity">
+		<iframe id="viewport" style="border: 0px; padding: 0px; margin: 0px; width: 100%"></iframe>
+</div>
