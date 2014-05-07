@@ -8,9 +8,10 @@
 						<a class="navbar-brand" href="" onClick="window.location.reload()"><i class="fa fa-home"></i></a>
 				</div>
 
+
 				<div class="collapse navbar-collapse" id="top-bar-collapse">
 						<ul class="nav navbar-nav navbar-right">
-								<li class="dropdown"><a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-bullhorn"></i> Notifiche <span class="badge badge-warning">5</span> <b class="caret"></b></a>
+								<li class="dropdown"><a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-bullhorn"></i>Notifiche <span class="badge badge-warning">5</span> <b class="caret"></b></a>
 										<ul class="dropdown-menu">
 												<li><a href="#">Action</a></li>
 												<li><a href="#">Another action</a></li>
@@ -23,9 +24,11 @@
 												<li><a href="#">Something else here</a></li>
 										</ul></li>
 
-								<li><a href="" class="btn-danger"><i class="fa fa-step-backward"></i> indietro</a></li>
+								<li data-ng-show="activityStack().length > 0"><a href="" class="btn-danger" data-ng-click="stopActivity()"><i class="fa fa-step-backward"></i> indietro</a></li>
 						</ul>
-
+						<p class="navbar-text navbar-right" data-ng-show="startingApp">
+								<span class="badge badge-info">Avvio applicazione {{startingApp}}...</span>
+						</p>
 				</div>
 		</div>
 		<!-- /.container-fluid -->

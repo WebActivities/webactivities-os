@@ -121,11 +121,21 @@ angular.module('webActivitiesApp.framework', [])
 	webActivities.status.STARTED = 4;
 
 	webActivities.startMode = {};
-	webActivities.startMode.CHILD = function() {
-
+	webActivities.startMode.CHILD = function(stackItem) {
+		var d = $q.defer();
+		$q.when(webActivities.pauseActivity()).then(function() {
+			activityStack.push(stackItem);
+			d.resolve();
+		});
+		return d.promise;
 	};
-	webActivities.startMode.ROOT = function() {
-
+	webActivities.startMode.ROOT = function(stackItem) {
+		var d = $q.defer();
+		$q.when(webActivities.stopAllActivities()).then(function() {
+			activityStack.push(stackItem);
+			d.resolve();
+		});
+		return d.promise;
 	};
 
 	webActivities.listApps = function() {
@@ -226,6 +236,55 @@ angular.module('webActivitiesApp.framework', [])
 		}
 	};
 
+	webActivities.getActivityStack = function() {
+		return activityStack.getAll();
+	};
+
+	webActivities.pauseActivity = function() {
+		var d = $q.defer();
+
+		return d.promise;
+	};
+
+	webActivities.resumeActivity = function() {
+		var d = $q.defer();
+		var item = activityStack.peek();
+		if (item == null) {
+			d.resolve();
+		} else {
+			$q.when(context.getResume()()).then(function() {
+				$rootScope.$broadcast('displayActivity', {
+					view : item.iframe,
+					activity : item.activity
+				});
+				d.resolve();
+			});
+		}
+		return d.promise;
+	};
+
+	webActivities.stopActivity = function() {
+		var d = $q.defer();
+		var item = activityStack.peek();
+		var context = item.context;
+		$q.when(context.getStop()()).then(function() {
+			var item = activityStack.pop();
+			runningActivity = null;
+			$rootScope.$broadcast('hideActivity', {
+				view : item.iframe,
+				activity : item.activity
+			});
+			$q.when(webActivities.resumeActivity()).then(function() {
+				d.resolve();
+			});
+		});
+		return d.promise;
+	};
+
+	webActivities.stopAllActivities = function() {
+		return true;
+	};
+
 	webActivities.startActivity = function(activityId, appId, parameters, startMode) {
 		log("Starting activity <" + activityId + ">");
 		var acts = activities[activityId];
@@ -265,37 +324,82 @@ angular.module('webActivitiesApp.framework', [])
 			} else if (runningActivity && isSameActivity(runningActivity, activity)) {
 				log("Activity <" + activity.id + "> is still running");
 			} else {
-				// Create a new context
-				var viewDeferred = $q.defer();
-				var createContext = function(webActivities) {
-					var ctx = {
-						prepareView : function() {
-							return viewDeferred.promise;
-						}
-					};
-					return ctx;
+
+				var stackItem = {
+					activity : activity,
+					iframe : null,
+					context : null,
+					instance : null
 				};
 
-				var clonedActivity = $.extend({}, activity);
-				$rootScope.$broadcast('activityStarting', clonedActivity);
-				activity.context = createContext(webActivities);
-				activity.activatorImpl = new app.iframe[0].contentWindow.window[activity.activator](activity.context, parameters);
-				activity.iframe = $("<iframe class=\"full-size\" src=\"activity-viewport.html\" style=\"border: 0px; padding: 0px; margin: 0px; width: 100%;\"></iframe>")[0];
-				runningActivity = activity;
+				// Create a new context
+				var createContext = function(stackItem) {
+					return function(webActivities) {
+						var _stop = function() {
+							return true;
+						};
+						var _resume = function() {
+							return true;
+						};
+						var _pause = function() {
+							return true;
+						};
+						var ctx = {
+							onStop : function(fn) {
+								_stop = fn;
+							},
+							getStop : function() {
+								return _stop;
+							},
+							stop : function() {
+								webActivities.stopActivity();
+							},
+							onResume : function(fn) {
+								_resume = fn;
+							},
+							getResume : function() {
+								return _resume;
+							},
+							onPause : function(fn) {
+								_pause = fn;
+							},
+							getPause : function() {
+								return _pause;
+							},
+							prepareView : function() {
+								var viewDeferred = $q.defer();
+								var iframe = $("<iframe class=\"full-size\" src=\"activity-viewport.html\" style=\"border: 0px; padding: 0px; margin: 0px; width: 100%;\"></iframe>")[0];
+								stackItem.iframe = iframe;
 
-				$rootScope.$broadcast('displayActivity', {
-					view : activity.iframe,
-					activity : activity
-				});
-				
-				$(activity.iframe).load(function() {
-					var viewport = $(activity.iframe).contents().find("#internalViewport")[0];
-					console.log(viewport);
-					viewDeferred.resolve(viewport);
-				});
+								$rootScope.$broadcast('displayActivity', {
+									view : iframe,
+									activity : activity
+								});
 
+								$(iframe).load(function() {
+									var viewport = $(iframe).contents().find("#internalViewport")[0];
+									viewDeferred.resolve(viewport);
+								});
 
-				$rootScope.$broadcast('activityStarted', clonedActivity);
+								return viewDeferred.promise;
+							}
+						};
+						return ctx;
+					};
+				}(stackItem);
+
+				$rootScope.$broadcast('activityStarting', $.extend({}, activity));
+				stackItem.context = createContext(webActivities);
+
+				startMode(stackItem).then(function(activity, stackItem) {
+					return function() {
+						// Run the app
+						stackItem.instance = new app.iframe[0].contentWindow.window[activity.activator](stackItem.context, parameters);
+						runningActivity = activity;
+						$rootScope.$broadcast('activityStarted', $.extend({}, activity));
+					};
+				}(activity, stackItem));
+
 			}
 
 		}
