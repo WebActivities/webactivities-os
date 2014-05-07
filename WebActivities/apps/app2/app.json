@@ -5,7 +5,12 @@
 	"main" : "activity1",
 	"activities" : {
 		"activity1" : {
-			"name" : "Attivit� another one",
+			"name" : "Attività another one",
+			"icon" : "/res/activity.png",
+			"activator" : "Activity1"	
+		},
+		"activity2" : {
+			"name" : "Attività veramente figa",
 			"icon" : "/res/activity.png",
 			"activator" : "Activity1"	
 		}
@@ -13,5 +18,5 @@
 	"resources" : [
 	  "/activity.js?%v&%d"
     ]
-
+	
 }

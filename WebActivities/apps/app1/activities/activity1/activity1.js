@@ -2,9 +2,17 @@ var Activity1 = function(ctx) {
 
 	var container = $("<div></div>");
 	var header = $("<h1>").text("This is the first application").appendTo(container);
-	var btn = $("<button type=\"button\" class=\"btn btn-sm btn-primary\">Chiudi</button>").appendTo(container);
-	btn.click(function() {
+	var btn1 = $("<button type=\"button\" class=\"btn btn-sm btn-primary\">Chiudi</button>").appendTo(container);
+	btn1.click(function() {
 		ctx.stop();
+	});
+	var btn2 = $("<button type=\"button\" class=\"btn btn-sm btn-primary\">Avvia Activity1</button>").appendTo(container);
+	btn2.click(function() {
+		ctx.beginChildIntent("activity1");
+	});
+	var btn3 = $("<button type=\"button\" class=\"btn btn-sm btn-primary\">Avvia Activity2</button>").appendTo(container);
+	btn3.click(function() {
+		ctx.beginChildIntent("activity2");
 	});
 
 	ctx.prepareView().then(function(root) {
@@ -21,8 +29,12 @@ var Activity1 = function(ctx) {
 	});
 
 	ctx.onResume(function() {
+		header.text("Application is resumed!");
+	});
+
+	ctx.onPause(function() {
 		var deferred = $.Deferred();
-		header.text("Application will be resumed in 2 seconds...");
+		header.text("Application will be paused in 2 seconds...");
 		setTimeout(function() {
 			deferred.resolve();
 		}, 2000);

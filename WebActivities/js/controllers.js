@@ -4,7 +4,7 @@
 
 angular.module('webActivitiesApp.controllers', [])
 
-.controller('HomeCtrl', [ '$rootScope', '$scope', 'framework', function($rootScope, $scope, framework) {
+.controller('HomeCtrl', [ '$rootScope', '$scope', 'framework', '$modal', function($rootScope, $scope, framework, $modal) {
 
 	// Utilities
 	// =============================================
@@ -23,7 +23,11 @@ angular.module('webActivitiesApp.controllers', [])
 
 	// Functions
 	$scope.activityStack = function() {
-		return framework.getActivityStack();
+		if (framework.getActivityStack() == null) {
+			return [];
+		}
+		var clone = framework.getActivityStack().slice(0);
+		return clone.reverse();
 	};
 
 	$scope.startApp = function(appId) {
@@ -32,6 +36,10 @@ angular.module('webActivitiesApp.controllers', [])
 
 	$scope.stopActivity = function() {
 		framework.stopActivity();
+	};
+
+	$scope.stopAllActivities = function() {
+		framework.stopAllActivities();
 	};
 
 	// Listener
@@ -49,17 +57,60 @@ angular.module('webActivitiesApp.controllers', [])
 	});
 
 	$rootScope.$on('displayActivity', function(event, o) {
-		$("#viewport").empty().append(o.view);
+		if ($("#viewport").find(o.view).size() > 0) {
+			$(o.view).css("width", "100%");
+		} else {
+			$("#viewport").append(o.view);
+		}
 		$(window).resize();
 		$scope.displayActivity = true;
 		$scope.activity = o.activity;
 	});
 
 	$rootScope.$on('hideActivity', function(event, o) {
-		$(o.iframe).remove();
+		$(o.view).css("width", "0px");
 		$(window).resize();
 		$scope.displayActivity = false;
 		$scope.activity = null;
+	});
+
+	$rootScope.$on('destroyActivity', function(event, o) {
+		$(o.view).remove();
+		$(window).resize();
+		$scope.displayActivity = false;
+		$scope.activity = null;
+	});
+
+	$rootScope.$on('multipleActivityToStart', function(event, o) {
+		var startMode = o.startMode;
+		var parameters = o.parameters;
+
+		var modalInstance = $modal.open({
+			templateUrl : 'activity-choice.html',
+			controller : [ '$scope', '$modalInstance', 'o', function($scope, $modalInstance, o) {
+				$scope.items = o.activities;
+				$scope.selected = $scope.items[0];
+				$scope.select = function(app) {
+					$scope.selected = app;
+				};
+				$scope.ok = function() {
+					$modalInstance.close($scope.selected);
+				};
+				$scope.cancel = function() {
+					$modalInstance.dismiss('cancel');
+				};
+			} ],
+			resolve : {
+				o : function() {
+					return o;
+				}
+			}
+		});
+
+		modalInstance.result.then(function(act) {
+			framework.startActivity(act.id, act.app, parameters, startMode);
+		});
+
 	});
 
 	// Demo configuration

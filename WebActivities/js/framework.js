@@ -172,6 +172,7 @@ angular.module('webActivitiesApp.framework', [])
 				activity.path = app.path;
 				activity.app = app.id;
 				activity.id = id;
+				activity.icon = resolveUrl(app, activity.icon);
 				if (!$.isArray(activities[id])) {
 					activities[id] = [];
 				}
@@ -242,7 +243,19 @@ angular.module('webActivitiesApp.framework', [])
 
 	webActivities.pauseActivity = function() {
 		var d = $q.defer();
-
+		var item = activityStack.peek();
+		if (item == null) {
+			d.resolve();
+		} else {
+			var context = item.context;
+			$q.when(context.getPause()()).then(function() {
+				$rootScope.$broadcast('hideActivity', {
+					view : item.iframe,
+					activity : item.activity
+				});
+				d.resolve();
+			});
+		}
 		return d.promise;
 	};
 
@@ -252,6 +265,7 @@ angular.module('webActivitiesApp.framework', [])
 		if (item == null) {
 			d.resolve();
 		} else {
+			var context = item.context;
 			$q.when(context.getResume()()).then(function() {
 				$rootScope.$broadcast('displayActivity', {
 					view : item.iframe,
@@ -266,27 +280,41 @@ angular.module('webActivitiesApp.framework', [])
 	webActivities.stopActivity = function() {
 		var d = $q.defer();
 		var item = activityStack.peek();
-		var context = item.context;
-		$q.when(context.getStop()()).then(function() {
-			var item = activityStack.pop();
-			runningActivity = null;
-			$rootScope.$broadcast('hideActivity', {
-				view : item.iframe,
-				activity : item.activity
+		if (item == null) {
+			d.resolve();
+		} else {
+			var context = item.context;
+			$q.when(context.getStop()()).then(function() {
+				var item = activityStack.pop();
+				runningActivity = null;
+				$rootScope.$broadcast('destroyActivity', {
+					view : item.iframe,
+					activity : item.activity
+				});
+				$q.when(webActivities.resumeActivity()).then(function() {
+					d.resolve();
+				});
 			});
-			$q.when(webActivities.resumeActivity()).then(function() {
-				d.resolve();
-			});
-		});
+		}
 		return d.promise;
 	};
 
 	webActivities.stopAllActivities = function() {
-		return true;
+		var d = $q.defer();
+		var stop = function() {
+			$q.when(webActivities.stopActivity()).then(function() {
+				if (activityStack.getCount() > 0) {
+					stop();
+				} else {
+					d.resolve();
+				}
+			});
+		};
+		stop();
+		return d.promise;
 	};
 
 	webActivities.startActivity = function(activityId, appId, parameters, startMode) {
-		log("Starting activity <" + activityId + ">");
 		var acts = activities[activityId];
 		var activity = null;
 		var specific = appId != null;
@@ -299,7 +327,11 @@ angular.module('webActivitiesApp.framework', [])
 				});
 			} else {
 				if (acts.length > 1) {
-					$rootScope.$broadcast('multipleActivityToStart', $.extend({}, acts));
+					$rootScope.$broadcast('multipleActivityToStart', {
+						activities : $.extend({}, acts),
+						startMode : startMode,
+						parameters : parameters
+					});
 				} else {
 					activity = acts[0];
 				}
@@ -321,8 +353,6 @@ angular.module('webActivitiesApp.framework', [])
 				webActivities.startApp(activity.app, true, function(app) {
 					webActivities.startActivity(activityId, appId, parameters, startMode);
 				});
-			} else if (runningActivity && isSameActivity(runningActivity, activity)) {
-				log("Activity <" + activity.id + "> is still running");
 			} else {
 
 				var stackItem = {
@@ -365,6 +395,12 @@ angular.module('webActivitiesApp.framework', [])
 							},
 							getPause : function() {
 								return _pause;
+							},
+							beginIntent : function(intent, parameter) {
+								webActivities.startActivity(intent, null, parameter, webActivities.startMode.ROOT);
+							},
+							beginChildIntent : function(intent, parameter) {
+								webActivities.startActivity(intent, null, parameter, webActivities.startMode.CHILD);
 							},
 							prepareView : function() {
 								var viewDeferred = $q.defer();
