@@ -33,6 +33,14 @@ angular.module('webActivitiesApp.framework', [])
 	var dirname = function(path) {
 		return path.replace(/\\/g, '/').replace(/\/[^\/]*$/, '');
 	};
+	var resolveStartMode = function(mode) {
+		for ( var i in webActivities.startMode) {
+			if (i == mode) {
+				return webActivities.startMode[i];
+			}
+		}
+		return webActivities.startMode.UNKNOWN;
+	};
 
 	var IntentType = {
 		START_ACTIVITY : 0
@@ -41,11 +49,11 @@ angular.module('webActivitiesApp.framework', [])
 	var Intent = function(type) {
 		this.activity = null;
 		this.parameters = {};
-		this.startMode = webActivities.startMode.CHILD;
+		this.startMode = "CHILD";
 		this.start = function() {
 			var q = $q.defer();
 			if (type == IntentType.START_ACTIVITY) {
-				webActivities.startActivity(this.activity, null, this.parameters, this.startMode, q);
+				webActivities.startActivity(this.activity, null, this.parameters, resolveStartMode(this.startMode), q);
 			}
 			return q.promise;
 		};
@@ -148,6 +156,11 @@ angular.module('webActivitiesApp.framework', [])
 			activityStack.push(stackItem);
 			d.resolve();
 		});
+		return d.promise;
+	};
+	webActivities.startMode.UNKNOWN = function(stackItem) {
+		var d = $q.defer();
+		alert('Start mode unknown');
 		return d.promise;
 	};
 

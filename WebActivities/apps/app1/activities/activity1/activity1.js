@@ -15,6 +15,14 @@ var Activity1 = function(ctx) {
 	btn7.click(function() {
 		ctx.stop("ciao");
 	});
+	var btn8 = $("<button type=\"button\" class=\"btn btn-sm btn-primary\">Avvia Activity1 come root</button>").appendTo(container);
+	btn8.click(function() {
+		var i = ctx.newActivityIntent("activity1");
+		i.startMode = "ROOT";
+		i.start().then(function(result) {
+			container.append("The result is " + result);
+		});
+	});
 	var btn2 = $("<button type=\"button\" class=\"btn btn-sm btn-primary\">Avvia Activity1</button>").appendTo(container);
 	btn2.click(function() {
 		ctx.newActivityIntent("activity1").start().then(function(result) {
