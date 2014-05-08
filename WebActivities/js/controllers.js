@@ -4,7 +4,7 @@
 
 angular.module('webActivitiesApp.controllers', [])
 
-.controller('HomeCtrl', [ '$rootScope', '$scope', 'framework', '$modal', function($rootScope, $scope, framework, $modal) {
+.controller('HomeCtrl', [ '$rootScope', '$scope', 'framework', '$modal', 'TRANSITION_SPEED', function($rootScope, $scope, framework, $modal, TRANSITION_SPEED) {
 
 	// Utilities
 	// =============================================
@@ -51,24 +51,47 @@ angular.module('webActivitiesApp.controllers', [])
 
 	$rootScope.$on('displayActivity', function(event, o) {
 		if ($("#viewport").find(o.view).size() > 0) {
+			$(o.view).css({left:'-100%'});
 			$(o.view).show();
 		} else {
+			$(o.view).css({left:'100%'});
 			$("#viewport").append(o.view);
 		}
+		$(o.view).animate({left: "0%"}, {
+			duration: TRANSITION_SPEED
+		});
 		$scope.displayActivity = true;
 		$scope.activity = o.activity;
 	});
 
 	$rootScope.$on('hideActivity', function(event, o) {
-		$(o.view).hide();
-		$scope.displayActivity = false;
-		$scope.activity = null;
+		$(o.view).animate({left: "-100%"}, {
+			duration: TRANSITION_SPEED,
+			complete: function() {
+				$(o.view).hide();
+				if (framework.getCurrentActivity()==null) {
+					$scope.displayActivity = false;
+					$scope.activity = null;
+				}
+				$scope.$apply();
+			}
+		});
+		
 	});
 
 	$rootScope.$on('destroyActivity', function(event, o) {
-		$(o.view).remove();
-		$scope.displayActivity = false;
-		$scope.activity = null;
+		$(o.view).animate({left: "100%"}, {
+			duration: TRANSITION_SPEED,
+			complete: function() {
+				$(o.view).remove();
+				if (framework.getCurrentActivity()==null) {
+					$scope.displayActivity = false;
+					$scope.activity = null;
+				}
+				$scope.$apply();
+			}
+		});
+		
 	});
 
 	$rootScope.$on('multipleActivityToStart', function(event, o) {
