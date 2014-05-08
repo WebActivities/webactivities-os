@@ -18,13 +18,13 @@ var Activity1 = function(ctx) {
 	var btn2 = $("<button type=\"button\" class=\"btn btn-sm btn-primary\">Avvia Activity1</button>").appendTo(container);
 	btn2.click(function() {
 		ctx.newActivityIntent("activity1").start().then(function(result) {
-			alert("The result is " + result);
-		});;
+			container.append("The result is " + result);
+		});
 	});
 	var btn3 = $("<button type=\"button\" class=\"btn btn-sm btn-primary\">Avvia Activity2</button>").appendTo(container);
 	btn3.click(function() {
 		ctx.newActivityIntent("activity2").start().then(function(result) {
-			alert("The result is " + result);
+			container.append("The result is " + result);
 		});
 	});
 

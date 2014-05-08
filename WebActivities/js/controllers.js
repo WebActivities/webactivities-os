@@ -106,7 +106,7 @@ angular.module('webActivitiesApp.controllers', [])
 
 	// Demo configuration
 	framework.installApp("apps/app1/app.json");
-	framework.installApp("apps/app2/app.json");
+	// framework.installApp("apps/app2/app.json");
 
 } ])
 
