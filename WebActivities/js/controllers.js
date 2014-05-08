@@ -74,6 +74,7 @@ angular.module('webActivitiesApp.controllers', [])
 	$rootScope.$on('multipleActivityToStart', function(event, o) {
 		var startMode = o.startMode;
 		var parameters = o.parameters;
+		var closeDefer = o.closeDefer;
 
 		var modalInstance = $modal.open({
 			templateUrl : 'activity-choice.html',
@@ -98,7 +99,7 @@ angular.module('webActivitiesApp.controllers', [])
 		});
 
 		modalInstance.result.then(function(act) {
-			framework.startActivity(act.id, act.app, parameters, startMode);
+			framework.startActivity(act.id, act.app, parameters, startMode, closeDefer);
 		});
 
 	});

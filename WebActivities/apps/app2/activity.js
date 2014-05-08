@@ -5,5 +5,8 @@ var Activity1 = function(context) {
 	context.prepareView().then(function(ui) {
 		ui.innerHTML  = view;
 	});
+	
+	context.setResult("oooo");
+	
 };
 
