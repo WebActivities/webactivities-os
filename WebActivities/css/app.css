@@ -1,4 +1,13 @@
 /* app css stylesheet */
+html {
+	width: auto;
+	height: 100%;
+}
+
+body {
+	background: url('../img/wa-splash.png') no-repeat right bottom;
+}
+
 #shared-spinner {
 	position: fixed;
 	top: 0;
@@ -37,7 +46,8 @@
 	left: 0px;
 	right: 0px;
 }
-#viewport > iframe {
+
+#viewport>iframe {
 	position: absolute;
 	top: 0px;
 	bottom: 0px;
@@ -47,5 +57,3 @@
 	height: 100%;
 	border: 0px;
 }
-
-
