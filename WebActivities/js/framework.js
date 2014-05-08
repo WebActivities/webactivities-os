@@ -404,7 +404,7 @@ angular.module('webActivitiesApp.framework', [])
 							},
 							prepareView : function() {
 								var viewDeferred = $q.defer();
-								var iframe = $("<iframe class=\"full-size\" src=\"activity-viewport.html\" style=\"border: 0px; padding: 0px; margin: 0px; width: 100%;\"></iframe>")[0];
+								var iframe = $("<iframe src=\"activity-viewport.html\"></iframe>")[0];
 								stackItem.iframe = iframe;
 
 								$rootScope.$broadcast('displayActivity', {

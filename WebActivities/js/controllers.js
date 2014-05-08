@@ -8,13 +8,6 @@ angular.module('webActivitiesApp.controllers', [])
 
 	// Utilities
 	// =============================================
-	$(window).resize(function() {
-		var gap = 0;
-		$(".top-bar").each(function() {
-			gap += $(this).height();
-		});
-		$(".full-size").height($(window).height() - gap - 10);
-	});
 
 	// Declaration of scope variables
 	$scope.apps = [];
@@ -58,25 +51,22 @@ angular.module('webActivitiesApp.controllers', [])
 
 	$rootScope.$on('displayActivity', function(event, o) {
 		if ($("#viewport").find(o.view).size() > 0) {
-			$(o.view).css("width", "100%");
+			$(o.view).show();
 		} else {
 			$("#viewport").append(o.view);
 		}
-		$(window).resize();
 		$scope.displayActivity = true;
 		$scope.activity = o.activity;
 	});
 
 	$rootScope.$on('hideActivity', function(event, o) {
-		$(o.view).css("width", "0px");
-		$(window).resize();
+		$(o.view).hide();
 		$scope.displayActivity = false;
 		$scope.activity = null;
 	});
 
 	$rootScope.$on('destroyActivity', function(event, o) {
 		$(o.view).remove();
-		$(window).resize();
 		$scope.displayActivity = false;
 		$scope.activity = null;
 	});
