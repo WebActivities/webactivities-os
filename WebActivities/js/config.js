@@ -10,6 +10,8 @@ angular.module('webActivitiesApp.config', [])
 	"title" : "WebActivities"
 })
 
+.constant('TRANSITION_SPEED',800)
+
 // Running application
 .run([ '$rootScope', '$location', '$http', 'Application', function($rootScope, $location, $http, Application) {
 	$rootScope.application = Application;

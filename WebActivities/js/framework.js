@@ -263,6 +263,10 @@ angular.module('webActivitiesApp.framework', [])
 		}
 	};
 
+	webActivities.getCurrentActivity = function() {
+		return activityStack.peek();
+	};
+	
 	webActivities.getActivityStack = function() {
 		return activityStack.getAll();
 	};
