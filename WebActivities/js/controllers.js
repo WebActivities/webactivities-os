@@ -77,7 +77,7 @@ angular.module('webActivitiesApp.controllers', [])
 		var closeDefer = o.closeDefer;
 
 		var modalInstance = $modal.open({
-			templateUrl : 'activity-choice.html',
+			templateUrl : 'activity-choice.html?' + new Date().getTime(),
 			controller : [ '$scope', '$modalInstance', 'o', function($scope, $modalInstance, o) {
 				$scope.items = o.activities;
 				$scope.selected = $scope.items[0];
