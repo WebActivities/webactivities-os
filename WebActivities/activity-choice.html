@@ -1,12 +1,18 @@
 <div class="modal-header">
-		<h3 class="modal-title">Quale attività vuoi eseguire?</h3>
+		<h4 class="modal-title">
+				<i class="fa fa-cog"></i> Esegui l'attività come...
+		</h4>
 </div>
 <div class="modal-body">
 		<div class="list-group">
-				<a data-ng-class="{active : selected==item}" href="" class="list-group-item" data-ng-repeat="item in items" data-ng-click="select(item)"><img data-ng-src="{{item.icon}}" alt=""> {{ item.name }} <small class="pull-right">{{item.app}}</small> </a>
+				<a data-ng-class="{active : selected==item}" href="" class="list-group-item" data-ng-repeat="item in items" data-ng-click="select(item)"><img data-ng-src="{{item.icon}}" alt="" style="max-width: 32px; margin-right: 1em;" class="img-thumbnail pull-left"> <strong>{{item.name}}</strong><br /> <small>{{item.app}}</small></a>
 		</div>
-		<div class="modal-footer">
-				<button class="btn btn-primary btn-sm" ng-click="ok()">OK</button>
-				<button class="btn btn-danger btn-sm" ng-click="cancel()">Cancel</button>
+		<div class="modal-footer text-center">
+				<button class="btn btn-primary btn-sm" ng-click="ok()">
+						<i class="fa fa-check"></i> Esegui
+				</button>
+				<button class="btn btn-danger btn-sm" ng-click="cancel()">
+						<i class="fa fa-times"></i> Annulla
+				</button>
 		</div>
 </div>

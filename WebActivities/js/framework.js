@@ -33,8 +33,30 @@ angular.module('webActivitiesApp.framework', [])
 	var dirname = function(path) {
 		return path.replace(/\\/g, '/').replace(/\/[^\/]*$/, '');
 	};
-	var isSameActivity = function(a, b) {
-		return a.id == b.id && a.app == b.app;
+	var resolveStartMode = function(mode) {
+		for ( var i in webActivities.startMode) {
+			if (i == mode) {
+				return webActivities.startMode[i];
+			}
+		}
+		return webActivities.startMode.UNKNOWN;
+	};
+
+	var IntentType = {
+		START_ACTIVITY : 0
+	};
+
+	var Intent = function(type) {
+		this.activity = null;
+		this.parameters = {};
+		this.startMode = "CHILD";
+		this.start = function() {
+			var q = $q.defer();
+			if (type == IntentType.START_ACTIVITY) {
+				webActivities.startActivity(this.activity, null, this.parameters, resolveStartMode(this.startMode), q);
+			}
+			return q.promise;
+		};
 	};
 	var Stack = function() {
 		this.top = null;
@@ -107,7 +129,6 @@ angular.module('webActivitiesApp.framework', [])
 	 */
 	var apps = {};
 	var activities = {};
-	var runningActivity = null;
 	var activityStack = new Stack();
 
 	/*
@@ -135,6 +156,11 @@ angular.module('webActivitiesApp.framework', [])
 			activityStack.push(stackItem);
 			d.resolve();
 		});
+		return d.promise;
+	};
+	webActivities.startMode.UNKNOWN = function(stackItem) {
+		var d = $q.defer();
+		alert('Start mode unknown');
 		return d.promise;
 	};
 
@@ -259,7 +285,7 @@ angular.module('webActivitiesApp.framework', [])
 		return d.promise;
 	};
 
-	webActivities.resumeActivity = function() {
+	webActivities.resumeActivity = function(previousStackItem) {
 		var d = $q.defer();
 		var item = activityStack.peek();
 		if (item == null) {
@@ -286,12 +312,12 @@ angular.module('webActivitiesApp.framework', [])
 			var context = item.context;
 			$q.when(context.getStop()()).then(function() {
 				var item = activityStack.pop();
-				runningActivity = null;
 				$rootScope.$broadcast('destroyActivity', {
 					view : item.iframe,
 					activity : item.activity
 				});
-				$q.when(webActivities.resumeActivity()).then(function() {
+				$q.when(webActivities.resumeActivity(item)).then(function() {
+					item.context.getCloseDefer().resolve(item.context.getResult());
 					d.resolve();
 				});
 			});
@@ -314,7 +340,12 @@ angular.module('webActivitiesApp.framework', [])
 		return d.promise;
 	};
 
-	webActivities.startActivity = function(activityId, appId, parameters, startMode) {
+	webActivities.startActivity = function(activityId, appId, parameters, startMode, closeDefer) {
+
+		if (closeDefer == null) {
+			closeDefer = $q.defer();
+		}
+
 		var acts = activities[activityId];
 		var activity = null;
 		var specific = appId != null;
@@ -330,7 +361,8 @@ angular.module('webActivitiesApp.framework', [])
 					$rootScope.$broadcast('multipleActivityToStart', {
 						activities : $.extend({}, acts),
 						startMode : startMode,
-						parameters : parameters
+						parameters : parameters,
+						closeDefer : closeDefer
 					});
 				} else {
 					activity = acts[0];
@@ -351,7 +383,7 @@ angular.module('webActivitiesApp.framework', [])
 				error("Application <" + activity.app + "> is not installed");
 			} else if (app.status == webActivities.status.REGISTERED) {
 				webActivities.startApp(activity.app, true, function(app) {
-					webActivities.startActivity(activityId, appId, parameters, startMode);
+					webActivities.startActivity(activityId, appId, parameters, startMode, closeDefer);
 				});
 			} else {
 
@@ -363,7 +395,7 @@ angular.module('webActivitiesApp.framework', [])
 				};
 
 				// Create a new context
-				var createContext = function(stackItem) {
+				var createContext = function(stackItem, _closeDefer) {
 					return function(webActivities) {
 						var _stop = function() {
 							return true;
@@ -374,14 +406,27 @@ angular.module('webActivitiesApp.framework', [])
 						var _pause = function() {
 							return true;
 						};
+						var _result = null;
 						var ctx = {
+							getCloseDefer : function() {
+								return _closeDefer;
+							},
+							setResult : function(result) {
+								_result = result;
+							},
+							getResult : function() {
+								return _result;
+							},
 							onStop : function(fn) {
 								_stop = fn;
 							},
 							getStop : function() {
 								return _stop;
 							},
-							stop : function() {
+							stop : function(result) {
+								if (result !== undefined) {
+									_result = result;
+								}
 								webActivities.stopActivity();
 							},
 							onResume : function(fn) {
@@ -396,15 +441,15 @@ angular.module('webActivitiesApp.framework', [])
 							getPause : function() {
 								return _pause;
 							},
-							beginIntent : function(intent, parameter) {
-								webActivities.startActivity(intent, null, parameter, webActivities.startMode.ROOT);
-							},
-							beginChildIntent : function(intent, parameter) {
-								webActivities.startActivity(intent, null, parameter, webActivities.startMode.CHILD);
+							newActivityIntent : function(activity, parameters) {
+								var i = new Intent(IntentType.START_ACTIVITY);
+								i.activity = activity;
+								i.parameters = parameters;
+								return i;
 							},
 							prepareView : function() {
 								var viewDeferred = $q.defer();
-								var iframe = $("<iframe class=\"full-size\" src=\"activity-viewport.html\" style=\"border: 0px; padding: 0px; margin: 0px; width: 100%;\"></iframe>")[0];
+								var iframe = $("<iframe src=\"activity-viewport.html\"></iframe>")[0];
 								stackItem.iframe = iframe;
 
 								$rootScope.$broadcast('displayActivity', {
@@ -422,7 +467,7 @@ angular.module('webActivitiesApp.framework', [])
 						};
 						return ctx;
 					};
-				}(stackItem);
+				}(stackItem, closeDefer);
 
 				$rootScope.$broadcast('activityStarting', $.extend({}, activity));
 				stackItem.context = createContext(webActivities);
@@ -431,11 +476,9 @@ angular.module('webActivitiesApp.framework', [])
 					return function() {
 						// Run the app
 						stackItem.instance = new app.iframe[0].contentWindow.window[activity.activator](stackItem.context, parameters);
-						runningActivity = activity;
 						$rootScope.$broadcast('activityStarted', $.extend({}, activity));
 					};
 				}(activity, stackItem));
-
 			}
 
 		}
