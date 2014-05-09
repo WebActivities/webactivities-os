@@ -131,6 +131,7 @@ angular.module('webActivitiesApp.framework', [])
 	var activities = {};
 	var activityStack = new Stack();
 	var listeners = {};
+	var notifies = [];
 
 	/*
 	 * ======================================================================
@@ -169,6 +170,14 @@ angular.module('webActivitiesApp.framework', [])
 		return $.extend({}, apps);
 	};
 
+	webActivities.listNotifies = function() {
+		return notifies.slice();
+	};
+
+	webActivities.removeNotify = function(index) {
+		notifies.splice(index, 1);
+	};
+
 	webActivities.broadcast = function(type, parameters) {
 		var promises = [];
 		for ( var e in listeners[type]) {
@@ -180,12 +189,25 @@ angular.module('webActivitiesApp.framework', [])
 		}
 		return $q.all(promises);
 	};
-	
+
 	webActivities.on = function(l, fn) {
 		if (!$.isArray(listeners[l])) {
 			listeners[l] = [];
 		}
 		listeners[l].push(fn);
+	};
+
+	webActivities.notify = function(type, message, options) {
+		notifies.push({
+			type : type,
+			message : message,
+			options : options
+		});
+		return webActivities.broadcast("showNotify", {
+			type : type,
+			message : message,
+			options : options
+		});
 	};
 
 	webActivities.installApp = function(appDefinition) {
@@ -303,7 +325,7 @@ angular.module('webActivitiesApp.framework', [])
 					view : item.iframe,
 					activity : item.activity
 				}).then(function() {
-					d.resolve();	
+					d.resolve();
 				});
 			});
 		}
@@ -322,7 +344,7 @@ angular.module('webActivitiesApp.framework', [])
 					view : item.iframe,
 					activity : item.activity
 				}).then(function() {
-					d.resolve();	
+					d.resolve();
 				});
 			});
 		}
@@ -345,9 +367,9 @@ angular.module('webActivitiesApp.framework', [])
 					$q.when(webActivities.resumeActivity(item)).then(function() {
 						item.context.getCloseDefer().resolve(item.context.getResult());
 						d.resolve();
-					});	
+					});
 				});
-				
+
 			});
 		}
 		return d.promise;
@@ -491,6 +513,9 @@ angular.module('webActivitiesApp.framework', [])
 								});
 
 								return viewDeferred.promise;
+							},
+							notify : function(type, message, options) {
+								return webActivities.notify(type, message, options);
 							}
 						};
 						return ctx;

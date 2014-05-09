@@ -2,7 +2,8 @@ var Activity1 = function(ctx) {
 
 	var container = $("<div></div>");
 	var header = $("<h1>").text("This is the first application").appendTo(container);
-	var input = $("<input type=\"text\" class=\"form-control\" placeholder=\"Inserisci qualcosa per vedere se mantiene lo stato. Sarà anche il valore tornato all'activity precedente.\">").appendTo(container);
+	var input = $("<input type=\"text\" class=\"form-control\" placeholder=\"Inserisci qualcosa per vedere se mantiene lo stato. Sarà anche il valore tornato all'activity precedente.\">").appendTo(
+			container);
 	input.change(function() {
 		ctx.setResult(input.val());
 	});
@@ -35,6 +36,18 @@ var Activity1 = function(ctx) {
 			container.append("The result is " + result);
 		});
 	});
+
+	var types = [ "info", "warning", "error", "success" ];
+	for ( var i in types) {
+		var btn11 = $("<button type=\"button\" class=\"btn btn-sm btn-primary\">Show Notify " + types[i] + "</button>").appendTo(container);
+		btn11.click(function(t) {
+			return function() {
+				ctx.notify(t, "Questo è un messaggio di info").then(function() {
+
+				});
+			};
+		}(types[i]));
+	}
 
 	ctx.prepareView().then(function(root) {
 		$(root).append(container);

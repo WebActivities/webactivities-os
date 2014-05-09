@@ -11,6 +11,7 @@ angular.module('webActivitiesApp.controllers', [])
 
 	// Declaration of scope variables
 	$scope.apps = [];
+	$scope.notifies = [];
 	$scope.displayActivity = false;
 	$scope.startingApp = null;
 
@@ -21,6 +22,21 @@ angular.module('webActivitiesApp.controllers', [])
 		}
 		var clone = framework.getActivityStack().slice(0);
 		return clone.reverse();
+	};
+
+	$scope.notifies = function() {
+		return framework.listNotifies();
+	};
+	
+	$scope.removeNotify = function(index) {
+		framework.removeNotify(index);
+	};
+	
+	$scope.removeAllNotifies = function() {
+		var notifies = $scope.notifies().length;
+		for (var i = 0; i < notifies; i++) {
+			framework.removeNotify(0);
+		}
 	};
 
 	$scope.startApp = function(appId) {
@@ -38,7 +54,6 @@ angular.module('webActivitiesApp.controllers', [])
 	// Listener
 	framework.on('appInstalled', function(event, app) {
 		$scope.apps.push(app);
-		$scope.$apply();
 	});
 
 	framework.on('appStarting', function(event, app) {
@@ -49,18 +64,48 @@ angular.module('webActivitiesApp.controllers', [])
 		$scope.startingApp = null;
 	});
 
+	framework.on('showNotify', function(event, notify) {
+		var q = $q.defer();
+		var type = notify.type;
+		var message = notify.message;
+		toastr.options.positionClass = "toast-bottom-right";
+		if (notify.options) {
+			toastr.options = notify.options;
+		}
+		toastr.options.onHidden = function() {
+			q.resolve();
+		};
+		if (type == 'error') {
+			toastr.error(message);
+		} else if (type == 'warning') {
+			toastr.warning(message);
+		} else if (type == 'success') {
+			toastr.success(message);
+		} else {
+			toastr.info(message);
+		}
+		$scope.$apply();
+		return q.promise;
+	});
+
 	framework.on('displayActivity', function(event, o) {
 		var q = $q.defer();
 		if ($("#viewport").find(o.view).size() > 0) {
-			$(o.view).css({left:'-100%'});
+			$(o.view).css({
+				left : '-100%'
+			});
 			$(o.view).show();
 		} else {
-			$(o.view).css({left:'100%'});
+			$(o.view).css({
+				left : '100%'
+			});
 			$("#viewport").append(o.view);
 		}
-		$(o.view).animate({left: "0%"}, {
-			duration: TRANSITION_SPEED,
-			complete: function() {
+		$(o.view).animate({
+			left : "0%"
+		}, {
+			duration : TRANSITION_SPEED,
+			complete : function() {
 				q.resolve();
 			}
 		});
@@ -71,11 +116,13 @@ angular.module('webActivitiesApp.controllers', [])
 
 	framework.on('hideActivity', function(event, o) {
 		var q = $q.defer();
-		$(o.view).animate({left: "-100%"}, {
-			duration: TRANSITION_SPEED,
-			complete: function() {
+		$(o.view).animate({
+			left : "-100%"
+		}, {
+			duration : TRANSITION_SPEED,
+			complete : function() {
 				$(o.view).hide();
-				if (framework.getCurrentActivity()==null) {
+				if (framework.getCurrentActivity() == null) {
 					$scope.displayActivity = false;
 					$scope.activity = null;
 				}
@@ -88,11 +135,13 @@ angular.module('webActivitiesApp.controllers', [])
 
 	framework.on('destroyActivity', function(event, o) {
 		var q = $q.defer();
-		$(o.view).animate({left: "100%"}, {
-			duration: TRANSITION_SPEED,
-			complete: function() {
+		$(o.view).animate({
+			left : "100%"
+		}, {
+			duration : TRANSITION_SPEED,
+			complete : function() {
 				$(o.view).remove();
-				if (framework.getCurrentActivity()==null) {
+				if (framework.getCurrentActivity() == null) {
 					$scope.displayActivity = false;
 					$scope.activity = null;
 				}
