@@ -4,7 +4,7 @@
 
 angular.module('webActivitiesApp.controllers', [])
 
-.controller('HomeCtrl', [ '$rootScope', '$scope', 'framework', '$modal', 'TRANSITION_SPEED', function($rootScope, $scope, framework, $modal, TRANSITION_SPEED) {
+.controller('HomeCtrl', [ '$rootScope', '$scope', 'framework', '$modal', 'TRANSITION_SPEED', '$q', function($rootScope, $scope, framework, $modal, TRANSITION_SPEED, $q) {
 
 	// Utilities
 	// =============================================
@@ -36,20 +36,21 @@ angular.module('webActivitiesApp.controllers', [])
 	};
 
 	// Listener
-	$rootScope.$on('appInstalled', function(event, app) {
+	framework.on('appInstalled', function(event, app) {
 		$scope.apps.push(app);
 		$scope.$apply();
 	});
 
-	$rootScope.$on('appStarting', function(event, app) {
+	framework.on('appStarting', function(event, app) {
 		$scope.startingApp = app.name;
 	});
 
-	$rootScope.$on('appStarted', function(event, app) {
+	framework.on('appStarted', function(event, app) {
 		$scope.startingApp = null;
 	});
 
-	$rootScope.$on('displayActivity', function(event, o) {
+	framework.on('displayActivity', function(event, o) {
+		var q = $q.defer();
 		if ($("#viewport").find(o.view).size() > 0) {
 			$(o.view).css({left:'-100%'});
 			$(o.view).show();
@@ -58,13 +59,18 @@ angular.module('webActivitiesApp.controllers', [])
 			$("#viewport").append(o.view);
 		}
 		$(o.view).animate({left: "0%"}, {
-			duration: TRANSITION_SPEED
+			duration: TRANSITION_SPEED,
+			complete: function() {
+				q.resolve();
+			}
 		});
 		$scope.displayActivity = true;
 		$scope.activity = o.activity;
+		return q.promise;
 	});
 
-	$rootScope.$on('hideActivity', function(event, o) {
+	framework.on('hideActivity', function(event, o) {
+		var q = $q.defer();
 		$(o.view).animate({left: "-100%"}, {
 			duration: TRANSITION_SPEED,
 			complete: function() {
@@ -74,12 +80,14 @@ angular.module('webActivitiesApp.controllers', [])
 					$scope.activity = null;
 				}
 				$scope.$apply();
+				q.resolve();
 			}
 		});
-		
+		return q.promise;
 	});
 
-	$rootScope.$on('destroyActivity', function(event, o) {
+	framework.on('destroyActivity', function(event, o) {
+		var q = $q.defer();
 		$(o.view).animate({left: "100%"}, {
 			duration: TRANSITION_SPEED,
 			complete: function() {
@@ -89,12 +97,14 @@ angular.module('webActivitiesApp.controllers', [])
 					$scope.activity = null;
 				}
 				$scope.$apply();
+				q.resolve();
 			}
 		});
-		
+		return q.promise;
 	});
 
-	$rootScope.$on('multipleActivityToStart', function(event, o) {
+	framework.on('multipleActivityToStart', function(event, o) {
+		var q = $q.defer();
 		var startMode = o.startMode;
 		var parameters = o.parameters;
 		var closeDefer = o.closeDefer;
@@ -123,8 +133,9 @@ angular.module('webActivitiesApp.controllers', [])
 
 		modalInstance.result.then(function(act) {
 			framework.startActivity(act.id, act.app, parameters, startMode, closeDefer);
+			q.resolve();
 		});
-
+		return q.promise;
 	});
 
 	// Demo configuration
