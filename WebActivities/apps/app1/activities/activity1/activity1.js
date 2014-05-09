@@ -1,3 +1,18 @@
+var Activity3 = function(ctx) {
+	var container = $("<div></div>");
+	
+	var btn1 = $("<button type=\"button\" class=\"btn btn-sm btn-primary\">Avvia un altra attività</button>").appendTo(container);
+	btn1.click(function() {
+		ctx.newActivityIntent("activity3").start().then(function(result) {
+			container.append("The result is " + result);
+		});
+	});
+	
+	ctx.prepareView().then(function(root) {
+		$(root).append(container);
+	});
+};
+
 var Activity1 = function(ctx) {
 
 	var container = $("<div></div>");
@@ -56,6 +71,7 @@ var Activity1 = function(ctx) {
 	ctx.onStop(function() {
 		var deferred = $.Deferred();
 		header.text("Application will be stopped in 2 seconds...");
+		return true; 
 		setTimeout(function() {
 			deferred.resolve();
 		}, 2000);
@@ -69,6 +85,7 @@ var Activity1 = function(ctx) {
 	ctx.onPause(function() {
 		var deferred = $.Deferred();
 		header.text("Application will be paused in 2 seconds...");
+		return true;
 		setTimeout(function() {
 			deferred.resolve();
 		}, 2000);

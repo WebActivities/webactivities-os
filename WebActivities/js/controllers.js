@@ -14,6 +14,7 @@ angular.module('webActivitiesApp.controllers', [])
 	$scope.notifies = [];
 	$scope.displayActivity = false;
 	$scope.startingApp = null;
+	$scope.maxBreadcrumbSize = 5;
 
 	// Functions
 	$scope.activityStack = function() {
