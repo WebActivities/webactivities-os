@@ -51,25 +51,30 @@ angular.module('webActivitiesApp.framework', [])
 	};
 
 	var Intent = function(type) {
+		this.intentType = type;
 		this.activity = null;
 		this.parameters = {};
 		this.startMode = "CHILD";
 		this.app = null;
-		this.intentFilter = null;
+		
 		this.start = function() {
 			var q = $q.defer();
-			if (type == IntentType.START_ACTIVITY) {
+			var self = this;
+			if (this.intentType == IntentType.START_ACTIVITY) {
 				if (this.app && this.activity) {
 					webActivities.startActivity(this.activity, this.app, this.parameters, resolveStartMode(this.startMode), q);
 				}
-			} else if (type == IntentType.START_INTENT) {
-				if (this.intentFilter) {
-					webActivities.startIntent(this.intentFilter, this.parameters, resolveStartMode(this.startMode), q);
+			} else {
+				if (this.intentType) {
+					webActivities.selectActivityForIntent(this).then(function(act) {
+						webActivities.startActivity(act.id, act.app, self.parameters, resolveStartMode(self.startMode), q);
+					});
 				}
 			}
 			return q.promise;
 		};
 	};
+	
 	var Stack = function() {
 		this.top = null;
 		this.count = 0;
@@ -141,7 +146,6 @@ angular.module('webActivitiesApp.framework', [])
 	 */
 	var apps = {};
 	var activities = {};
-	var intents = {};
 	var activityStack = new Stack();
 	var listeners = {};
 	var notifies = [];
@@ -271,17 +275,7 @@ angular.module('webActivitiesApp.framework', [])
 				activity.id = id;
 				activity.icon = resolveUrl(app, activity.icon);
 				activities[composeActivityId(app.id, id)] = activity;
-
-				if ($.isArray(activity.intentFilters)) {
-					var index = null;
-					for (index in activity.intentFilters) {
-						var intent = activity.intentFilters[index];
-						if (!$.isArray(intents[intent])) {
-							intents[intent] = [];
-						}
-						intents[intent].push(activity);
-					}
-				}
+				
 				log("Registered activity in application <" + app.id + ">: " + activity.name + " <" + id + ">", activity);
 			}
 			webActivities.broadcast('appInstalled', $.extend({}, app));
@@ -427,21 +421,30 @@ angular.module('webActivitiesApp.framework', [])
 		return d.promise;
 	};
 
-	webActivities.startIntent = function(intentFilter, parameters, startMode, closeDefer) {
-		var acts = intents[intentFilter];
-		if ($.isArray(acts)) {
-			if (acts.length == 1) {
-				var act = acts[0];
-				webActivities.startActivity(act.id, act.app, parameters, startMode, closeDefer);
-			} else if (acts.length > 1) {
-				webActivities.broadcast('multipleActivityToStart', {
-					activities : $.extend({}, acts),
-					startMode : startMode,
-					parameters : parameters,
-					closeDefer : closeDefer
+	webActivities.selectActivityForIntent = function(intent) {
+		var matchings = [];
+		$.each(activities,function(i,a) {
+			if ($.isArray(a.intentFilters)) {
+				$.each(a.intentFilters,function(x,f) {
+					if (f==intent.intentType) {
+						matchings.push(a);
+						return false;
+					}
 				});
-			}
+			} 
+		});
+		
+		if (matchings.length==1) {
+			return $q.when(matchings[0]);
 		}
+		if (matchings.length>0) {
+			return webActivities.broadcast("makeUserSelectOneActivity",{
+				activities : matchings
+			}).then(function(results){
+				return results[0];
+			});
+		}
+		return $q.reject();
 	};
 
 	webActivities.startActivity = function(activityId, appId, parameters, startMode, closeDefer) {
@@ -535,9 +538,8 @@ angular.module('webActivitiesApp.framework', [])
 								i.app = app;
 								return i;
 							},
-							newIntent : function(intentFilter, parameters) {
-								var i = new Intent(IntentType.START_INTENT);
-								i.intentFilter = intentFilter;
+							newIntent : function(intentType, parameters) {
+								var i = new Intent(intentType);
 								i.parameters = parameters;
 								return i;
 							},

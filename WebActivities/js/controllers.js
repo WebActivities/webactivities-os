@@ -152,14 +152,9 @@ angular.module('webActivitiesApp.controllers', [])
 		});
 		return q.promise;
 	});
-
-	framework.on('multipleActivityToStart', function(event, o) {
+	
+	framework.on('makeUserSelectOneActivity', function(event, o) {
 		console.log(o);
-		var q = $q.defer();
-		var startMode = o.startMode;
-		var parameters = o.parameters;
-		var closeDefer = o.closeDefer;
-
 		var modalInstance = $modal.open({
 			templateUrl : 'activity-choice.html?' + new Date().getTime(),
 			controller : [ '$scope', '$modalInstance', 'o', function($scope, $modalInstance, o) {
@@ -181,12 +176,7 @@ angular.module('webActivitiesApp.controllers', [])
 				}
 			}
 		});
-
-		modalInstance.result.then(function(act) {
-			framework.startActivity(act.id, act.app, parameters, startMode, closeDefer);
-			q.resolve();
-		});
-		return q.promise;
+		return modalInstance.result;
 	});
 
 	// Demo configuration
