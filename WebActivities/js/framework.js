@@ -30,6 +30,9 @@ angular.module('webActivitiesApp.framework', [])
 		var src = path.indexOf("http") == 0 ? path : app.path + (path.indexOf("/") == 0 ? path : "/" + path);
 		return src;
 	};
+	var composeActivityId = function(appId, activityId) {
+		return appId + "@" + activityId;
+	};
 	var dirname = function(path) {
 		return path.replace(/\\/g, '/').replace(/\/[^\/]*$/, '');
 	};
@@ -43,17 +46,26 @@ angular.module('webActivitiesApp.framework', [])
 	};
 
 	var IntentType = {
-		START_ACTIVITY : 0
+		START_ACTIVITY : 0,
+		START_INTENT : 2
 	};
 
 	var Intent = function(type) {
 		this.activity = null;
 		this.parameters = {};
 		this.startMode = "CHILD";
+		this.app = null;
+		this.intentFilter = null;
 		this.start = function() {
 			var q = $q.defer();
 			if (type == IntentType.START_ACTIVITY) {
-				webActivities.startActivity(this.activity, null, this.parameters, resolveStartMode(this.startMode), q);
+				if (this.app && this.activity) {
+					webActivities.startActivity(this.activity, this.app, this.parameters, resolveStartMode(this.startMode), q);
+				}
+			} else if (type == IntentType.START_INTENT) {
+				if (this.intentFilter) {
+					webActivities.startIntent(this.intentFilter, this.parameters, resolveStartMode(this.startMode), q);
+				}
 			}
 			return q.promise;
 		};
@@ -129,6 +141,7 @@ angular.module('webActivitiesApp.framework', [])
 	 */
 	var apps = {};
 	var activities = {};
+	var intents = {};
 	var activityStack = new Stack();
 	var listeners = {};
 	var notifies = [];
@@ -197,6 +210,21 @@ angular.module('webActivitiesApp.framework', [])
 		listeners[l].push(fn);
 	};
 
+	webActivities.sendMessage = function(source, msg) {
+		var items = activityStack.getAll();
+		var i = 0;
+		for (i in items) {
+			var item = items[i];
+			var ls = item.context.getMessageListeners();
+			var l = 0;
+			for (l in ls) {
+				if ($.isFunction(ls[l])) {
+					ls[l](source, msg);
+				}
+			}
+		}
+	};
+
 	webActivities.notify = function(type, message, options) {
 		notifies.push({
 			type : type,
@@ -239,13 +267,22 @@ angular.module('webActivitiesApp.framework', [])
 				var activity = app.activities[id];
 				activity.path = app.path;
 				activity.app = app.id;
+				activity.appName = app.name;
 				activity.id = id;
 				activity.icon = resolveUrl(app, activity.icon);
-				if (!$.isArray(activities[id])) {
-					activities[id] = [];
+				activities[composeActivityId(app.id, id)] = activity;
+
+				if ($.isArray(activity.intentFilters)) {
+					var index = null;
+					for (index in activity.intentFilters) {
+						var intent = activity.intentFilters[index];
+						if (!$.isArray(intents[intent])) {
+							intents[intent] = [];
+						}
+						intents[intent].push(activity);
+					}
 				}
-				activities[id].push(activity);
-				log("Registered activity in application <" + app.id + ">: " + activity.name + " <" + id + ">");
+				log("Registered activity in application <" + app.id + ">: " + activity.name + " <" + id + ">", activity);
 			}
 			webActivities.broadcast('appInstalled', $.extend({}, app));
 
@@ -390,43 +427,33 @@ angular.module('webActivitiesApp.framework', [])
 		return d.promise;
 	};
 
+	webActivities.startIntent = function(intentFilter, parameters, startMode, closeDefer) {
+		var acts = intents[intentFilter];
+		if ($.isArray(acts)) {
+			if (acts.length == 1) {
+				var act = acts[0];
+				webActivities.startActivity(act.id, act.app, parameters, startMode, closeDefer);
+			} else if (acts.length > 1) {
+				webActivities.broadcast('multipleActivityToStart', {
+					activities : $.extend({}, acts),
+					startMode : startMode,
+					parameters : parameters,
+					closeDefer : closeDefer
+				});
+			}
+		}
+	};
+
 	webActivities.startActivity = function(activityId, appId, parameters, startMode, closeDefer) {
 
 		if (closeDefer == null) {
 			closeDefer = $q.defer();
 		}
 
-		var acts = activities[activityId];
-		var activity = null;
-		var specific = appId != null;
-		if ($.isArray(acts) && acts.length > 0) {
-			if (specific) {
-				$.each(acts, function(index, value) {
-					if (value.app == appId) {
-						activity = value;
-					}
-				});
-			} else {
-				if (acts.length > 1) {
-					webActivities.broadcast('multipleActivityToStart', {
-						activities : $.extend({}, acts),
-						startMode : startMode,
-						parameters : parameters,
-						closeDefer : closeDefer
-					});
-				} else {
-					activity = acts[0];
-				}
-			}
-		}
+		var activity = activities[composeActivityId(appId, activityId)];
+
 		if (activity == null) {
-			if ($.isArray(acts) && acts.length <= 1) {
-				if (specific) {
-					error("Activity <" + activityId + "> in app <" + appId + "> not found");
-				} else {
-					error("Activity <" + activityId + "> not found");
-				}
-			}
+			error("Activity <" + activityId + "> in app <" + appId + "> not found");
 		} else {
 			var app = apps[activity.app];
 			if (app == null) {
@@ -456,6 +483,7 @@ angular.module('webActivitiesApp.framework', [])
 						var _pause = function() {
 							return true;
 						};
+						var _listeners = 0 || [];
 						var _result = null;
 						var ctx = {
 							getCloseDefer : function() {
@@ -491,9 +519,25 @@ angular.module('webActivitiesApp.framework', [])
 							getPause : function() {
 								return _pause;
 							},
-							newActivityIntent : function(activity, parameters) {
+							sendMessage : function(msg) {
+								webActivities.sendMessage(stackItem.activity, msg);
+							},
+							onMessage : function(fn) {
+								_listeners.push(fn);
+							},
+							getMessageListeners : function() {
+								return _listeners;
+							},
+							newActivityIntent : function(app, activity, parameters) {
 								var i = new Intent(IntentType.START_ACTIVITY);
 								i.activity = activity;
+								i.parameters = parameters;
+								i.app = app;
+								return i;
+							},
+							newIntent : function(intentFilter, parameters) {
+								var i = new Intent(IntentType.START_INTENT);
+								i.intentFilter = intentFilter;
 								i.parameters = parameters;
 								return i;
 							},

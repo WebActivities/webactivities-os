@@ -7,12 +7,14 @@
 		"activity1" : {
 			"name" : "Attività another one",
 			"icon" : "/res/activity.png",
-			"activator" : "Activity1"	
+			"activator" : "Activity1",
+			"intentFilters" : ["map"]
 		},
 		"activity2" : {
 			"name" : "Attività veramente figa",
 			"icon" : "/res/activity.png",
-			"activator" : "Activity1"	
+			"activator" : "Activity1",
+			"intentFilters" : ["map"]
 		}
 	},
 	"resources" : [

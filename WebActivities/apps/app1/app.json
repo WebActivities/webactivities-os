@@ -2,7 +2,7 @@
 	"id" : "it.test.app.one",
 	"name" : "Application One",
 	"icon" : "/res/app.png",
-	"main" : "activity3",
+	"main" : "activity1",
 	"version" : "1.0.0",
 	"activities" : {
 		"activity1" : {

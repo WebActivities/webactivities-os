@@ -154,6 +154,7 @@ angular.module('webActivitiesApp.controllers', [])
 	});
 
 	framework.on('multipleActivityToStart', function(event, o) {
+		console.log(o);
 		var q = $q.defer();
 		var startMode = o.startMode;
 		var parameters = o.parameters;
