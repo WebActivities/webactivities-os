@@ -11,8 +11,8 @@
 
 				<div class="collapse navbar-collapse" id="top-bar-collapse">
 						<ul class="nav navbar-nav navbar-left">
-								<li><a href="" class="btn-info" data-ng-click="stopAllActivities()"><i class="fa fa-home pointer"></i></a></li>
-								<li class="navbar-text"><span data-ng-show="activityStack().length > maxBreadcrumbSize"><i class="fa fa-caret-right"></i> ...</span> <span data-ng-repeat="item in activityStack() | limitTo:-maxBreadcrumbSize"><i class="fa fa-caret-right"></i> {{item.activity.name}} &nbsp;</span></li>
+								<li data-ng-show="activityStack().length > 0"><a href="" class="btn-info" data-ng-click="stopAllActivities()"><i class="fa fa-home pointer"></i></a></li>
+								<li class="navbar-text"><span data-ng-show="activityStack().length > maxBreadcrumbSize"><i class="fa fa-caret-right"></i> ...{{activityStack().length - maxBreadcrumbSize}} attività... </span> <span data-ng-repeat="item in activityStack() | limitTo:-maxBreadcrumbSize"><i class="fa fa-caret-right"></i> {{item.activity.name}} &nbsp;</span></li>
 						</ul>
 						<ul class="nav navbar-nav navbar-right">
 								<li class="dropdown" data-ng-show="notifies().length > 0"><a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-bell"></i> <span class="badge badge-warning">{{notifies().length}}</span> <b class="caret"></b></a>
