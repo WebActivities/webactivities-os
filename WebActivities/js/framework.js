@@ -3,7 +3,7 @@
 /* Services */
 angular.module('webActivitiesApp.framework', [])
 
-.factory("framework", [ '$rootScope', '$q', function($rootScope, $q) {
+.factory("framework", [ '$q', function($q) {
 	/**
 	 * WebActivities global instance
 	 */
@@ -30,6 +30,9 @@ angular.module('webActivitiesApp.framework', [])
 		var src = path.indexOf("http") == 0 ? path : app.path + (path.indexOf("/") == 0 ? path : "/" + path);
 		return src;
 	};
+	var composeActivityId = function(appId, activityId) {
+		return appId + "@" + activityId;
+	};
 	var dirname = function(path) {
 		return path.replace(/\\/g, '/').replace(/\/[^\/]*$/, '');
 	};
@@ -43,21 +46,35 @@ angular.module('webActivitiesApp.framework', [])
 	};
 
 	var IntentType = {
-		START_ACTIVITY : 0
+		START_ACTIVITY : 0,
+		START_INTENT : 2
 	};
 
 	var Intent = function(type) {
+		this.intentType = type;
 		this.activity = null;
 		this.parameters = {};
 		this.startMode = "CHILD";
+		this.app = null;
+		
 		this.start = function() {
 			var q = $q.defer();
-			if (type == IntentType.START_ACTIVITY) {
-				webActivities.startActivity(this.activity, null, this.parameters, resolveStartMode(this.startMode), q);
+			var self = this;
+			if (this.intentType == IntentType.START_ACTIVITY) {
+				if (this.app && this.activity) {
+					webActivities.startActivity(this.activity, this.app, this.parameters, resolveStartMode(this.startMode), q);
+				}
+			} else {
+				if (this.intentType) {
+					webActivities.selectActivityForIntent(this).then(function(act) {
+						webActivities.startActivity(act.id, act.app, self.parameters, resolveStartMode(self.startMode), q);
+					});
+				}
 			}
 			return q.promise;
 		};
 	};
+	
 	var Stack = function() {
 		this.top = null;
 		this.count = 0;
@@ -130,6 +147,8 @@ angular.module('webActivitiesApp.framework', [])
 	var apps = {};
 	var activities = {};
 	var activityStack = new Stack();
+	var listeners = {};
+	var notifies = [];
 
 	/*
 	 * ======================================================================
@@ -168,6 +187,61 @@ angular.module('webActivitiesApp.framework', [])
 		return $.extend({}, apps);
 	};
 
+	webActivities.listNotifies = function() {
+		return notifies.slice();
+	};
+
+	webActivities.removeNotify = function(index) {
+		notifies.splice(index, 1);
+	};
+
+	webActivities.broadcast = function(type, parameters) {
+		var promises = [];
+		for ( var e in listeners[type]) {
+			try {
+				promises.push(listeners[type][e](type, parameters));
+			} catch (ex) {
+				error(ex);
+			}
+		}
+		return $q.all(promises);
+	};
+
+	webActivities.on = function(l, fn) {
+		if (!$.isArray(listeners[l])) {
+			listeners[l] = [];
+		}
+		listeners[l].push(fn);
+	};
+
+	webActivities.sendMessage = function(source, msg) {
+		var items = activityStack.getAll();
+		var i = 0;
+		for (i in items) {
+			var item = items[i];
+			var ls = item.context.getMessageListeners();
+			var l = 0;
+			for (l in ls) {
+				if ($.isFunction(ls[l])) {
+					ls[l](source, msg);
+				}
+			}
+		}
+	};
+
+	webActivities.notify = function(type, message, options) {
+		notifies.push({
+			type : type,
+			message : message,
+			options : options
+		});
+		return webActivities.broadcast("showNotify", {
+			type : type,
+			message : message,
+			options : options
+		});
+	};
+
 	webActivities.installApp = function(appDefinition) {
 		$.getJSON(appDefinition).done(function(app) {
 			app.status = webActivities.status.REGISTERED;
@@ -197,15 +271,14 @@ angular.module('webActivitiesApp.framework', [])
 				var activity = app.activities[id];
 				activity.path = app.path;
 				activity.app = app.id;
+				activity.appName = app.name;
 				activity.id = id;
 				activity.icon = resolveUrl(app, activity.icon);
-				if (!$.isArray(activities[id])) {
-					activities[id] = [];
-				}
-				activities[id].push(activity);
-				log("Registered activity in application <" + app.id + ">: " + activity.name + " <" + id + ">");
+				activities[composeActivityId(app.id, id)] = activity;
+				
+				log("Registered activity in application <" + app.id + ">: " + activity.name + " <" + id + ">", activity);
 			}
-			$rootScope.$broadcast('appInstalled', $.extend({}, app));
+			webActivities.broadcast('appInstalled', $.extend({}, app));
 
 		}).fail(function(a, e) {
 			error("Unable to register application <" + appPath + "/app.json>: " + e);
@@ -217,7 +290,7 @@ angular.module('webActivitiesApp.framework', [])
 		if (!$.isPlainObject(app)) {
 			error("The application <" + appId + "> doesn't exists");
 		} else if (app.status == webActivities.status.REGISTERED) {
-			$rootScope.$broadcast('appStarting', $.extend({}, app));
+			webActivities.broadcast('appStarting', $.extend({}, app));
 			app.status = webActivities.status.STARTING;
 			var resourcesIncluded = "";
 			if ($.isArray(app.resources)) {
@@ -233,7 +306,7 @@ angular.module('webActivitiesApp.framework', [])
 			app.iframe = iframe;
 			iframe.load(function() {
 				app.status = webActivities.status.STARTED;
-				$rootScope.$broadcast('appStarted', $.extend({}, app));
+				webActivities.broadcast('appStarted', $.extend({}, app));
 				if (!preventStartActivity) {
 					webActivities.startMainActivity(appId);
 				}
@@ -266,7 +339,7 @@ angular.module('webActivitiesApp.framework', [])
 	webActivities.getCurrentActivity = function() {
 		return activityStack.peek();
 	};
-	
+
 	webActivities.getActivityStack = function() {
 		return activityStack.getAll();
 	};
@@ -279,11 +352,12 @@ angular.module('webActivitiesApp.framework', [])
 		} else {
 			var context = item.context;
 			$q.when(context.getPause()()).then(function() {
-				$rootScope.$broadcast('hideActivity', {
+				webActivities.broadcast('hideActivity', {
 					view : item.iframe,
 					activity : item.activity
+				}).then(function() {
+					d.resolve();
 				});
-				d.resolve();
 			});
 		}
 		return d.promise;
@@ -297,11 +371,12 @@ angular.module('webActivitiesApp.framework', [])
 		} else {
 			var context = item.context;
 			$q.when(context.getResume()()).then(function() {
-				$rootScope.$broadcast('displayActivity', {
+				webActivities.broadcast('displayActivity', {
 					view : item.iframe,
 					activity : item.activity
+				}).then(function() {
+					d.resolve();
 				});
-				d.resolve();
 			});
 		}
 		return d.promise;
@@ -316,14 +391,16 @@ angular.module('webActivitiesApp.framework', [])
 			var context = item.context;
 			$q.when(context.getStop()()).then(function() {
 				var item = activityStack.pop();
-				$rootScope.$broadcast('destroyActivity', {
+				webActivities.broadcast('destroyActivity', {
 					view : item.iframe,
 					activity : item.activity
+				}).then(function() {
+					$q.when(webActivities.resumeActivity(item)).then(function() {
+						item.context.getCloseDefer().resolve(item.context.getResult());
+						d.resolve();
+					});
 				});
-				$q.when(webActivities.resumeActivity(item)).then(function() {
-					item.context.getCloseDefer().resolve(item.context.getResult());
-					d.resolve();
-				});
+
 			});
 		}
 		return d.promise;
@@ -344,43 +421,42 @@ angular.module('webActivitiesApp.framework', [])
 		return d.promise;
 	};
 
+	webActivities.selectActivityForIntent = function(intent) {
+		var matchings = [];
+		$.each(activities,function(i,a) {
+			if ($.isArray(a.intentFilters)) {
+				$.each(a.intentFilters,function(x,f) {
+					if (f==intent.intentType) {
+						matchings.push(a);
+						return false;
+					}
+				});
+			} 
+		});
+		
+		if (matchings.length==1) {
+			return $q.when(matchings[0]);
+		}
+		if (matchings.length>0) {
+			return webActivities.broadcast("makeUserSelectOneActivity",{
+				activities : matchings
+			}).then(function(results){
+				return results[0];
+			});
+		}
+		return $q.reject();
+	};
+
 	webActivities.startActivity = function(activityId, appId, parameters, startMode, closeDefer) {
 
 		if (closeDefer == null) {
 			closeDefer = $q.defer();
 		}
 
-		var acts = activities[activityId];
-		var activity = null;
-		var specific = appId != null;
-		if ($.isArray(acts) && acts.length > 0) {
-			if (specific) {
-				$.each(acts, function(index, value) {
-					if (value.app == appId) {
-						activity = value;
-					}
-				});
-			} else {
-				if (acts.length > 1) {
-					$rootScope.$broadcast('multipleActivityToStart', {
-						activities : $.extend({}, acts),
-						startMode : startMode,
-						parameters : parameters,
-						closeDefer : closeDefer
-					});
-				} else {
-					activity = acts[0];
-				}
-			}
-		}
+		var activity = activities[composeActivityId(appId, activityId)];
+
 		if (activity == null) {
-			if ($.isArray(acts) && acts.length <= 1) {
-				if (specific) {
-					error("Activity <" + activityId + "> in app <" + appId + "> not found");
-				} else {
-					error("Activity <" + activityId + "> not found");
-				}
-			}
+			error("Activity <" + activityId + "> in app <" + appId + "> not found");
 		} else {
 			var app = apps[activity.app];
 			if (app == null) {
@@ -410,6 +486,7 @@ angular.module('webActivitiesApp.framework', [])
 						var _pause = function() {
 							return true;
 						};
+						var _listeners = 0 || [];
 						var _result = null;
 						var ctx = {
 							getCloseDefer : function() {
@@ -445,9 +522,24 @@ angular.module('webActivitiesApp.framework', [])
 							getPause : function() {
 								return _pause;
 							},
-							newActivityIntent : function(activity, parameters) {
+							sendMessage : function(msg) {
+								webActivities.sendMessage(stackItem.activity, msg);
+							},
+							onMessage : function(fn) {
+								_listeners.push(fn);
+							},
+							getMessageListeners : function() {
+								return _listeners;
+							},
+							newActivityIntent : function(app, activity, parameters) {
 								var i = new Intent(IntentType.START_ACTIVITY);
 								i.activity = activity;
+								i.parameters = parameters;
+								i.app = app;
+								return i;
+							},
+							newIntent : function(intentType, parameters) {
+								var i = new Intent(intentType);
 								i.parameters = parameters;
 								return i;
 							},
@@ -456,7 +548,7 @@ angular.module('webActivitiesApp.framework', [])
 								var iframe = $("<iframe src=\"activity-viewport.html\"></iframe>")[0];
 								stackItem.iframe = iframe;
 
-								$rootScope.$broadcast('displayActivity', {
+								webActivities.broadcast('displayActivity', {
 									view : iframe,
 									activity : activity
 								});
@@ -467,20 +559,23 @@ angular.module('webActivitiesApp.framework', [])
 								});
 
 								return viewDeferred.promise;
+							},
+							notify : function(type, message, options) {
+								return webActivities.notify(type, message, options);
 							}
 						};
 						return ctx;
 					};
 				}(stackItem, closeDefer);
 
-				$rootScope.$broadcast('activityStarting', $.extend({}, activity));
+				webActivities.broadcast('activityStarting', $.extend({}, activity));
 				stackItem.context = createContext(webActivities);
 
 				startMode(stackItem).then(function(activity, stackItem) {
 					return function() {
 						// Run the app
 						stackItem.instance = new app.iframe[0].contentWindow.window[activity.activator](stackItem.context, parameters);
-						$rootScope.$broadcast('activityStarted', $.extend({}, activity));
+						webActivities.broadcast('activityStarted', $.extend({}, activity));
 					};
 				}(activity, stackItem));
 			}

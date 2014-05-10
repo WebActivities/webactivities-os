@@ -9,6 +9,11 @@
 			"name" : "Attività number one",
 			"icon" : "/res/activity.png",
 			"activator" : "Activity1"	
+		},
+		"activity3" : {
+			"name" : "Nuova attività",
+			"icon" : "/res/activity.png",
+			"activator" : "Activity3"	
 		}
 	},
 	"resources" : [

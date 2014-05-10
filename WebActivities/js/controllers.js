@@ -4,15 +4,17 @@
 
 angular.module('webActivitiesApp.controllers', [])
 
-.controller('HomeCtrl', [ '$rootScope', '$scope', 'framework', '$modal', 'TRANSITION_SPEED', function($rootScope, $scope, framework, $modal, TRANSITION_SPEED) {
+.controller('HomeCtrl', [ '$rootScope', '$scope', 'framework', '$modal', 'TRANSITION_SPEED', '$q', function($rootScope, $scope, framework, $modal, TRANSITION_SPEED, $q) {
 
 	// Utilities
 	// =============================================
 
 	// Declaration of scope variables
 	$scope.apps = [];
+	$scope.notifies = [];
 	$scope.displayActivity = false;
 	$scope.startingApp = null;
+	$scope.maxBreadcrumbSize = 5;
 
 	// Functions
 	$scope.activityStack = function() {
@@ -21,6 +23,21 @@ angular.module('webActivitiesApp.controllers', [])
 		}
 		var clone = framework.getActivityStack().slice(0);
 		return clone.reverse();
+	};
+
+	$scope.notifies = function() {
+		return framework.listNotifies();
+	};
+	
+	$scope.removeNotify = function(index) {
+		framework.removeNotify(index);
+	};
+	
+	$scope.removeAllNotifies = function() {
+		var notifies = $scope.notifies().length;
+		for (var i = 0; i < notifies; i++) {
+			framework.removeNotify(0);
+		}
 	};
 
 	$scope.startApp = function(appId) {
@@ -36,69 +53,108 @@ angular.module('webActivitiesApp.controllers', [])
 	};
 
 	// Listener
-	$rootScope.$on('appInstalled', function(event, app) {
+	framework.on('appInstalled', function(event, app) {
 		$scope.apps.push(app);
-		$scope.$apply();
 	});
 
-	$rootScope.$on('appStarting', function(event, app) {
+	framework.on('appStarting', function(event, app) {
 		$scope.startingApp = app.name;
 	});
 
-	$rootScope.$on('appStarted', function(event, app) {
+	framework.on('appStarted', function(event, app) {
 		$scope.startingApp = null;
 	});
 
-	$rootScope.$on('displayActivity', function(event, o) {
+	framework.on('showNotify', function(event, notify) {
+		var q = $q.defer();
+		var type = notify.type;
+		var message = notify.message;
+		toastr.options.positionClass = "toast-bottom-right";
+		if (notify.options) {
+			toastr.options = notify.options;
+		}
+		toastr.options.onHidden = function() {
+			q.resolve();
+		};
+		if (type == 'error') {
+			toastr.error(message);
+		} else if (type == 'warning') {
+			toastr.warning(message);
+		} else if (type == 'success') {
+			toastr.success(message);
+		} else {
+			toastr.info(message);
+		}
+		$scope.$apply();
+		return q.promise;
+	});
+
+	framework.on('displayActivity', function(event, o) {
+		var q = $q.defer();
 		if ($("#viewport").find(o.view).size() > 0) {
-			$(o.view).css({left:'-100%'});
+			$(o.view).css({
+				left : '-100%'
+			});
 			$(o.view).show();
 		} else {
-			$(o.view).css({left:'100%'});
+			$(o.view).css({
+				left : '100%'
+			});
 			$("#viewport").append(o.view);
 		}
-		$(o.view).animate({left: "0%"}, {
-			duration: TRANSITION_SPEED
+		$(o.view).animate({
+			left : "0%"
+		}, {
+			duration : TRANSITION_SPEED,
+			complete : function() {
+				q.resolve();
+			}
 		});
 		$scope.displayActivity = true;
 		$scope.activity = o.activity;
+		return q.promise;
 	});
 
-	$rootScope.$on('hideActivity', function(event, o) {
-		$(o.view).animate({left: "-100%"}, {
-			duration: TRANSITION_SPEED,
-			complete: function() {
+	framework.on('hideActivity', function(event, o) {
+		var q = $q.defer();
+		$(o.view).animate({
+			left : "-100%"
+		}, {
+			duration : TRANSITION_SPEED,
+			complete : function() {
 				$(o.view).hide();
-				if (framework.getCurrentActivity()==null) {
+				if (framework.getCurrentActivity() == null) {
 					$scope.displayActivity = false;
 					$scope.activity = null;
 				}
 				$scope.$apply();
+				q.resolve();
 			}
 		});
-		
+		return q.promise;
 	});
 
-	$rootScope.$on('destroyActivity', function(event, o) {
-		$(o.view).animate({left: "100%"}, {
-			duration: TRANSITION_SPEED,
-			complete: function() {
+	framework.on('destroyActivity', function(event, o) {
+		var q = $q.defer();
+		$(o.view).animate({
+			left : "100%"
+		}, {
+			duration : TRANSITION_SPEED,
+			complete : function() {
 				$(o.view).remove();
-				if (framework.getCurrentActivity()==null) {
+				if (framework.getCurrentActivity() == null) {
 					$scope.displayActivity = false;
 					$scope.activity = null;
 				}
 				$scope.$apply();
+				q.resolve();
 			}
 		});
-		
+		return q.promise;
 	});
-
-	$rootScope.$on('multipleActivityToStart', function(event, o) {
-		var startMode = o.startMode;
-		var parameters = o.parameters;
-		var closeDefer = o.closeDefer;
-
+	
+	framework.on('makeUserSelectOneActivity', function(event, o) {
+		console.log(o);
 		var modalInstance = $modal.open({
 			templateUrl : 'activity-choice.html?' + new Date().getTime(),
 			controller : [ '$scope', '$modalInstance', 'o', function($scope, $modalInstance, o) {
@@ -120,16 +176,13 @@ angular.module('webActivitiesApp.controllers', [])
 				}
 			}
 		});
-
-		modalInstance.result.then(function(act) {
-			framework.startActivity(act.id, act.app, parameters, startMode, closeDefer);
-		});
-
+		return modalInstance.result;
 	});
 
 	// Demo configuration
 	framework.installApp("apps/app1/app.json");
 	framework.installApp("apps/app2/app.json");
+	framework.installApp("apps/maps/app.json");
 
 } ])
 

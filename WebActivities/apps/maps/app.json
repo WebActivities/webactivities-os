@@ -1,0 +1,21 @@
+{
+	"id" : "it.webactivities.apps.maps",
+	"name" : "Demo Maps Application",
+	"icon" : "/res/app.png",
+	"main" : "maps",
+	"version" : "1.0.0",
+	"activities" : {
+		"maps" : {
+			"name" : "Attivita' mappe",
+			"icon" : "/res/activity.png",
+			"activator" : "MapsActivity"	
+		}
+	},
+	"resources" : [
+		"/res/jquery-2.1.1.min.js",
+		"https://maps.googleapis.com/maps/api/js?key=AIzaSyCidUDaXt1HDOrlnuxE069KJUfCy5zJw8Q&sensor=false",
+		"/activities/maps/MapsActivity.js?%v&%d"
+    ],
+    "settings" : {
+    }
+}
