@@ -213,7 +213,6 @@ angular.module('webActivitiesApp.framework', [])
 				var iframe = $("<iframe></iframe>")[0];
 				
 				$(iframe).on("attached",function() {
-					alert('aaa');
 					$(iframe).load(function() {
 						var viewport = $(iframe).contents().find("#internalViewport")[0];
 						viewDeferred.resolve(viewport);
