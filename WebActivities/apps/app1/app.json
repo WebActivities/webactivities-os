@@ -8,12 +8,14 @@
 		"activity1" : {
 			"name" : "Attività number one",
 			"icon" : "/res/activity.png",
-			"activator" : "Activity1"	
+			"activator" : "Activity1",
+			"seamless" : true	
 		},
 		"activity3" : {
 			"name" : "Nuova attività",
 			"icon" : "/res/activity.png",
-			"activator" : "Activity3"	
+			"activator" : "Activity3",
+			"seamless" : true	
 		}
 	},
 	"resources" : [

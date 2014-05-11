@@ -8,7 +8,9 @@
 		"maps" : {
 			"name" : "Attivita' mappe",
 			"icon" : "/res/activity.png",
-			"activator" : "MapsActivity"	
+			"activator" : "MapsActivity",
+			"seamless" : false,
+			"intentFilters" : ["map"]	
 		}
 	},
 	"resources" : [

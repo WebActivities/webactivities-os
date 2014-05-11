@@ -138,6 +138,130 @@ angular.module('webActivitiesApp.framework', [])
 			}
 		};
 	};
+	
+	// Create a new context
+	var createContext = function(stackItem, _closeDefer) {
+	
+		var _stop = function() {
+			return true;
+		};
+		var _resume = function() {
+			return true;
+		};
+		var _pause = function() {
+			return true;
+		};
+		var _listeners = 0 || [];
+		var _result = null;
+		var ctx = {
+			getCloseDefer : function() {
+				return _closeDefer;
+			},
+			setResult : function(result) {
+				_result = result;
+			},
+			getResult : function() {
+				return _result;
+			},
+			onStop : function(fn) {
+				_stop = fn;
+			},
+			getStop : function() {
+				return _stop;
+			},
+			stop : function(result) {
+				if (result !== undefined) {
+					_result = result;
+				}
+				webActivities.stopActivity();
+			},
+			onResume : function(fn) {
+				_resume = fn;
+			},
+			getResume : function() {
+				return _resume;
+			},
+			onPause : function(fn) {
+				_pause = fn;
+			},
+			getPause : function() {
+				return _pause;
+			},
+			sendMessage : function(msg) {
+				webActivities.sendMessage(stackItem.activity, msg);
+			},
+			onMessage : function(fn) {
+				_listeners.push(fn);
+			},
+			getMessageListeners : function() {
+				return _listeners;
+			},
+			newActivityIntent : function(app, activity, parameters) {
+				var i = new Intent(IntentType.START_ACTIVITY);
+				i.activity = activity;
+				i.parameters = parameters;
+				i.app = app;
+				return i;
+			},
+			newIntent : function(intentType, parameters) {
+				var i = new Intent(intentType);
+				i.parameters = parameters;
+				return i;
+			},
+			prepareView : function() {
+				var viewDeferred = $q.defer();
+				var iframe = $("<iframe></iframe>")[0];
+				
+				$(iframe).on("attached",function() {
+					alert('aaa');
+					$(iframe).load(function() {
+						var viewport = $(iframe).contents().find("#internalViewport")[0];
+						viewDeferred.resolve(viewport);
+					});
+					writeActivityStartingDoc(iframe,stackItem.activity);
+				});
+
+				stackItem.iframe = iframe;
+				
+				webActivities.broadcast('displayActivity', {
+					view : iframe,
+					activity : stackItem.activity
+				});
+
+				return viewDeferred.promise;
+			},
+			notify : function(type, message, options) {
+				return webActivities.notify(type, message, options);
+			}
+		};
+		return ctx;
+	};
+	
+	var writeActivityStartingDoc = function(iframe,activity) {					
+		var doc = iframe.contentWindow.window.document;
+		doc.open();
+		doc.write("<html>");
+		doc.write("<head>");
+		if (activity.seamless) {
+			doc.write("<link rel=\"stylesheet\" href=\"css/yeti.bootstrap.min.css\" />");
+		}
+		doc.write("<script type=\"text/javascript\">");
+		doc.write("var top = null;");
+		doc.write("var opener = null;");
+		doc.write("window.parent = null;");
+		doc.write("window.opener = null;");
+		doc.write("</script>");
+		doc.write("</head>");
+		doc.write("<body>");
+		doc.write("<div id=\"internalViewport\" ");
+		if (activity.seamless) {
+			doc.write(" class=\"container-fluid\"");
+		}
+		doc.write("></div>");
+		doc.write("</body>");
+		doc.write("</html>");
+		doc.close();
+	};
 
 	/*
 	 * ======================================================================
@@ -474,102 +598,8 @@ angular.module('webActivitiesApp.framework', [])
 					instance : null
 				};
 
-				// Create a new context
-				var createContext = function(stackItem, _closeDefer) {
-					return function(webActivities) {
-						var _stop = function() {
-							return true;
-						};
-						var _resume = function() {
-							return true;
-						};
-						var _pause = function() {
-							return true;
-						};
-						var _listeners = 0 || [];
-						var _result = null;
-						var ctx = {
-							getCloseDefer : function() {
-								return _closeDefer;
-							},
-							setResult : function(result) {
-								_result = result;
-							},
-							getResult : function() {
-								return _result;
-							},
-							onStop : function(fn) {
-								_stop = fn;
-							},
-							getStop : function() {
-								return _stop;
-							},
-							stop : function(result) {
-								if (result !== undefined) {
-									_result = result;
-								}
-								webActivities.stopActivity();
-							},
-							onResume : function(fn) {
-								_resume = fn;
-							},
-							getResume : function() {
-								return _resume;
-							},
-							onPause : function(fn) {
-								_pause = fn;
-							},
-							getPause : function() {
-								return _pause;
-							},
-							sendMessage : function(msg) {
-								webActivities.sendMessage(stackItem.activity, msg);
-							},
-							onMessage : function(fn) {
-								_listeners.push(fn);
-							},
-							getMessageListeners : function() {
-								return _listeners;
-							},
-							newActivityIntent : function(app, activity, parameters) {
-								var i = new Intent(IntentType.START_ACTIVITY);
-								i.activity = activity;
-								i.parameters = parameters;
-								i.app = app;
-								return i;
-							},
-							newIntent : function(intentType, parameters) {
-								var i = new Intent(intentType);
-								i.parameters = parameters;
-								return i;
-							},
-							prepareView : function() {
-								var viewDeferred = $q.defer();
-								var iframe = $("<iframe src=\"activity-viewport.html\"></iframe>")[0];
-								stackItem.iframe = iframe;
-
-								webActivities.broadcast('displayActivity', {
-									view : iframe,
-									activity : activity
-								});
-
-								$(iframe).load(function() {
-									var viewport = $(iframe).contents().find("#internalViewport")[0];
-									viewDeferred.resolve(viewport);
-								});
-
-								return viewDeferred.promise;
-							},
-							notify : function(type, message, options) {
-								return webActivities.notify(type, message, options);
-							}
-						};
-						return ctx;
-					};
-				}(stackItem, closeDefer);
-
 				webActivities.broadcast('activityStarting', $.extend({}, activity));
-				stackItem.context = createContext(webActivities);
+				stackItem.context = createContext(stackItem,closeDefer);
 
 				startMode(stackItem).then(function(activity, stackItem) {
 					return function() {
