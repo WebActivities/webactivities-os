@@ -8,13 +8,15 @@
 			"name" : "Attività another one",
 			"icon" : "/res/activity.png",
 			"activator" : "Activity1",
-			"intentFilters" : ["map"]
+			"intentFilters" : ["map"],
+			"seamless" : true
 		},
 		"activity2" : {
 			"name" : "Attività veramente figa",
 			"icon" : "/res/activity.png",
 			"activator" : "Activity1",
-			"intentFilters" : ["map"]
+			"intentFilters" : ["map"],
+			"seamless" : true
 		}
 	},
 	"resources" : [

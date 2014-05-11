@@ -101,6 +101,7 @@ angular.module('webActivitiesApp.controllers', [])
 				left : '100%'
 			});
 			$("#viewport").append(o.view);
+			$(o.view).trigger("attached");
 		}
 		$(o.view).animate({
 			left : "0%"

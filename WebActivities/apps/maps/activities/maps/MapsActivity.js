@@ -19,6 +19,9 @@ var MapsActivity = function(ctx) {
           zoom: 8
         };
         var map = new google.maps.Map(container.find("#map-canvas")[0],mapOptions);
+        setTimeout(function() {
+        	google.maps.event.trigger(map, 'resize');
+        },200);
      }
       
 
