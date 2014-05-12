@@ -563,8 +563,8 @@ angular.module('webActivitiesApp.framework', [])
 		} else {
 			var context = item.context;
 			$q.when(context.getStop()()).then(function() {
-				item.status = webActivities.activity.status.STOPPED;
 				var item = webActivities.currentStack().pop();
+				item.status = webActivities.activity.status.STOPPED;
 				webActivities.broadcast('destroyActivity', {
 					view : item.iframe,
 					activity : item.activity

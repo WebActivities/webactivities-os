@@ -102,7 +102,6 @@ var Activity1 = function(ctx) {
 	});
 	
 	ctx.onShow(function() {
-		alert("Displayed");
 	});
 
 	ctx.onResume(function() {
