@@ -155,7 +155,6 @@ angular.module('webActivitiesApp.controllers', [])
 	});
 	
 	framework.on('makeUserSelectOneActivity', function(event, o) {
-		console.log(o);
 		var modalInstance = $modal.open({
 			templateUrl : 'activity-choice.html?' + new Date().getTime(),
 			controller : [ '$scope', '$modalInstance', 'o', function($scope, $modalInstance, o) {

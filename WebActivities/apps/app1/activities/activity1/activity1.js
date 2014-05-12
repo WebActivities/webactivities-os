@@ -100,6 +100,10 @@ var Activity1 = function(ctx) {
 		}, 2000);
 		return deferred.promise();
 	});
+	
+	ctx.onShow(function() {
+		alert("Displayed");
+	});
 
 	ctx.onResume(function() {
 		header.text("Application is resumed!");

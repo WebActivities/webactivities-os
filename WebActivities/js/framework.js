@@ -53,10 +53,10 @@ angular.module('webActivitiesApp.framework', [])
 	var Intent = function(type) {
 		this.intentType = type;
 		this.activity = null;
+		this.app = null;
 		this.parameters = {};
 		this.startMode = "CHILD";
-		this.app = null;
-		
+
 		this.start = function() {
 			var q = $q.defer();
 			var self = this;
@@ -74,7 +74,7 @@ angular.module('webActivitiesApp.framework', [])
 			return q.promise;
 		};
 	};
-	
+
 	var Stack = function() {
 		this.top = null;
 		this.count = 0;
@@ -138,10 +138,10 @@ angular.module('webActivitiesApp.framework', [])
 			}
 		};
 	};
-	
+
 	// Create a new context
 	var createContext = function(stackItem, _closeDefer) {
-	
+
 		var _stop = function() {
 			return true;
 		};
@@ -151,8 +151,12 @@ angular.module('webActivitiesApp.framework', [])
 		var _pause = function() {
 			return true;
 		};
+		var _show = function() {
+			return true;
+		};
 		var _listeners = 0 || [];
 		var _result = null;
+		
 		var ctx = {
 			getCloseDefer : function() {
 				return _closeDefer;
@@ -168,6 +172,12 @@ angular.module('webActivitiesApp.framework', [])
 			},
 			getStop : function() {
 				return _stop;
+			},
+			onShow : function(fn) {
+				_show = fn;
+			},
+			getShow : function() {
+				return _show;
 			},
 			stop : function(result) {
 				if (result !== undefined) {
@@ -211,20 +221,25 @@ angular.module('webActivitiesApp.framework', [])
 			prepareView : function() {
 				var viewDeferred = $q.defer();
 				var iframe = $("<iframe></iframe>")[0];
-				
-				$(iframe).on("attached",function() {
+
+				$(iframe).on("attached", function() {
 					$(iframe).load(function() {
 						var viewport = $(iframe).contents().find("#internalViewport")[0];
 						viewDeferred.resolve(viewport);
 					});
-					writeActivityStartingDoc(iframe,stackItem.activity);
+					writeActivityStartingDoc(iframe, stackItem.activity);
 				});
 
 				stackItem.iframe = iframe;
-				
+
 				webActivities.broadcast('displayActivity', {
 					view : iframe,
 					activity : stackItem.activity
+				}).then(function() {
+					stackItem.status = webActivities.activity.status.ACTIVE;
+					$q.when(stackItem.context.getShow()()).then(function() {
+						// Nothing for the moment
+					});
 				});
 
 				return viewDeferred.promise;
@@ -235,8 +250,8 @@ angular.module('webActivitiesApp.framework', [])
 		};
 		return ctx;
 	};
-	
-	var writeActivityStartingDoc = function(iframe,activity) {					
+
+	var writeActivityStartingDoc = function(iframe, activity) {
 		var doc = iframe.contentWindow.window.document;
 		doc.open();
 		doc.write("<html>");
@@ -283,11 +298,44 @@ angular.module('webActivitiesApp.framework', [])
 	webActivities.status.STARTING = 2;
 	webActivities.status.STARTED = 4;
 
+	webActivities.activity = {};
+	webActivities.activity.status = {};
+	webActivities.activity.status.CREATED = 0;
+	webActivities.activity.status.ACTIVE = 2;
+	webActivities.activity.status.PAUSED = 4;
+	webActivities.activity.status.STOPPED = 8;
+	
+	webActivities.pushStack = function() {
+		var stack = new Stack();
+		activityStack.push(stack);
+		return stack;
+	};
+
+	webActivities.popStack = function() {
+		return activityStack.pop();
+	};
+
+	webActivities.currentStack = function() {
+		var peek = activityStack.peek();
+		if (peek == null) {
+			peek = webActivities.pushStack();
+		}
+		return peek;
+	};
+
 	webActivities.startMode = {};
 	webActivities.startMode.CHILD = function(stackItem) {
 		var d = $q.defer();
 		$q.when(webActivities.pauseActivity()).then(function() {
-			activityStack.push(stackItem);
+			webActivities.currentStack().push(stackItem);
+			d.resolve();
+		});
+		return d.promise;
+	};
+	webActivities.startMode.CHILD_POPUP = function(stackItem) {
+		var d = $q.defer();
+		$q.when(webActivities.pauseActivity()).then(function() {
+			webActivities.currentStack().push(stackItem);
 			d.resolve();
 		});
 		return d.promise;
@@ -295,7 +343,7 @@ angular.module('webActivitiesApp.framework', [])
 	webActivities.startMode.ROOT = function(stackItem) {
 		var d = $q.defer();
 		$q.when(webActivities.stopAllActivities()).then(function() {
-			activityStack.push(stackItem);
+			webActivities.currentStack().push(stackItem);
 			d.resolve();
 		});
 		return d.promise;
@@ -338,7 +386,7 @@ angular.module('webActivitiesApp.framework', [])
 	};
 
 	webActivities.sendMessage = function(source, msg) {
-		var items = activityStack.getAll();
+		var items = webActivities.currentStack().getAll();
 		var i = 0;
 		for (i in items) {
 			var item = items[i];
@@ -398,7 +446,7 @@ angular.module('webActivitiesApp.framework', [])
 				activity.id = id;
 				activity.icon = resolveUrl(app, activity.icon);
 				activities[composeActivityId(app.id, id)] = activity;
-				
+
 				log("Registered activity in application <" + app.id + ">: " + activity.name + " <" + id + ">", activity);
 			}
 			webActivities.broadcast('appInstalled', $.extend({}, app));
@@ -460,21 +508,22 @@ angular.module('webActivitiesApp.framework', [])
 	};
 
 	webActivities.getCurrentActivity = function() {
-		return activityStack.peek();
+		return webActivities.currentStack().peek();
 	};
 
 	webActivities.getActivityStack = function() {
-		return activityStack.getAll();
+		return webActivities.currentStack().getAll();
 	};
 
 	webActivities.pauseActivity = function() {
 		var d = $q.defer();
-		var item = activityStack.peek();
+		var item = webActivities.currentStack().peek();
 		if (item == null) {
 			d.resolve();
 		} else {
 			var context = item.context;
 			$q.when(context.getPause()()).then(function() {
+				item.status = webActivities.activity.status.PAUSED;
 				webActivities.broadcast('hideActivity', {
 					view : item.iframe,
 					activity : item.activity
@@ -488,12 +537,13 @@ angular.module('webActivitiesApp.framework', [])
 
 	webActivities.resumeActivity = function(previousStackItem) {
 		var d = $q.defer();
-		var item = activityStack.peek();
+		var item = webActivities.currentStack().peek();
 		if (item == null) {
 			d.resolve();
 		} else {
 			var context = item.context;
 			$q.when(context.getResume()()).then(function() {
+				item.status = webActivities.activity.status.ACTIVE;
 				webActivities.broadcast('displayActivity', {
 					view : item.iframe,
 					activity : item.activity
@@ -507,13 +557,14 @@ angular.module('webActivitiesApp.framework', [])
 
 	webActivities.stopActivity = function() {
 		var d = $q.defer();
-		var item = activityStack.peek();
+		var item = webActivities.currentStack().peek();
 		if (item == null) {
 			d.resolve();
 		} else {
 			var context = item.context;
 			$q.when(context.getStop()()).then(function() {
-				var item = activityStack.pop();
+				item.status = webActivities.activity.status.STOPPED;
+				var item = webActivities.currentStack().pop();
 				webActivities.broadcast('destroyActivity', {
 					view : item.iframe,
 					activity : item.activity
@@ -533,7 +584,7 @@ angular.module('webActivitiesApp.framework', [])
 		var d = $q.defer();
 		var stop = function() {
 			$q.when(webActivities.stopActivity()).then(function() {
-				if (activityStack.getCount() > 0) {
+				if (webActivities.currentStack().getCount() > 0) {
 					stop();
 				} else {
 					d.resolve();
@@ -546,24 +597,24 @@ angular.module('webActivitiesApp.framework', [])
 
 	webActivities.selectActivityForIntent = function(intent) {
 		var matchings = [];
-		$.each(activities,function(i,a) {
+		$.each(activities, function(i, a) {
 			if ($.isArray(a.intentFilters)) {
-				$.each(a.intentFilters,function(x,f) {
-					if (f==intent.intentType) {
+				$.each(a.intentFilters, function(x, f) {
+					if (f == intent.intentType) {
 						matchings.push(a);
 						return false;
 					}
 				});
-			} 
+			}
 		});
-		
-		if (matchings.length==1) {
+
+		if (matchings.length == 1) {
 			return $q.when(matchings[0]);
 		}
-		if (matchings.length>0) {
-			return webActivities.broadcast("makeUserSelectOneActivity",{
+		if (matchings.length > 0) {
+			return webActivities.broadcast("makeUserSelectOneActivity", {
 				activities : matchings
-			}).then(function(results){
+			}).then(function(results) {
 				return results[0];
 			});
 		}
@@ -594,15 +645,17 @@ angular.module('webActivitiesApp.framework', [])
 					activity : activity,
 					iframe : null,
 					context : null,
-					instance : null
+					instance : null,
+					status : null
 				};
 
 				webActivities.broadcast('activityStarting', $.extend({}, activity));
-				stackItem.context = createContext(stackItem,closeDefer);
+				stackItem.context = createContext(stackItem, closeDefer);
 
 				startMode(stackItem).then(function(activity, stackItem) {
 					return function() {
 						// Run the app
+						stackItem.status = webActivities.activity.status.CREATED; 
 						stackItem.instance = new app.iframe[0].contentWindow.window[activity.activator](stackItem.context, parameters);
 						webActivities.broadcast('activityStarted', $.extend({}, activity));
 					};
