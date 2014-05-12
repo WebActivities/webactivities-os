@@ -41,6 +41,15 @@ body {
 
 #viewport {
 	position: absolute;
+	top: 0px;
+	bottom: 0px;
+	left: 0px;
+	right: 0px;
+	overflow: hidden;
+}
+
+#viewport-container {
+	position: absolute;
 	top: 45px;
 	bottom: 0px;
 	left: 0px;
@@ -48,7 +57,11 @@ body {
 	overflow: hidden;
 }
 
-#viewport>iframe {
+.viewport {
+	overflow: hidden;
+}
+
+.viewport>iframe {
 	position: absolute;
 	top: 0px;
 	left: 0px;

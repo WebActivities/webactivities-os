@@ -40,6 +40,16 @@ var Activity1 = function(ctx) {
 			container.append("The result is " + result);
 		});
 	});
+	
+	var btn18 = $("<button type=\"button\" class=\"btn btn-sm btn-primary\">Avvia Activity3 come POPUP</button>").appendTo(container);
+	btn18.click(function() {
+		var i = ctx.newActivityIntent("it.test.app.one", "activity1");
+		i.startMode = "CHILD_POPUP";
+		i.start().then(function(result) {
+			container.append("The result is " + result);
+		});
+	});
+	
 	var btn2 = $("<button type=\"button\" class=\"btn btn-sm btn-primary\">Avvia Activity1</button>").appendTo(container);
 	btn2.click(function() {
 		ctx.newActivityIntent("it.test.app.one", "activity1").start().then(function(result) {

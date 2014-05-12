@@ -6,15 +6,81 @@ angular.module('webActivitiesApp.controllers', [])
 
 .controller('HomeCtrl', [ '$rootScope', '$scope', 'framework', '$modal', 'TRANSITION_SPEED', '$q', function($rootScope, $scope, framework, $modal, TRANSITION_SPEED, $q) {
 
+	var Stack = function() {
+		this.top = null;
+		this.count = 0;
+
+		this.getCount = function() {
+			return this.count;
+		};
+
+		this.getTop = function() {
+			return this.top;
+		};
+
+		this.push = function(data) {
+			var node = {
+				data : data,
+				next : null
+			};
+
+			node.next = this.top;
+			this.top = node;
+
+			this.count++;
+		};
+
+		this.peek = function() {
+			if (this.top === null) {
+				return null;
+			} else {
+				return this.top.data;
+			}
+		};
+
+		this.pop = function() {
+			if (this.top === null) {
+				return null;
+			} else {
+				var out = this.top;
+				this.top = this.top.next;
+				if (this.count > 0) {
+					this.count--;
+				}
+
+				return out.data;
+			}
+		};
+
+		this.getAll = function() {
+			if (this.top === null) {
+				return null;
+			} else {
+				var arr = new Array();
+
+				var current = this.top;
+				// console.log(current);
+				for (var i = 0; i < this.count; i++) {
+					arr[i] = current.data;
+					current = current.next;
+				}
+
+				return arr;
+			}
+		};
+	};
+
 	// Utilities
 	// =============================================
+	var viewports = new Stack();
+	viewports.push($("#viewport"));
 
 	// Declaration of scope variables
 	$scope.apps = [];
 	$scope.notifies = [];
 	$scope.displayActivity = false;
 	$scope.startingApp = null;
-	$scope.maxBreadcrumbSize = 5;
+	$scope.maxBreadcrumbSize = 3;
 
 	// Functions
 	$scope.activityStack = function() {
@@ -28,11 +94,11 @@ angular.module('webActivitiesApp.controllers', [])
 	$scope.notifies = function() {
 		return framework.listNotifies();
 	};
-	
+
 	$scope.removeNotify = function(index) {
 		framework.removeNotify(index);
 	};
-	
+
 	$scope.removeAllNotifies = function() {
 		var notifies = $scope.notifies().length;
 		for (var i = 0; i < notifies; i++) {
@@ -91,7 +157,7 @@ angular.module('webActivitiesApp.controllers', [])
 
 	framework.on('displayActivity', function(event, o) {
 		var q = $q.defer();
-		if ($("#viewport").find(o.view).size() > 0) {
+		if (viewports.peek().find(o.view).size() > 0) {
 			$(o.view).css({
 				left : '-100%'
 			});
@@ -100,7 +166,7 @@ angular.module('webActivitiesApp.controllers', [])
 			$(o.view).css({
 				left : '100%'
 			});
-			$("#viewport").append(o.view);
+			viewports.peek().append(o.view);
 			$(o.view).trigger("attached");
 		}
 		$(o.view).animate({
@@ -135,6 +201,27 @@ angular.module('webActivitiesApp.controllers', [])
 		return q.promise;
 	});
 
+	framework.on('popLayer', function(event, o) {
+		var q = $q.defer();
+		var item = viewports.pop();
+		item.remove();
+		q.resolve();
+		return q.promise;
+	});
+
+	var i = 0;
+	framework.on('pushLayer', function(event, o) {
+		var q = $q.defer();
+		i = i + 20;
+		var element = $("<div></div>", {
+			style : "position: absolute; background: white; left: 5%; right: 5%; top: 5%; bottom: 5%; border: 1px solid #cacaca"
+		}).addClass("viewport");
+		viewports.push(element);
+		element.appendTo($("#layers-viewport"));
+		q.resolve();
+		return q.promise;
+	});
+
 	framework.on('destroyActivity', function(event, o) {
 		var q = $q.defer();
 		$(o.view).animate({
@@ -153,7 +240,7 @@ angular.module('webActivitiesApp.controllers', [])
 		});
 		return q.promise;
 	});
-	
+
 	framework.on('makeUserSelectOneActivity', function(event, o) {
 		var modalInstance = $modal.open({
 			templateUrl : 'activity-choice.html?' + new Date().getTime(),
