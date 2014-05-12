@@ -40,16 +40,29 @@ var Activity1 = function(ctx) {
 			container.append("The result is " + result);
 		});
 	});
-	
-	var btn18 = $("<button type=\"button\" class=\"btn btn-sm btn-primary\">Avvia Activity3 come POPUP</button>").appendTo(container);
+
+	var btn18 = $("<button type=\"button\" class=\"btn btn-sm btn-primary\">Avvia Activity3 POPUP grande</button>").appendTo(container);
 	btn18.click(function() {
 		var i = ctx.newActivityIntent("it.test.app.one", "activity1");
 		i.startMode = "CHILD_POPUP";
-		i.start().then(function(result) {
+		i.start({
+			size : 'lg'
+		}).then(function(result) {
 			container.append("The result is " + result);
 		});
 	});
-	
+
+	var btn18 = $("<button type=\"button\" class=\"btn btn-sm btn-primary\">Avvia Activity3 POPUP piccolo</button>").appendTo(container);
+	btn18.click(function() {
+		var i = ctx.newActivityIntent("it.test.app.one", "activity1");
+		i.startMode = "CHILD_POPUP";
+		i.start({
+			size : 'sm'
+		}).then(function(result) {
+			container.append("The result is " + result);
+		});
+	});
+
 	var btn2 = $("<button type=\"button\" class=\"btn btn-sm btn-primary\">Avvia Activity1</button>").appendTo(container);
 	btn2.click(function() {
 		ctx.newActivityIntent("it.test.app.one", "activity1").start().then(function(result) {
@@ -75,7 +88,7 @@ var Activity1 = function(ctx) {
 			container.append("The result is " + result);
 		});
 	});
-	
+
 	var btn32 = $("<button type=\"button\" class=\"btn btn-sm btn-primary\">Send Message</button>").appendTo(container);
 	btn32.click(function() {
 		ctx.sendMessage("Hello World!");
@@ -92,7 +105,7 @@ var Activity1 = function(ctx) {
 			};
 		}(types[i]));
 	}
-	
+
 	ctx.onMessage(function(source, msg) {
 		alert('Received message from ' + source.id + ": " + msg);
 	});
@@ -110,7 +123,7 @@ var Activity1 = function(ctx) {
 		}, 2000);
 		return deferred.promise();
 	});
-	
+
 	ctx.onShow(function() {
 	});
 

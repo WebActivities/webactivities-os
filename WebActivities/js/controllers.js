@@ -91,6 +91,10 @@ angular.module('webActivitiesApp.controllers', [])
 		return clone.reverse();
 	};
 
+	$scope.isLayerStacked = function() {
+		return viewports.getCount() > 1;
+	};
+
 	$scope.notifies = function() {
 		return framework.listNotifies();
 	};
@@ -116,6 +120,10 @@ angular.module('webActivitiesApp.controllers', [])
 
 	$scope.stopAllActivities = function() {
 		framework.stopAllActivities();
+	};
+
+	$scope.stopAllPopupActivities = function() {
+		framework.stopAllPopupActivities();
 	};
 
 	// Listener
@@ -158,25 +166,33 @@ angular.module('webActivitiesApp.controllers', [])
 	framework.on('displayActivity', function(event, o) {
 		var q = $q.defer();
 		if (viewports.peek().find(o.view).size() > 0) {
-			$(o.view).css({
-				left : '-100%'
-			});
+			if (!o.disableEffects) {
+				$(o.view).css({
+					left : '-100%'
+				});
+			}
 			$(o.view).show();
 		} else {
-			$(o.view).css({
-				left : '100%'
-			});
+			if (!o.disableEffects) {
+				$(o.view).css({
+					left : '100%'
+				});
+			}
 			viewports.peek().append(o.view);
 			$(o.view).trigger("attached");
 		}
-		$(o.view).animate({
-			left : "0%"
-		}, {
-			duration : TRANSITION_SPEED,
-			complete : function() {
-				q.resolve();
-			}
-		});
+		if (!o.disableEffects) {
+			$(o.view).animate({
+				left : "0%"
+			}, {
+				duration : TRANSITION_SPEED,
+				complete : function() {
+					q.resolve();
+				}
+			});
+		} else {
+			q.resolve();
+		}
 		$scope.displayActivity = true;
 		$scope.activity = o.activity;
 		return q.promise;
@@ -203,22 +219,39 @@ angular.module('webActivitiesApp.controllers', [])
 
 	framework.on('popLayer', function(event, o) {
 		var q = $q.defer();
-		var item = viewports.pop();
-		item.remove();
-		q.resolve();
+		var element = viewports.pop();
+		$(element).animate({
+			opacity : 0
+		}, {
+			duration : TRANSITION_SPEED,
+			complete : function() {
+				element.data("shadow").remove();
+				element.remove();
+				q.resolve();
+			}
+		});
 		return q.promise;
 	});
 
-	var i = 0;
 	framework.on('pushLayer', function(event, o) {
 		var q = $q.defer();
-		i = i + 20;
-		var element = $("<div></div>", {
-			style : "position: absolute; background: white; left: 5%; right: 5%; top: 5%; bottom: 5%; border: 1px solid #cacaca"
-		}).addClass("viewport");
+		var element = $("<div></div>").addClass("viewport popup").css("opacity", "0");
+		if (o.size) {
+			element.addClass(o.size);
+		}
+		var shadow = $("<div></div>").addClass("viewport-shadow");
+		element.data("shadow", shadow);
 		viewports.push(element);
+		shadow.appendTo($("#layers-viewport"));
 		element.appendTo($("#layers-viewport"));
-		q.resolve();
+		$(element).animate({
+			opacity : 1
+		}, {
+			duration : TRANSITION_SPEED,
+			complete : function() {
+				q.resolve();
+			}
+		});
 		return q.promise;
 	});
 

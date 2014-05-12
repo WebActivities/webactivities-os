@@ -12,7 +12,7 @@
 				<div class="collapse navbar-collapse" id="top-bar-collapse">
 						<ul class="nav navbar-nav navbar-left">
 								<li data-ng-show="activityStack().length > 0"><a href="" class="btn-info" data-ng-click="stopAllActivities()"><i class="fa fa-home pointer"></i></a></li>
-								<li class="navbar-text"><span data-ng-show="activityStack().length > maxBreadcrumbSize"><i class="fa fa-caret-right"></i> ...{{activityStack().length - maxBreadcrumbSize}} attività... </span> <span data-ng-repeat="item in activityStack() | limitTo:-maxBreadcrumbSize"><i class="fa fa-caret-right"></i> {{item.activity.name}} &nbsp;</span></li>
+								<li class="navbar-text"><span data-ng-show="activityStack().length > maxBreadcrumbSize"><i class="fa fa-caret-right"></i> ...{{activityStack().length - maxBreadcrumbSize}} attività... </span> <span data-ng-repeat="item in activityStack() | limitTo:-maxBreadcrumbSize"><i class="fa fa-caret-right"></i> <i class="fa fa-external-link" data-ng-show="item.openMode == 'CHILD_POPUP'"></i> {{item.activity.name}} &nbsp;</span></li>
 						</ul>
 						<ul class="nav navbar-nav navbar-right">
 								<li class="dropdown" data-ng-show="notifies().length > 0"><a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-bell"></i> <span class="badge badge-warning">{{notifies().length}}</span> <b class="caret"></b></a>
@@ -29,6 +29,7 @@
 										</ul></li>
 
 								<li data-ng-show="activityStack().length > 0"><a href="" class="btn-danger" data-ng-click="stopActivity()"><i class="fa fa-step-backward"></i> indietro</a></li>
+								<li data-ng-show="isLayerStacked()"><a href="" class="btn-warning" data-ng-click="stopAllPopupActivities()">chiudi <i class="fa fa-times"></i></a></li>
 						</ul>
 						<p class="navbar-text navbar-right" data-ng-show="startingApp">
 								<span class="badge badge-info">Avvio applicazione {{startingApp}}...</span>

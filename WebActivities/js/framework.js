@@ -57,17 +57,17 @@ angular.module('webActivitiesApp.framework', [])
 		this.parameters = {};
 		this.startMode = "CHILD";
 
-		this.start = function() {
+		this.start = function(options) {
 			var q = $q.defer();
 			var self = this;
 			if (this.intentType == IntentType.START_ACTIVITY) {
 				if (this.app && this.activity) {
-					webActivities.startActivity(this.activity, this.app, this.parameters, resolveStartMode(this.startMode), q);
+					webActivities.startActivity(this.activity, this.app, this.parameters, resolveStartMode(this.startMode), options, q);
 				}
 			} else {
 				if (this.intentType) {
 					webActivities.selectActivityForIntent(this).then(function(act) {
-						webActivities.startActivity(act.id, act.app, self.parameters, resolveStartMode(self.startMode), q);
+						webActivities.startActivity(act.id, act.app, self.parameters, resolveStartMode(self.startMode), options, q);
 					});
 				}
 			}
@@ -305,8 +305,8 @@ angular.module('webActivitiesApp.framework', [])
 	webActivities.activity.status.PAUSED = 4;
 	webActivities.activity.status.STOPPED = 8;
 
-	webActivities.pushLayer = function() {
-		return webActivities.broadcast("pushLayer", {});
+	webActivities.pushLayer = function(options) {
+		return webActivities.broadcast("pushLayer", options || {});
 	};
 
 	webActivities.popLayer = function() {
@@ -318,7 +318,7 @@ angular.module('webActivitiesApp.framework', [])
 	};
 
 	webActivities.startMode = {};
-	webActivities.startMode.CHILD = function(stackItem) {
+	webActivities.startMode.CHILD = function(stackItem, options) {
 		var d = $q.defer();
 		$q.when(webActivities.pauseActivity({
 			mode : 'hidden'
@@ -328,12 +328,12 @@ angular.module('webActivitiesApp.framework', [])
 		});
 		return d.promise;
 	};
-	webActivities.startMode.CHILD_POPUP = function(stackItem) {
+	webActivities.startMode.CHILD_POPUP = function(stackItem, options) {
 		var d = $q.defer();
 		$q.when(webActivities.pauseActivity({
 			mode : 'visible'
 		})).then(function() {
-			webActivities.pushLayer().then(function() {
+			webActivities.pushLayer(options).then(function() {
 				stackItem.openMode = 'CHILD_POPUP';
 				webActivities.currentStack().push(stackItem);
 				d.resolve();
@@ -341,7 +341,7 @@ angular.module('webActivitiesApp.framework', [])
 		});
 		return d.promise;
 	};
-	webActivities.startMode.ROOT = function(stackItem) {
+	webActivities.startMode.ROOT = function(stackItem, options) {
 		var d = $q.defer();
 		$q.when(webActivities.stopAllActivities()).then(function() {
 			webActivities.currentStack().push(stackItem);
@@ -541,7 +541,7 @@ angular.module('webActivitiesApp.framework', [])
 		return d.promise;
 	};
 
-	webActivities.resumeActivity = function(previousStackItem) {
+	webActivities.resumeActivity = function(previousStackItem, disableEffects) {
 		var d = $q.defer();
 		var item = webActivities.currentStack().peek();
 		if (item == null) {
@@ -552,7 +552,8 @@ angular.module('webActivitiesApp.framework', [])
 				item.status = webActivities.activity.status.ACTIVE;
 				webActivities.broadcast('displayActivity', {
 					view : item.iframe,
-					activity : item.activity
+					activity : item.activity,
+					disableEffects : disableEffects
 				}).then(function() {
 					d.resolve();
 				});
@@ -576,11 +577,13 @@ angular.module('webActivitiesApp.framework', [])
 					activity : item.activity
 				}).then(function() {
 					var q = null;
+					var disableEffects = false;
 					if (item.openMode == 'CHILD_POPUP') {
 						q = webActivities.popLayer();
+						disableEffects = true;
 					}
-					$.when(q).then(function() {
-						$q.when(webActivities.resumeActivity(item)).then(function() {
+					$q.when(q).then(function() {
+						$q.when(webActivities.resumeActivity(item, disableEffects)).then(function() {
 							item.context.getCloseDefer().resolve(item.context.getResult());
 							d.resolve();
 						});
@@ -590,6 +593,22 @@ angular.module('webActivitiesApp.framework', [])
 
 			});
 		}
+		return d.promise;
+	};
+
+	webActivities.stopAllPopupActivities = function() {
+		var d = $q.defer();
+		var stop = function() {
+			var item = webActivities.currentStack().peek();
+			$q.when(webActivities.stopActivity()).then(function() {
+				if (webActivities.currentStack().getCount() > 0 && item.openMode != 'CHILD_POPUP') {
+					stop();
+				} else {
+					d.resolve();
+				}
+			});
+		};
+		stop();
 		return d.promise;
 	};
 
@@ -634,7 +653,7 @@ angular.module('webActivitiesApp.framework', [])
 		return $q.reject();
 	};
 
-	webActivities.startActivity = function(activityId, appId, parameters, startMode, closeDefer) {
+	webActivities.startActivity = function(activityId, appId, parameters, startMode, startOptions, closeDefer) {
 
 		if (closeDefer == null) {
 			closeDefer = $q.defer();
@@ -650,7 +669,7 @@ angular.module('webActivitiesApp.framework', [])
 				error("Application <" + activity.app + "> is not installed");
 			} else if (app.status == webActivities.status.REGISTERED) {
 				webActivities.startApp(activity.app, true, function(app) {
-					webActivities.startActivity(activityId, appId, parameters, startMode, closeDefer);
+					webActivities.startActivity(activityId, appId, parameters, startMode, startOptions, closeDefer);
 				});
 			} else {
 
@@ -665,7 +684,7 @@ angular.module('webActivitiesApp.framework', [])
 				webActivities.broadcast('activityStarting', $.extend({}, activity));
 				stackItem.context = createContext(stackItem, closeDefer);
 
-				startMode(stackItem).then(function(activity, stackItem) {
+				startMode(stackItem, startOptions).then(function(activity, stackItem) {
 					return function() {
 						// Run the app
 						stackItem.status = webActivities.activity.status.CREATED;
