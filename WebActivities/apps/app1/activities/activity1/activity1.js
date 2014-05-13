@@ -62,6 +62,18 @@ var Activity1 = function(ctx) {
 			container.append("The result is " + result);
 		});
 	});
+	
+	var btn118 = $("<button type=\"button\" class=\"btn btn-sm btn-primary\">Avvia Activity3 POPUP RELATIVO!</button>").appendTo(container);
+	btn118.draggable();
+	btn118.click(function() {
+		var i = ctx.newActivityIntent("it.test.app.one", "activity1");
+		i.startMode = "CHILD_POPUP";
+		i.start({
+			relativeTo : this
+		}).then(function(result) {
+			container.append("The result is " + result);
+		});
+	});
 
 	var btn2 = $("<button type=\"button\" class=\"btn btn-sm btn-primary\">Avvia Activity1</button>").appendTo(container);
 	btn2.click(function() {

@@ -24,7 +24,7 @@
 								<li class="dropdown"><a href="" data-ng-click="showSettings()"><i class="fa fa-search"></i></a></li>
 								<li class="dropdown"><a href="" data-ng-click="showSettings()"><i class="fa fa-cogs"></i></a></li>
 
-								<li data-ng-show="activityStack().length > 0"><a href="" class="btn-danger" data-ng-click="stopActivity()"><i class="fa fa-step-backward"></i> indietro</a></li>
+								<li data-ng-show="activityStack().length > 0 && currentActivity().openMode != 'CHILD_POPUP'"><a href="" class="btn-danger" data-ng-click="stopActivity()"><i class="fa fa-step-backward"></i> indietro</a></li>
 								<li data-ng-show="isLayerStacked()"><a href="" class="btn-warning" data-ng-click="stopAllPopupActivities()">chiudi <i class="fa fa-times"></i></a></li>
 						</ul>
 						<p class="navbar-text navbar-right" data-ng-show="startingApp">

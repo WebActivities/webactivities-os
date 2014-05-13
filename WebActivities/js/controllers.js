@@ -27,6 +27,10 @@ angular.module('webActivitiesApp.controllers', [])
 		return clone.reverse();
 	};
 
+	$scope.currentActivity = function() {
+		return framework.getCurrentActivity();
+	};
+
 	$scope.isLayerStacked = function() {
 		return viewports.getCount() > 1;
 	};
@@ -173,6 +177,8 @@ angular.module('webActivitiesApp.controllers', [])
 	framework.on('popLayer', function(event, o) {
 		var q = $q.defer();
 		var element = viewports.pop();
+		$(element.data("arrow")).remove();
+		$(window).unbind("resize", element.data("resize-event"));
 		$(element).animate({
 			opacity : 0
 		}, {
@@ -187,16 +193,120 @@ angular.module('webActivitiesApp.controllers', [])
 	});
 
 	framework.on('pushLayer', function(event, o) {
+		var windowRelativeOffset = 5;
+
 		var q = $q.defer();
 		var element = $("<div></div>").addClass("viewport popup").css("opacity", "0");
-		if (o.size) {
-			element.addClass(o.size);
-		}
 		var shadow = $("<div></div>").addClass("viewport-shadow");
 		element.data("shadow", shadow);
+
+		if (o.size && !o.relativeTo) {
+			element.addClass(o.size);
+		}
+		var currentViewport = viewports.peek();
 		viewports.push(element);
+		
 		shadow.appendTo($("#layers-viewport"));
 		element.appendTo($("#layers-viewport"));
+		
+		if (o.relativeTo) {
+
+			var arrow = $("<div></div>").appendTo($("#layers-viewport"));
+
+			var calculatePosition = function() {
+				var position = $(o.relativeTo).position();
+				var offsetTop = $(currentViewport).find("iframe").contents().scrollTop();
+				var offsetLeft = $(currentViewport).find("iframe").contents().scrollLeft();
+				var windowWidth = $(window).width();
+				var windowHeight = $(window).height() - $(".nav").height();
+				var top = position.top - offsetTop;
+				var left = position.left - offsetLeft;
+				var width = $(o.relativeTo).outerWidth();
+				var height = $(o.relativeTo).outerHeight();
+
+				var sizes = [];
+
+				// Quadrante a sinistra
+				sizes.push({
+					top : windowRelativeOffset,
+					left : windowRelativeOffset,
+					width : left - windowRelativeOffset * 2,
+					height : windowHeight - windowRelativeOffset * 2,
+					arrow : "arrow-right",
+					arrowtop : top + height / 2 - 10,
+					arrowleft : left - windowRelativeOffset - 1
+				});
+
+				// Quadrante in alto
+				sizes.push({
+					top : windowRelativeOffset,
+					left : windowRelativeOffset,
+					width : windowWidth - windowRelativeOffset * 2,
+					height : top - windowRelativeOffset * 2,
+					arrow : "arrow-bottom",
+					arrowtop : top - windowRelativeOffset - 1,
+					arrowleft : left + width / 2 - 10
+				});
+
+				// Quadrante a destra
+				sizes.push({
+					top : windowRelativeOffset,
+					left : windowRelativeOffset + left + width,
+					width : windowWidth - windowRelativeOffset * 2 - left - width,
+					height : windowHeight - windowRelativeOffset * 2,
+					arrow : "arrow-left",
+					arrowtop : top + height / 2 - 10,
+					arrowleft : left + width - 20 + 1 + windowRelativeOffset
+				});
+
+				// Quadrante in basso
+				sizes.push({
+					top : windowRelativeOffset + top + height,
+					left : windowRelativeOffset,
+					width : windowWidth - windowRelativeOffset * 2,
+					height : windowHeight - windowRelativeOffset * 2 - top - height,
+					arrow : "arrow-top",
+					arrowtop : top + height + windowRelativeOffset - 20 + 1,
+					arrowleft : left + width / 2 - 10
+				});
+
+				var bestArea = 0;
+				var bestAreaSize = null;
+				for ( var i in sizes) {
+					var s = sizes[i];
+					var area = s.width * s.height;
+					if (area > bestArea) {
+						bestArea = area;
+						bestAreaSize = s;
+					}
+				}
+
+				element.css({
+					top : bestAreaSize.top,
+					left : bestAreaSize.left,
+					width : bestAreaSize.width,
+					height : bestAreaSize.height,
+					bottom : null,
+					right : null
+				});
+
+				arrow.removeClass().addClass(bestAreaSize.arrow).css({
+					position : "absolute",
+					top : bestAreaSize.arrowtop,
+					left : bestAreaSize.arrowleft
+				});
+			};
+			
+			$(window).bind("resize", calculatePosition);
+			element.data("arrow", arrow);
+			element.data("resize-event", calculatePosition);
+			
+			calculatePosition();
+		}
+
+		
+		
+		
 		$(element).animate({
 			opacity : 1
 		}, {
