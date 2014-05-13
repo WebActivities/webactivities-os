@@ -4,6 +4,7 @@
 
 angular.module('webActivitiesApp.controllers', [])
 
+
 .controller('HomeCtrl', [ '$rootScope', '$scope', 'framework', '$modal', 'TRANSITION_SPEED', '$q', function($rootScope, $scope, framework, $modal, TRANSITION_SPEED, $q) {
 
 	// Utilities
@@ -20,7 +21,18 @@ angular.module('webActivitiesApp.controllers', [])
 	$scope.startingApp = null;
 	$scope.maxBreadcrumbSize = 3;
 	
-	$scope.searchInput='';
+	$scope.settingsPanels = [{
+		icon: 'fa-search',
+		label: 'Cerca',
+		templateUrl : 'partials/searchPanel.html',
+		controller: 'SearchCtrl'
+	},{
+		icon: 'fa-picture-o',
+		label: 'Temi e aspetto'
+	},{
+		icon: 'fa-cog',
+		label: 'Impostazioni'
+	}];
 
 	// Functions
 	$scope.activityStack = function() {
@@ -52,16 +64,6 @@ angular.module('webActivitiesApp.controllers', [])
 
 	$scope.startApp = function(appId) {
 		framework.startApp(appId);
-	};
-	
-	$scope.startActivity = function($event,activityDef,mode) {
-		$event.stopPropagation();
-		var i = new Intent(IntentType.START_ACTIVITY,framework);
-		i.app = activityDef.app;
-		i.activity = activityDef.code;
-		i.parameters = {};
-		i.startMode = mode || 'ROOT';
-		return i.start();
 	};
 
 	$scope.stopActivity = function() {
@@ -279,6 +281,24 @@ angular.module('webActivitiesApp.controllers', [])
 	framework.installApp("apps/maps/app.json");
 
 } ])
+
+.controller('SearchCtrl', ['$scope', function($scope) {
+	
+	$scope.searchInput='';
+	
+	$scope.activityDefs = $scope.$parent.activityDefs;
+	
+	$scope.startActivity = function($event,activityDef,mode) {
+		$event.stopPropagation();
+		var i = new Intent(IntentType.START_ACTIVITY,framework);
+		i.app = activityDef.app;
+		i.activity = activityDef.code;
+		i.parameters = {};
+		i.startMode = mode || 'ROOT';
+		return i.start();
+	};
+	
+}])
 
 // end
 ;

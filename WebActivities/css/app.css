@@ -126,8 +126,15 @@ body {
 	right: -50%;
 } 
 
-#searchActivityTabBody {
+#settings-panel-body {
 	padding: 5px;
+	position: absolute;
+	top: 43px;
+	left: 0px;
+	right: 0px;
+	bottom: 0px;
+	overflow-y: auto;
+	overflow-x: hidden;
 }
 
 tab-heading {
