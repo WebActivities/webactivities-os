@@ -6,12 +6,14 @@
 	"version" : "1.0.0",
 	"activities" : {
 		"activity1" : {
+			"startable" : true,
 			"name" : "Attività number one",
 			"icon" : "/res/activity.png",
 			"activator" : "Activity1",
 			"seamless" : true	
 		},
 		"activity3" : {
+			"startable" : true,
 			"name" : "Nuova attività",
 			"icon" : "/res/activity.png",
 			"activator" : "Activity3",
