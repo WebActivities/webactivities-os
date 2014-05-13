@@ -45,99 +45,6 @@ angular.module('webActivitiesApp.framework', [])
 		return webActivities.startMode.UNKNOWN;
 	};
 
-	var IntentType = {
-		START_ACTIVITY : 0,
-		START_INTENT : 2
-	};
-
-	var Intent = function(type) {
-		this.intentType = type;
-		this.activity = null;
-		this.app = null;
-		this.parameters = {};
-		this.startMode = "CHILD";
-
-		this.start = function(options) {
-			var q = $q.defer();
-			var self = this;
-			if (this.intentType == IntentType.START_ACTIVITY) {
-				if (this.app && this.activity) {
-					webActivities.startActivity(this.activity, this.app, this.parameters, resolveStartMode(this.startMode), options, q);
-				}
-			} else {
-				if (this.intentType) {
-					webActivities.selectActivityForIntent(this).then(function(act) {
-						webActivities.startActivity(act.id, act.app, self.parameters, resolveStartMode(self.startMode), options, q);
-					});
-				}
-			}
-			return q.promise;
-		};
-	};
-
-	var Stack = function() {
-		this.top = null;
-		this.count = 0;
-
-		this.getCount = function() {
-			return this.count;
-		};
-
-		this.getTop = function() {
-			return this.top;
-		};
-
-		this.push = function(data) {
-			var node = {
-				data : data,
-				next : null
-			};
-
-			node.next = this.top;
-			this.top = node;
-
-			this.count++;
-		};
-
-		this.peek = function() {
-			if (this.top === null) {
-				return null;
-			} else {
-				return this.top.data;
-			}
-		};
-
-		this.pop = function() {
-			if (this.top === null) {
-				return null;
-			} else {
-				var out = this.top;
-				this.top = this.top.next;
-				if (this.count > 0) {
-					this.count--;
-				}
-
-				return out.data;
-			}
-		};
-
-		this.getAll = function() {
-			if (this.top === null) {
-				return null;
-			} else {
-				var arr = new Array();
-
-				var current = this.top;
-				// console.log(current);
-				for (var i = 0; i < this.count; i++) {
-					arr[i] = current.data;
-					current = current.next;
-				}
-
-				return arr;
-			}
-		};
-	};
 
 	// Create a new context
 	var createContext = function(stackItem, _closeDefer) {
@@ -207,14 +114,14 @@ angular.module('webActivitiesApp.framework', [])
 				return _listeners;
 			},
 			newActivityIntent : function(app, activity, parameters) {
-				var i = new Intent(IntentType.START_ACTIVITY);
+				var i = new Intent(IntentType.START_ACTIVITY,webActivities);
 				i.activity = activity;
 				i.parameters = parameters;
 				i.app = app;
 				return i;
 			},
 			newIntent : function(intentType, parameters) {
-				var i = new Intent(intentType);
+				var i = new Intent(intentType,webActivities);
 				i.parameters = parameters;
 				return i;
 			},
@@ -698,6 +605,28 @@ angular.module('webActivitiesApp.framework', [])
 			}
 
 		}
+	};
+	
+	webActivities.executeIntent = function(intent,startOptions) {
+		var q = $q.defer();
+		if (intent.intentType == IntentType.START_ACTIVITY) {
+			if (intent.app && intent.activity) {
+				webActivities.startActivity(intent.activity, intent.app,
+						intent.parameters, resolveStartMode(intent.startMode),
+						startOptions, q);
+			}
+		} else {
+			if (intent.intentType) {
+				webActivities.selectActivityForIntent(intent).then(
+						function(act) {
+							webActivities.startActivity(act.id, act.app,
+									intent.parameters,
+									resolveStartMode(intent.startMode), startOptions,
+									q);
+						});
+			}
+		}
+		return q.promise;
 	};
 
 	return webActivities;
