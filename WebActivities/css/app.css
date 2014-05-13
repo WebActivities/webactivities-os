@@ -2,6 +2,7 @@
 html {
 	width: auto;
 	height: 100%;
+	overflow: hidden;
 }
 
 body {
@@ -73,23 +74,13 @@ body {
 .popup {
 	position: absolute;
 	background: white;
-	border: 1px solid #cacaca; left : 15%;
+	border: 1px solid #cacaca;
+	left: 15%;
 	right: 15%;
 	top: 15%;
 	bottom: 15%;
 	left: 15%;
 	box-shadow: 0px 0px 10px #cacaca;
-}
-
-.viewport-shadow {
-	background: #fff;
-	position: absolute;
-	background: white;
-	opacity: .75;
-	left: 0px;
-	right: 0px;
-	top: 0px;
-	bottom: 0px;
 }
 
 .popup.lg {
@@ -105,3 +96,31 @@ body {
 	top: 30%;
 	bottom: 30%;
 }
+
+.viewport-shadow {
+	background: #fff;
+	position: absolute;
+	background: white;
+	opacity: .75;
+	left: 0px;
+	right: 0px;
+	top: 0px;
+	bottom: 0px;
+}
+
+#settings-panel {
+	position: absolute;
+	z-index: 99999;
+	background: white;
+	border: 1px solid #cacaca;
+	box-shadow: 0px 0px 10px #cacaca;
+	top: 50px;
+	bottom: 10px;
+	width: 40%;
+	right: 0px;
+	overflow: auto;
+}
+
+#settings-panel.hidden-panel {
+	right: -50%;
+} 

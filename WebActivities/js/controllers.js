@@ -126,6 +126,23 @@ angular.module('webActivitiesApp.controllers', [])
 		framework.stopAllPopupActivities();
 	};
 
+	$scope.showSettings = function() {
+		var elements = $(document).add($("iframe").contents());
+
+		var hideFunction = undefined;
+		hideFunction = function(e) {
+			if ($(e.target).closest("#settings-panel").size() == 0) {
+				$("#settings-panel").addClass("hidden-panel", TRANSITION_SPEED);
+				elements.unbind("click", hideFunction);
+			}
+		};
+
+		$("#settings-panel").removeClass("hidden-panel", TRANSITION_SPEED, function() {
+			elements.bind("click", hideFunction);
+		});
+
+	};
+
 	// Listener
 	framework.on('appInstalled', function(event, app) {
 		$scope.apps.push(app);
