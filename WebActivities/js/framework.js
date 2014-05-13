@@ -471,9 +471,12 @@ angular.module('webActivitiesApp.framework', [])
 				});
 			}
 			var iframe = $('<iframe />', {
-				style : "border: 0; width: 0; height: 0",
-				srcDoc : "<script type=\"text/javascript\">var top = null; var opener = null; var parent = null; window.opener = null; window.parent = null;</script>" + resourcesIncluded
+				style : "border: 0; width: 0; height: 0"
 			}).appendTo($("#app-class-loader"));
+			var doc = iframe[0].contentWindow.window.document;
+			doc.open();
+			doc.write("<script type=\"text/javascript\">var top = null; var opener = null; var parent = null; window.opener = null; window.parent = null;</script>" + resourcesIncluded);
+			doc.close();
 
 			app.iframe = iframe;
 			iframe.load(function() {
