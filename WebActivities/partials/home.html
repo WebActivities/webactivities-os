@@ -1,5 +1,5 @@
 <nav class="navbar navbar-inverse navbar-static-top top-bar"
-	role="navigation" style="margin-bottom: 0px;">
+	role="navigation" style="margin-bottom: 0px;" id="navbar">
 	<div class="container-fluid">
 		<!-- Brand and toggle get grouped for better mobile display -->
 		<div class="navbar-header">
@@ -73,7 +73,7 @@
 					</a>
 				</li>
 
-				<li data-ng-show="activityStack().length > 0">
+				<li data-ng-show="activityStack().length > 0 && currentActivity().openMode != 'CHILD_POPUP'">
 					<a href="" class="btn-danger" data-ng-click="stopActivity()">
 						<i class="fa fa-step-backward"></i>
 						indietro
