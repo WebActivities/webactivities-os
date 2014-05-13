@@ -1,58 +1,162 @@
-<nav class="navbar navbar-inverse navbar-static-top top-bar" role="navigation" style="margin-bottom: 0px;">
-		<div class="container-fluid">
-				<!-- Brand and toggle get grouped for better mobile display -->
-				<div class="navbar-header">
-						<button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#top-bar-collapse" onclick="setTimeout(function() { $(window).resize(); }, 1000);">
-								<span class="sr-only">Toggle navigation</span> <span class="icon-bar"></span> <span class="icon-bar"></span> <span class="icon-bar"></span>
-						</button>
-						<a class="navbar-brand" href="" style="margin: 0px 5px 0px 0px; padding: 0px;"><img src="img/wa-logo.png" alt="" /></a>
-				</div>
-
-
-				<div class="collapse navbar-collapse" id="top-bar-collapse">
-						<ul class="nav navbar-nav navbar-left">
-								<li data-ng-show="activityStack().length > 0"><a href="" class="btn-info" data-ng-click="stopAllActivities()"><i class="fa fa-home pointer"></i></a></li>
-								<li class="navbar-text"><span data-ng-show="activityStack().length > maxBreadcrumbSize"><i class="fa fa-caret-right"></i> ...{{activityStack().length - maxBreadcrumbSize}} attività... </span> <span data-ng-repeat="item in activityStack() | limitTo:-maxBreadcrumbSize"><i class="fa fa-caret-right"></i> <i class="fa fa-external-link" data-ng-show="item.openMode == 'CHILD_POPUP'"></i> {{item.activity.name}} &nbsp;</span></li>
-						</ul>
-						<ul class="nav navbar-nav navbar-right">
-								<li class="dropdown" data-ng-show="notifies().length > 0"><a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-bell"></i> <span class="badge badge-warning">{{notifies().length}}</span> <b class="caret"></b></a>
-										<ul class="dropdown-menu">
-												<li data-ng-repeat="n in notifies()"><a href="" data-ng-click="removeNotify($index)"><span class="badge badge-info">{{n.type}}</span> {{n.message}}</a></li>
-												<li class="divider"></li>
-												<li><a href="" data-ng-click="removeAllNotifies()"><i class="fa fa-times"></i> Rimuovi tutte le notifiche</a></li>
-										</ul></li>
-								<li class="dropdown"><a href="" data-ng-click="showSettings()"><i class="fa fa-search"></i></a></li>
-								<li class="dropdown"><a href="" data-ng-click="showSettings()"><i class="fa fa-cogs"></i></a></li>
-
-								<li data-ng-show="activityStack().length > 0"><a href="" class="btn-danger" data-ng-click="stopActivity()"><i class="fa fa-step-backward"></i> indietro</a></li>
-								<li data-ng-show="isLayerStacked()"><a href="" class="btn-warning" data-ng-click="stopAllPopupActivities()">chiudi <i class="fa fa-times"></i></a></li>
-						</ul>
-						<p class="navbar-text navbar-right" data-ng-show="startingApp">
-								<span class="badge badge-info">Avvio applicazione {{startingApp}}...</span>
-						</p>
-				</div>
+<nav class="navbar navbar-inverse navbar-static-top top-bar"
+	role="navigation" style="margin-bottom: 0px;">
+	<div class="container-fluid">
+		<!-- Brand and toggle get grouped for better mobile display -->
+		<div class="navbar-header">
+			<button type="button" class="navbar-toggle" data-toggle="collapse"
+				data-target="#top-bar-collapse"
+				onclick="setTimeout(function() { $(window).resize(); }, 1000);">
+				<span class="sr-only">Toggle navigation</span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+			</button>
+			<a class="navbar-brand" href=""
+				style="margin: 0px 5px 0px 0px; padding: 0px;">
+				<img src="img/wa-logo.png" alt="" />
+			</a>
 		</div>
-		<!-- /.container-fluid -->
+
+
+		<div class="collapse navbar-collapse" id="top-bar-collapse">
+			<ul class="nav navbar-nav navbar-left">
+				<li data-ng-show="activityStack().length > 0">
+					<a href="" class="btn-info" data-ng-click="stopAllActivities()">
+						<i class="fa fa-home pointer"></i>
+					</a>
+				</li>
+				<li class="navbar-text">
+					<span data-ng-show="activityStack().length > maxBreadcrumbSize">
+						<i class="fa fa-caret-right"></i>
+						...{{activityStack().length - maxBreadcrumbSize}} attività...
+					</span>
+					<span
+						data-ng-repeat="item in activityStack() | limitTo:-maxBreadcrumbSize">
+						<i class="fa fa-caret-right"></i>
+						<i class="fa fa-external-link"
+							data-ng-show="item.openMode == 'CHILD_POPUP'"></i>
+						{{item.activity.name}} &nbsp;
+					</span>
+				</li>
+			</ul>
+			<ul class="nav navbar-nav navbar-right">
+				<li class="dropdown" data-ng-show="notifies().length > 0">
+					<a href="#" class="dropdown-toggle" data-toggle="dropdown">
+						<i class="fa fa-bell"></i>
+						<span class="badge badge-warning">{{notifies().length}}</span>
+						<b class="caret"></b>
+					</a>
+					<ul class="dropdown-menu">
+						<li data-ng-repeat="n in notifies()">
+							<a href="" data-ng-click="removeNotify($index)">
+								<span class="badge badge-info">{{n.type}}</span>
+								{{n.message}}
+							</a>
+						</li>
+						<li class="divider"></li>
+						<li>
+							<a href="" data-ng-click="removeAllNotifies()">
+								<i class="fa fa-times"></i>
+								Rimuovi tutte le notifiche
+							</a>
+						</li>
+					</ul>
+				</li>
+				<li class="dropdown">
+					<a href="" data-ng-click="showSettings()">
+						<i class="fa fa-search"></i>
+					</a>
+				</li>
+				<li class="dropdown">
+					<a href="" data-ng-click="showSettings()">
+						<i class="fa fa-cogs"></i>
+					</a>
+				</li>
+
+				<li data-ng-show="activityStack().length > 0">
+					<a href="" class="btn-danger" data-ng-click="stopActivity()">
+						<i class="fa fa-step-backward"></i>
+						indietro
+					</a>
+				</li>
+				<li data-ng-show="isLayerStacked()">
+					<a href="" class="btn-warning"
+						data-ng-click="stopAllPopupActivities()">
+						chiudi
+						<i class="fa fa-times"></i>
+					</a>
+				</li>
+			</ul>
+			<p class="navbar-text navbar-right" data-ng-show="startingApp">
+				<span class="badge badge-info">Avvio applicazione
+					{{startingApp}}...</span>
+			</p>
+		</div>
+	</div>
+	<!-- /.container-fluid -->
 </nav>
 <div data-ng-hide="displayActivity">
-		<div class="pointer app text-center" data-ng-repeat="app in apps" data-ng-click="startApp(app.id)">
-				<img data-ng-src="{{app.icon}}" alt="">
-				<div class="caption">
-						<p>{{app.name}}</p>
-				</div>
+	<div class="pointer app text-center" data-ng-repeat="app in apps"
+		data-ng-click="startApp(app.id)">
+		<img data-ng-src="{{app.icon}}" alt="">
+		<div class="caption">
+			<p>{{app.name}}</p>
 		</div>
+	</div>
 </div>
 <div data-ng-show="displayActivity" id="viewport-container">
-		<div id="viewport" class="viewport"></div>
-		<div id="layers-viewport"></div>
+	<div id="viewport" class="viewport"></div>
+	<div id="layers-viewport"></div>
 </div>
 <div id="settings-panel" class="hidden-panel">
 
-		<tabset justified="true"> <tab> <tab-heading><i class="fa fa-search"></i> Cerca</tab-heading>
-		<div></div>
-		</tab> <tab> <tab-heading> <i class="fa fa-picture-o"></i> Temi e aspetto</tab-heading>
-		<div></div>
-		</tab> <tab> <tab-heading> <i class="fa fa-cog"></i> Impostazioni</tab-heading>
-		<div></div>
-		</tab> </tabset>
+	<tabset justified="true"> <tab> <tab-heading>
+	<i class="fa fa-search"></i> Cerca</tab-heading>
+	<div id="searchActivityTabBody">
+
+		<form role="form">
+			<div class="form-group">
+				<input type="search" id="searchActivityInput"
+					data-ng-model="searchInput" class="form-control"
+					placeholder="What?">
+			</div>
+		</form>
+
+		<div data-ng-repeat="searchItem in activityDefs | filter: {$:searchInput,startable:true} "
+			class="panel panel-default panelSearchItem">
+			<div class="panel-body activitySearchItem" data-ng-click="startActivity($event,searchItem)">
+				<div class="container-fluid">
+					<div class="row">
+						<div class="col-md-2 iconCol">
+							<img data-ng-src="{{searchItem.icon}}" alt="">
+						</div>
+						<div class="col-md-6">
+							<p>{{searchItem.name}}</p>
+							<p>{{searchItem.appName}}</p>
+						</div> 
+						<div class="col-md-4">
+							<div class="btn-group btn-group-xs pull-right">
+							  <button type="button" class="btn btn-default" data-ng-click="startActivity($event,searchItem)">
+							  	<span class="glyphicon glyphicon-play"></span>
+							  </button>
+							  <button type="button" class="btn btn-default" data-ng-click="startActivity($event,searchItem,'CHILD')">
+							  	<span class="glyphicon glyphicon-chevron-right"></span>
+							  </button>
+							  <button type="button" class="btn btn-default" data-ng-click="startActivity($event,searchItem,'CHILD_POPUP')">
+							  	<span class="glyphicon glyphicon-new-window"></span>
+							  </button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	</tab> <tab> <tab-heading> <i class="fa fa-picture-o"></i>
+	Temi e aspetto</tab-heading>
+	<div></div>
+	</tab> <tab> <tab-heading> <i class="fa fa-cog"></i>
+	Impostazioni</tab-heading>
+	<div></div>
+	</tab> </tabset>
 </div>

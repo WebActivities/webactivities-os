@@ -6,6 +6,7 @@
 	"version" : "1.0.0",
 	"activities" : {
 		"maps" : {
+			"startable" : true,
 			"name" : "Attivita' mappe",
 			"icon" : "/res/activity.png",
 			"activator" : "MapsActivity",

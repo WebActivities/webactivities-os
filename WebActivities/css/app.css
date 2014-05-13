@@ -118,9 +118,32 @@ body {
 	bottom: 10px;
 	width: 40%;
 	right: 0px;
-	overflow: auto;
+	overflow-x: hidden;
+	overflow-y: auto;
 }
 
 #settings-panel.hidden-panel {
 	right: -50%;
 } 
+
+#searchActivityTabBody {
+	padding: 5px;
+}
+
+tab-heading {
+	white-space: nowrap;
+}
+
+.panelSearchItem > .activitySearchItem {
+	padding: 5px;
+	cursor: pointer;
+}
+.panelSearchItem > .activitySearchItem > .container-fluid {
+	padding: 0px;
+}
+.panelSearchItem .iconCol {
+	text-align: center;
+}
+.panelSearchItem .textCol p {s
+	margin-bottom: 3px;
+}

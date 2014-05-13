@@ -13,10 +13,14 @@ angular.module('webActivitiesApp.controllers', [])
 
 	// Declaration of scope variables
 	$scope.apps = [];
+	$scope.activityDefs = [];
+	
 	$scope.notifies = [];
 	$scope.displayActivity = false;
 	$scope.startingApp = null;
 	$scope.maxBreadcrumbSize = 3;
+	
+	$scope.searchInput='';
 
 	// Functions
 	$scope.activityStack = function() {
@@ -49,6 +53,16 @@ angular.module('webActivitiesApp.controllers', [])
 	$scope.startApp = function(appId) {
 		framework.startApp(appId);
 	};
+	
+	$scope.startActivity = function($event,activityDef,mode) {
+		$event.stopPropagation();
+		var i = new Intent(IntentType.START_ACTIVITY,framework);
+		i.app = activityDef.app;
+		i.activity = activityDef.code;
+		i.parameters = {};
+		i.startMode = mode || 'ROOT';
+		return i.start();
+	};
 
 	$scope.stopActivity = function() {
 		framework.stopActivity();
@@ -75,6 +89,7 @@ angular.module('webActivitiesApp.controllers', [])
 
 		$("#settings-panel").removeClass("hidden-panel", TRANSITION_SPEED, function() {
 			elements.bind("click", hideFunction);
+			$("#searchActivityInput").focus();
 		});
 
 	};
@@ -82,6 +97,12 @@ angular.module('webActivitiesApp.controllers', [])
 	// Listener
 	framework.on('appInstalled', function(event, app) {
 		$scope.apps.push(app);
+		$.each(app.activities,function(k,v) {
+			v.id=app.id+'.'+k;
+			v.code=k;
+			v.appName=app.name;
+			$scope.activityDefs.push(v);
+		});
 	});
 
 	framework.on('appStarting', function(event, app) {

@@ -5,6 +5,7 @@
 	"main" : "activity1",
 	"activities" : {
 		"activity1" : {
+			"startable" : true,
 			"name" : "Attività another one",
 			"icon" : "/res/activity.png",
 			"activator" : "Activity1",
@@ -12,6 +13,7 @@
 			"seamless" : true
 		},
 		"activity2" : {
+			"startable" : true,
 			"name" : "Attività veramente figa",
 			"icon" : "/res/activity.png",
 			"activator" : "Activity1",
