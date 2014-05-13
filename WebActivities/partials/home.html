@@ -110,53 +110,15 @@
 </div>
 <div id="settings-panel" class="hidden-panel">
 
-	<tabset justified="true"> <tab> <tab-heading>
-	<i class="fa fa-search"></i> Cerca</tab-heading>
-	<div id="searchActivityTabBody">
-
-		<form role="form">
-			<div class="form-group">
-				<input type="search" id="searchActivityInput"
-					data-ng-model="searchInput" class="form-control"
-					placeholder="What?">
+	<tabset justified="true"> 
+		
+		<tab data-ng-repeat="settingPanel in settingsPanels" >
+			 <tab-heading>
+				<i class="fa {{ settingPanel.icon }}"></i> {{ settingPanel.title }} 
+			</tab-heading>
+			<div id="settings-panel-body" data-ng-include="settingPanel.templateUrl">
 			</div>
-		</form>
-
-		<div data-ng-repeat="searchItem in activityDefs | filter: {$:searchInput,startable:true} "
-			class="panel panel-default panelSearchItem">
-			<div class="panel-body activitySearchItem" data-ng-click="startActivity($event,searchItem)">
-				<div class="container-fluid">
-					<div class="row">
-						<div class="col-md-2 iconCol">
-							<img data-ng-src="{{searchItem.icon}}" alt="">
-						</div>
-						<div class="col-md-6">
-							<p>{{searchItem.name}}</p>
-							<p>{{searchItem.appName}}</p>
-						</div> 
-						<div class="col-md-4">
-							<div class="btn-group btn-group-xs pull-right">
-							  <button type="button" class="btn btn-default" data-ng-click="startActivity($event,searchItem)">
-							  	<span class="glyphicon glyphicon-play"></span>
-							  </button>
-							  <button type="button" class="btn btn-default" data-ng-click="startActivity($event,searchItem,'CHILD')">
-							  	<span class="glyphicon glyphicon-chevron-right"></span>
-							  </button>
-							  <button type="button" class="btn btn-default" data-ng-click="startActivity($event,searchItem,'CHILD_POPUP')">
-							  	<span class="glyphicon glyphicon-new-window"></span>
-							  </button>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
-	</tab> <tab> <tab-heading> <i class="fa fa-picture-o"></i>
-	Temi e aspetto</tab-heading>
-	<div></div>
-	</tab> <tab> <tab-heading> <i class="fa fa-cog"></i>
-	Impostazioni</tab-heading>
-	<div></div>
-	</tab> </tabset>
+		</tab>
+	
+	 </tabset>
 </div>
