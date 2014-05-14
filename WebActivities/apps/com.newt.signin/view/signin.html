@@ -1,0 +1,30 @@
+<link rel="stylesheet" href="view/css/font-awesome.min.css" />
+
+<div data-ng-controller="SigninCtrl">
+		<div style="width: 50%; margin: 1em auto;">
+				<h1 class="page-header">
+						<i class="fa fa-sign-in"></i> Effettua l'accesso
+				</h1>
+
+				<form role="form">
+						<div class="form-group">
+								<label for="exampleInputEmail1">Email</label>
+								<input type="email" class="form-control" id="exampleInputEmail1" placeholder="Inserisci la tua email">
+						</div>
+						<div class="form-group">
+								<a id="passwordLostBtn" href="" class="pull-right" data-ng-click="passwordLost()"><small>Ho dimenticato la password</small></a>
+								<label for="exampleInputPassword1">Password</label>
+								<input type="password" class="form-control" id="exampleInputPassword1" placeholder="Inserisci la tua password">
+						</div>
+						<div class="checkbox">
+								<label> <input type="checkbox"> Ricordati l'accesso
+								</label>
+						</div>
+						<hr />
+						<button type="submit" class="btn btn-primary btn-block btn-sm">Accedi</button>
+				</form>
+
+		</div>
+
+
+</div>
