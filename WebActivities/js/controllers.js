@@ -102,11 +102,8 @@ angular.module('webActivitiesApp.controllers', [])
 	// Listener
 	framework.on('appInstalled', function(event, app) {
 		$scope.apps.push(app);
-		$.each(app.activities, function(k, v) {
-			v.id = app.id + '.' + k;
-			v.code = k;
-			v.appName = app.name;
-			$scope.activityDefs.push(v);
+		$.each(app.activities, function(i,act) {
+			$scope.activityDefs.push(act);
 		});
 	});
 
@@ -408,7 +405,7 @@ angular.module('webActivitiesApp.controllers', [])
 		} else if ($event.keyCode==38) {
 			$scope.selectedItemIndex = Math.max(0,$scope.selectedItemIndex-1);
 		} else if ($event.keyCode==13) {
-			if ($scope.selectedItemIndex>0 && $scope.selectedItemIndex<$scope.filteredItems.length) {
+			if ($scope.selectedItemIndex>=0 && $scope.selectedItemIndex<$scope.filteredItems.length) {
 				var act = $scope.filteredItems[$scope.selectedItemIndex];
 				$scope.startActivity(null,act);
 			}

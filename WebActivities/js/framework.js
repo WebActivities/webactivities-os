@@ -128,6 +128,13 @@ angular.module('webActivitiesApp.framework', [])
 		return d.promise;
 	};
 
+	/*spostare su utils*/
+	webActivities.resolveUrl = resolveUrl;
+	webActivities.dirname = dirname;
+	webActivities.log = log;
+	webActivities.composeActivityId = composeActivityId;
+	/* */
+	
 	webActivities.listApps = function() {
 		return $.extend({}, apps);
 	};
@@ -187,47 +194,16 @@ angular.module('webActivitiesApp.framework', [])
 		});
 	};
 
-	webActivities.installApp = function(appDefinition) {
-		$.getJSON(appDefinition).done(function(app) {
-			app.status = webActivities.status.REGISTERED;
-			app.path = dirname(appDefinition);
-			app.icon = resolveUrl(app, app.icon);
-			if (!app.version) {
-				app.version = "0.0.0";
-			}
-			app.businessCard = function() {
-				var icon = "<img src=\"" + app.icon + "\" style=\"max-width: 32px; vertical-align: middle\"><br />";
-				var bc = "<strong>" + this.name + " (" + this.version + ")</strong><br />";
-				var code = "<small>" + this.id + "</small><br />";
-				var div = $("<div>").css("text-align", "center");
-				div.append(icon);
-				div.append(bc);
-				div.append(code);
-				return $("<div>").append(div).html();
-			};
-
-			log("Registered application " + app.name + " <" + app.id + ">");
-			log(app);
-
-			apps[app.id] = app;
-
-			if ($.isArray(app.activities)) {
-				$.each(app.activities,function(i,activityDef) {
-					activityDef.id = composeActivityId(app.id, activityDef.name);
-					activityDef.path = app.path;
-					activityDef.app = app.id;
-					activityDef.appName = app.name;
-					activityDef.icon = resolveUrl(app, activityDef.icon);
-					activities[activityDef.id] = activityDef;
-					
-					log("Registered activity <" + activityDef.id + "> ", activityDef);
-					
-				});
-			} else {
-				app.activities = [];
-			}
+	webActivities.installApp = function(appDefinitionUrl) {
+		$.getJSON(appDefinitionUrl).done(function(appDefinition) {
 			
-			webActivities.broadcast('appInstalled', $.extend({}, app));
+			var application = new Application(webActivities,appDefinition,appDefinitionUrl);
+			$.each(application.activities,function(i,activity) {
+				activities[activity.id] = activity;
+			});
+			
+			apps[application.id] = application;
+			webActivities.broadcast('appInstalled',application);
 
 		}).fail(function(a, e) {
 			error("Unable to register application <" + appPath + "/app.json>: " + e);
@@ -236,10 +212,10 @@ angular.module('webActivitiesApp.framework', [])
 
 	webActivities.startApp = function(appId, preventStartActivity, callback) {
 		var app = apps[appId];
-		if (!$.isPlainObject(app)) {
+		if (!app) {
 			error("The application <" + appId + "> doesn't exists");
 		} else if (app.status == webActivities.status.REGISTERED) {
-			webActivities.broadcast('appStarting', $.extend({}, app));
+			webActivities.broadcast('appStarting',app);
 			app.status = webActivities.status.STARTING;
 			var resourcesIncluded = "";
 			if ($.isArray(app.resources)) {
@@ -277,7 +253,7 @@ angular.module('webActivitiesApp.framework', [])
 
 	webActivities.startMainActivity = function(appId) {
 		var app = apps[appId];
-		if (!$.isPlainObject(app)) {
+		if (!app) {
 			error("The application <" + appId + "> doesn't exists");
 		} else if (app.status != webActivities.status.STARTED) {
 			error("The application <" + appId + "> isn't started");

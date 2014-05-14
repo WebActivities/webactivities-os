@@ -8,7 +8,12 @@
 		"/systemApp.js?%v&%d"
     ],
     "services" : [{
-    	
+    	"name": "maps",
+		"description" : "Attivita' mappe",
+		"icon" : "/res/activity.png",
+		"activator" : "MapsActivity",
+		"seamless" : false,
+		"intentFilters" : ["map"]
     }],
     "settings" : {
     }
