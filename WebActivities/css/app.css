@@ -141,6 +141,9 @@ tab-heading {
 	white-space: nowrap;
 }
 
+.panelSearchItem.selected {
+	background-color: orange;
+}
 .panelSearchItem > .activitySearchItem {
 	padding: 5px;
 	cursor: pointer;

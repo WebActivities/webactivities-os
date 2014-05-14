@@ -4,13 +4,14 @@
 	<form role="form">
 		<div class="form-group">
 			<input type="search" id="searchActivityInput"
+			    data-ng-keydown="keyDown($event)"
 				data-ng-model="searchInput" class="form-control" placeholder="What?">
 		</div>
 	</form>
 
 	<div
-		data-ng-repeat="searchItem in activityDefs | filter: {$:searchInput,startable:true} "
-		class="panel panel-default panelSearchItem">
+		data-ng-repeat="searchItem in ( filteredItems = ( activityDefs | filter: {$:searchInput,startable:true} )) "
+		class="panel panel-default panelSearchItem" data-ng-class='{selected: $index==selectedItemIndex}'>
 		<div class="panel-body activitySearchItem"
 			data-ng-click="startActivity($event,searchItem)">
 			<div class="container-fluid">
