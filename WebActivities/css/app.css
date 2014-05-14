@@ -97,10 +97,10 @@ body {
 	bottom: 30%;
 }
 
+
 .viewport-shadow {
-	background: #fff;
+	background: #f2f2f2;	
 	position: absolute;
-	background: white;
 	opacity: .75;
 	left: 0px;
 	right: 0px;
@@ -124,7 +124,39 @@ body {
 
 #settings-panel.hidden-panel {
 	right: -50%;
-} 
+}
+
+.arrow-right {
+	width: 0px;
+	height: 0px;
+	border-style: solid;
+	border-width: 10px 0 10px 20px;
+	border-color: transparent transparent transparent #ffffff;
+}
+
+.arrow-left {
+	width: 0px;
+	height: 0px;
+	border-style: solid;
+	border-width: 10px 20px 10px 0;
+	border-color: transparent #ffffff transparent transparent;
+}
+
+.arrow-top {
+	width: 0px;
+	height: 0px;
+	border-style: solid;
+	border-width: 0 10px 20px 10px;
+	border-color: transparent transparent #ffffff transparent;
+}
+
+.arrow-bottom {
+	width: 0px;
+	height: 0px;
+	border-style: solid;
+	border-width: 20px 10px 0 10px;
+	border-color: #ffffff transparent transparent transparent;
+}
 
 #settings-panel-body {
 	padding: 5px;
@@ -144,16 +176,19 @@ tab-heading {
 .panelSearchItem.selected {
 	background-color: orange;
 }
-.panelSearchItem > .activitySearchItem {
+.panelSearchItem>.activitySearchItem {
 	padding: 5px;
 	cursor: pointer;
 }
-.panelSearchItem > .activitySearchItem > .container-fluid {
+
+.panelSearchItem>.activitySearchItem>.container-fluid {
 	padding: 0px;
 }
+
 .panelSearchItem .iconCol {
 	text-align: center;
 }
-.panelSearchItem .textCol p {s
+
+.panelSearchItem .textCol p {
 	margin-bottom: 3px;
 }

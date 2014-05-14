@@ -4,7 +4,6 @@
 
 angular.module('webActivitiesApp.controllers', [])
 
-
 .controller('HomeCtrl', [ '$rootScope', '$scope', 'framework', '$modal', 'TRANSITION_SPEED', '$q', function($rootScope, $scope, framework, $modal, TRANSITION_SPEED, $q) {
 
 	// Utilities
@@ -15,24 +14,24 @@ angular.module('webActivitiesApp.controllers', [])
 	// Declaration of scope variables
 	$scope.apps = [];
 	$scope.activityDefs = [];
-	
+
 	$scope.notifies = [];
 	$scope.displayActivity = false;
 	$scope.startingApp = null;
 	$scope.maxBreadcrumbSize = 3;
-	
-	$scope.settingsPanels = [{
-		icon: 'fa-search',
-		label: 'Cerca',
+
+	$scope.settingsPanels = [ {
+		icon : 'fa-search',
+		label : 'Cerca',
 		templateUrl : 'partials/searchPanel.html',
-		controller: 'SearchCtrl'
-	},{
-		icon: 'fa-picture-o',
-		label: 'Temi e aspetto'
-	},{
-		icon: 'fa-cog',
-		label: 'Impostazioni'
-	}];
+		controller : 'SearchCtrl'
+	}, {
+		icon : 'fa-picture-o',
+		label : 'Temi e aspetto'
+	}, {
+		icon : 'fa-cog',
+		label : 'Impostazioni'
+	} ];
 
 	// Functions
 	$scope.activityStack = function() {
@@ -41,6 +40,10 @@ angular.module('webActivitiesApp.controllers', [])
 		}
 		var clone = framework.getActivityStack().slice(0);
 		return clone.reverse();
+	};
+
+	$scope.currentActivity = function() {
+		return framework.getCurrentActivity();
 	};
 
 	$scope.isLayerStacked = function() {
@@ -99,10 +102,10 @@ angular.module('webActivitiesApp.controllers', [])
 	// Listener
 	framework.on('appInstalled', function(event, app) {
 		$scope.apps.push(app);
-		$.each(app.activities,function(k,v) {
-			v.id=app.id+'.'+k;
-			v.code=k;
-			v.appName=app.name;
+		$.each(app.activities, function(k, v) {
+			v.id = app.id + '.' + k;
+			v.code = k;
+			v.appName = app.name;
 			$scope.activityDefs.push(v);
 		});
 	});
@@ -196,6 +199,8 @@ angular.module('webActivitiesApp.controllers', [])
 	framework.on('popLayer', function(event, o) {
 		var q = $q.defer();
 		var element = viewports.pop();
+		$(element.data("arrow")).remove();
+		$(window).unbind("resize", element.data("resize-event"));
 		$(element).animate({
 			opacity : 0
 		}, {
@@ -210,16 +215,120 @@ angular.module('webActivitiesApp.controllers', [])
 	});
 
 	framework.on('pushLayer', function(event, o) {
+		var windowRelativeOffset = 20;
+
 		var q = $q.defer();
 		var element = $("<div></div>").addClass("viewport popup").css("opacity", "0");
-		if (o.size) {
-			element.addClass(o.size);
-		}
 		var shadow = $("<div></div>").addClass("viewport-shadow");
 		element.data("shadow", shadow);
+
+		if (o.size && !o.relativeTo) {
+			element.addClass(o.size);
+		}
+		var currentViewport = viewports.peek();
 		viewports.push(element);
+
 		shadow.appendTo($("#layers-viewport"));
 		element.appendTo($("#layers-viewport"));
+
+		if (o.relativeTo) {
+
+			var arrow = $("<div></div>").appendTo($("#layers-viewport"));
+
+			var calculatePosition = function(o, element, arrow, currentViewport) {
+				return function() {
+					var position = $(o.relativeTo).position();
+					var offsetTop = $(currentViewport).find("iframe").contents().scrollTop();
+					var offsetLeft = $(currentViewport).find("iframe").contents().scrollLeft();
+					var windowWidth = $(window).width();
+					var windowHeight = $(window).height() - $("#navbar").outerHeight();
+					var top = position.top - offsetTop + currentViewport.position().top;
+					var left = position.left - offsetLeft + currentViewport.position().left;
+					var width = $(o.relativeTo).outerWidth();
+					var height = $(o.relativeTo).outerHeight();
+
+					var sizes = new Array();
+
+					// Quadrante a sinistra
+					sizes.push({
+						top : windowRelativeOffset,
+						left : windowRelativeOffset,
+						width : left - windowRelativeOffset * 2,
+						height : windowHeight - windowRelativeOffset * 2,
+						arrow : "arrow-right",
+						arrowtop : top + height / 2 - 10,
+						arrowleft : left - windowRelativeOffset - 1
+					});
+
+					// Quadrante in alto
+					sizes.push({
+						top : windowRelativeOffset,
+						left : windowRelativeOffset,
+						width : windowWidth - windowRelativeOffset * 2,
+						height : top - windowRelativeOffset * 2,
+						arrow : "arrow-bottom",
+						arrowtop : top - windowRelativeOffset - 1,
+						arrowleft : left + width / 2 - 10
+					});
+
+					// Quadrante a destra
+					sizes.push({
+						top : windowRelativeOffset,
+						left : windowRelativeOffset + left + width,
+						width : windowWidth - windowRelativeOffset * 2 - left - width,
+						height : windowHeight - windowRelativeOffset * 2,
+						arrow : "arrow-left",
+						arrowtop : top + height / 2 - 10,
+						arrowleft : left + width - 20 + 1 + windowRelativeOffset
+					});
+
+					// Quadrante in basso
+					sizes.push({
+						top : top + height + windowRelativeOffset - 10,
+						left : windowRelativeOffset,
+						width : windowWidth - windowRelativeOffset * 2,
+						height : windowHeight - top - height - windowRelativeOffset * 2,
+						bottom : windowRelativeOffset,
+						arrow : "arrow-top",
+						arrowtop : top + height - 10 + 1,
+						arrowleft : left + width / 2 - 10
+					});
+
+					var bestArea = 0;
+					var bestAreaSize = null;
+					for ( var i in sizes) {
+						var s = sizes[i];
+						var area = s.width * s.height;
+						if (area > bestArea) {
+							bestArea = area;
+							bestAreaSize = s;
+						}
+					}
+
+					element.css({
+						top : bestAreaSize.top,
+						left : bestAreaSize.left,
+						width : bestAreaSize.width,
+						height : bestAreaSize.height,
+						bottom : null,
+						right : null
+					});
+
+					arrow.removeClass().addClass(bestAreaSize.arrow).css({
+						position : "absolute",
+						top : bestAreaSize.arrowtop,
+						left : bestAreaSize.arrowleft
+					});
+				};
+			}(o, element, arrow, currentViewport);
+
+			$(window).bind("resize", calculatePosition);
+			element.data("arrow", arrow);
+			element.data("resize-event", calculatePosition);
+
+			calculatePosition();
+		}
+
 		$(element).animate({
 			opacity : 1
 		}, {
@@ -305,20 +414,20 @@ angular.module('webActivitiesApp.controllers', [])
 			}
 		}
 	};
-	
-	$scope.startActivity = function($event,activityDef,mode) {
+
+	$scope.startActivity = function($event, activityDef, mode) {
 		if ($event) {
 			$event.stopPropagation();
 		}
-		var i = new Intent(IntentType.START_ACTIVITY,framework);
+		var i = new Intent(IntentType.START_ACTIVITY, framework);
 		i.app = activityDef.app;
 		i.activity = activityDef.code;
 		i.parameters = {};
 		i.startMode = mode || 'ROOT';
 		return i.start();
 	};
-	
-}])
+
+} ])
 
 // end
 ;
