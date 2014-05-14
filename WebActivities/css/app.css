@@ -97,10 +97,10 @@ body {
 	bottom: 30%;
 }
 
+
 .viewport-shadow {
-	background: #fff;
+	background: #f2f2f2;	
 	position: absolute;
-	background: white;
 	opacity: .75;
 	left: 0px;
 	right: 0px;
