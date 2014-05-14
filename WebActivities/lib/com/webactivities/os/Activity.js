@@ -13,6 +13,7 @@ var Activity = function(webActivities,application,activityDef)  {
 	this.appName = application.name;
 	this.icon = webActivities.resolveUrl(application, activityDef.icon);
 	
+	this.searchableIndex = [this.name,this.description];
 	
 	
 	webActivities.log("Registered activity <" + activityDef.id + "> ", activityDef);

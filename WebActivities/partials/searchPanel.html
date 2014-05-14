@@ -11,7 +11,7 @@
 	</form>
 	<div class="list-group">
 		<a href="javascript:void(0)"
-			data-ng-repeat="searchItem in ( filteredItems = ( activityDefs | filter: {description:searchInput,startable:true}))"
+			data-ng-repeat="searchItem in ( filteredItems = ( activityDefs | filter: {searchableIndex:searchInput,startable:true}))"
 			class="list-group-item"
 			ng-class="{active: $index==selectedItemIndex}">
 			<div data-ng-click="startActivity($event,searchItem)">
