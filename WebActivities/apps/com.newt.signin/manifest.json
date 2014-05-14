@@ -1,0 +1,31 @@
+{
+	"id" : "com.newt.signin",
+	"name" : "Effettua l'accesso",
+	"icon" : "/res/signin.png",
+	"main" : "signin",
+	"version" : "1.0.0",
+	"activities" : {
+		"signin" : {
+			"name" : "Sign-In",
+			"icon" : "/res/signin.png",
+			"activator" : "SigninActivator",
+			"startable" : true,
+			"seamless" : true	
+		},
+		"passwordlost" : {
+			"name" : "Password Lost",
+			"icon" : "/res/signin.png",
+			"activator" : "PasswordLostActivator",
+			"startable" : false,
+			"seamless" : true	
+		}
+	},
+	"resources" : [
+	    "/activities/passwordlost/activator.js?%v&%d",
+		"/activities/signin/activator.js?%v&%d",
+		"/res/angular.min.js",
+		"/res/jquery-2.1.1.min.js"
+    ],
+    "settings" : {
+    }
+}

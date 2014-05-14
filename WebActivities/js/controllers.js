@@ -388,6 +388,7 @@ angular.module('webActivitiesApp.controllers', [])
 	framework.installApp("apps/app1/app.json");
 	framework.installApp("apps/app2/app.json");
 	framework.installApp("apps/maps/app.json");
+	framework.installApp("apps/com.newt.signin/manifest.json");
 
 } ])
 
