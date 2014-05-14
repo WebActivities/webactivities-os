@@ -173,22 +173,3 @@ tab-heading {
 	white-space: nowrap;
 }
 
-.panelSearchItem.selected {
-	background-color: orange;
-}
-.panelSearchItem>.activitySearchItem {
-	padding: 5px;
-	cursor: pointer;
-}
-
-.panelSearchItem>.activitySearchItem>.container-fluid {
-	padding: 0px;
-}
-
-.panelSearchItem .iconCol {
-	text-align: center;
-}
-
-.panelSearchItem .textCol p {
-	margin-bottom: 3px;
-}

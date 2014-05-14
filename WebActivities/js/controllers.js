@@ -421,7 +421,7 @@ angular.module('webActivitiesApp.controllers', [])
 		}
 		var i = new Intent(IntentType.START_ACTIVITY, framework);
 		i.app = activityDef.app;
-		i.activity = activityDef.code;
+		i.activity = activityDef.name;
 		i.parameters = {};
 		i.startMode = mode || 'ROOT';
 		return i.start();

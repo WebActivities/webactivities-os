@@ -1,82 +1,48 @@
 
 <div data-ng-controller="SearchCtrl">
 
-		<form role="form">
-				<div class="form-group">
-						<input type="search" 
-						id="searchActivityInput" 
-						data-ng-keydown="keyDown($event)"
-						data-ng-model="searchInput" class="form-control" placeholder="Inserisci un termine di ricerca...">
-				</div>
-		</form>
-		<ul class="list-group">
-				<li data-ng-repeat="searchItem in ( filteredItems = ( activityDefs | filter: {$:searchInput,startable:true}))" class="list-group-item pointer">
-						<div data-ng-click="startActivity($event,searchItem)">
-								<img data-ng-src="{{searchItem.icon}}" alt="" style="max-width: 32px; margin-right: 1em;" class="pull-left">
-								<div class="btn-group btn-group-sm pull-right">
-										<button type="button" class="btn btn-default" data-ng-click="startActivity($event,searchItem)" tooltip-placement="bottom" tooltip="Chiudi tutto e avvia">
-												<span class="fa fa-play"></span>
-										</button>
-										<button type="button" class="btn btn-default" data-ng-click="startActivity($event,searchItem,'CHILD')" tooltip-placement="bottom" tooltip="Avvia attività">
-												<span class="fa fa-fast-forward"></span>
-										</button>
-										<button type="button" class="btn btn-default" data-ng-click="startActivity($event,searchItem,'CHILD_POPUP')" tooltip-placement="bottom" tooltip="Avvia attività come PopUp">
-												<span class="fa fa-external-link"></span>
-										</button>
-								</div>
-								<p>
-										{{searchItem.name}}<br /> <small class="text-muted">{{searchItem.appName}}</small>
-								</p>
-
-						</div>
-</div>
-</div>
-</li>
-</ul>
-</div>
-
-
-<div data-ng-controller="SearchCtrl">
-
 	<form role="form">
+		<div class="form-group">
 			<input type="search" id="searchActivityInput"
-			    data-ng-keydown="keyDown($event)"
-				data-ng-model="searchInput" class="form-control" placeholder="What?">
-	</form>
-
-	<div
-		data-ng-repeat="searchItem in ( filteredItems = ( activityDefs | filter: {$:searchInput,startable:true} )) "
-		class="panel panel-default panelSearchItem" data-ng-class='{selected: $index==selectedItemIndex}'>
-		<div class="panel-body activitySearchItem"
-			data-ng-click="startActivity($event,searchItem)">
-			<div class="container-fluid">
-				<div class="row">
-					<div class="col-md-2 iconCol">
-						<img data-ng-src="{{searchItem.icon}}" alt="">
-					</div>
-					<div class="col-md-6">
-						<p>{{searchItem.name}}</p>
-						<p>{{searchItem.appName}}</p>
-					</div>
-					<div class="col-md-4">
-						<div class="btn-group btn-group-xs pull-right">
-							<button type="button" class="btn btn-default"
-								data-ng-click="startActivity($event,searchItem)">
-								<span class="glyphicon glyphicon-play"></span>
-							</button>
-							<button type="button" class="btn btn-default"
-								data-ng-click="startActivity($event,searchItem,'CHILD')">
-								<span class="glyphicon glyphicon-chevron-right"></span>
-							</button>
-							<button type="button" class="btn btn-default"
-								data-ng-click="startActivity($event,searchItem,'CHILD_POPUP')">
-								<span class="glyphicon glyphicon-new-window"></span>
-							</button>
-						</div>
-					</div>
-				</div>
-			</div>
+				data-ng-keydown="keyDown($event)" data-ng-model="searchInput"
+				class="form-control"
+				placeholder="Inserisci un termine di ricerca...">
 		</div>
+	</form>
+	<div class="list-group">
+		<a href="#"
+			data-ng-repeat="searchItem in ( filteredItems = ( activityDefs | filter: {$:searchInput,startable:true}))"
+			class="list-group-item"
+			ng-class="{active: $index==selectedItemIndex}">
+			<div data-ng-click="startActivity($event,searchItem)">
+				<img data-ng-src="{{searchItem.icon}}" alt=""
+					style="max-width: 32px; margin-right: 1em;" class="pull-left">
+				<div class="btn-group btn-group-sm pull-right">
+					<button type="button" class="btn btn-default"
+						data-ng-click="startActivity($event,searchItem)"
+						tooltip-placement="bottom" tooltip="Chiudi tutto e avvia">
+						<span class="fa fa-play"></span>
+					</button>
+					<button type="button" class="btn btn-default"
+						data-ng-click="startActivity($event,searchItem,'CHILD')"
+						tooltip-placement="bottom" tooltip="Avvia attività">
+						<span class="fa fa-fast-forward"></span>
+					</button>
+					<button type="button" class="btn btn-default"
+						data-ng-click="startActivity($event,searchItem,'CHILD_POPUP')"
+						tooltip-placement="bottom" tooltip="Avvia attività come PopUp">
+						<span class="fa fa-external-link"></span>
+					</button>
+				</div>
+				<p>
+					{{searchItem.name}}
+					<br />
+					<small class="text-muted">{{searchItem.appName}}</small>
+				</p>
+
+			</div>
+		</a>
 	</div>
-	
+
 </div>
+

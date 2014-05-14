@@ -223,6 +223,8 @@ angular.module('webActivitiesApp.framework', [])
 					log("Registered activity <" + activityDef.id + "> ", activityDef);
 					
 				});
+			} else {
+				app.activities = [];
 			}
 			
 			webActivities.broadcast('appInstalled', $.extend({}, app));
