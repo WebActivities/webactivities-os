@@ -3,24 +3,25 @@
 	"name" : "Application Two",
 	"icon" : "res/app.png",
 	"main" : "activity1",
-	"activities" : {
-		"activity1" : {
+	"activities" : [
+		 {
+		 	"name" : "activity1",
 			"startable" : true,
-			"name" : "Attività another one",
+			"description" : "Attività another one",
 			"icon" : "/res/activity.png",
 			"activator" : "Activity1",
 			"intentFilters" : ["map"],
 			"seamless" : true
-		},
-		"activity2" : {
+		},{
+			"name" : "activity2",
 			"startable" : true,
-			"name" : "Attività veramente figa",
+			"description" : "Attività veramente figa",
 			"icon" : "/res/activity.png",
 			"activator" : "Activity1",
 			"intentFilters" : ["map"],
 			"seamless" : true
 		}
-	},
+	],
 	"resources" : [
 	  "/activity.js?%v&%d"
     ]

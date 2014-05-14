@@ -4,22 +4,23 @@
 	"icon" : "/res/app.png",
 	"main" : "activity1",
 	"version" : "1.0.0",
-	"activities" : {
-		"activity1" : {
+	"activities" : [
+		 {
+		 	"name" : "activity1",
 			"startable" : true,
-			"name" : "Attività number one",
+			"description" : "Attività number one",
 			"icon" : "/res/activity.png",
 			"activator" : "Activity1",
 			"seamless" : true	
-		},
-		"activity3" : {
+		},{
+			"name": "activity3",
 			"startable" : true,
-			"name" : "Nuova attività",
+			"description" : "Nuova attività",
 			"icon" : "/res/activity.png",
 			"activator" : "Activity3",
 			"seamless" : true	
 		}
-	},
+	],
 	"resources" : [
 		"/res/jquery-2.1.1.min.js",
 		"/res/jquery-ui-1.10.4.min.js",

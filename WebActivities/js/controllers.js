@@ -385,24 +385,44 @@ angular.module('webActivitiesApp.controllers', [])
 	});
 
 	// Demo configuration
+	framework.installApp("apps/system/app.json");
+	
 	framework.installApp("apps/app1/app.json");
 	framework.installApp("apps/app2/app.json");
 	framework.installApp("apps/maps/app.json");
 	framework.installApp("apps/com.newt.signin/manifest.json");
 
+
 } ])
 
-.controller('SearchCtrl', [ '$scope', 'framework', function($scope, framework) {
-
-	$scope.searchInput = '';
-
+.controller('SearchCtrl', ['$scope','framework', function($scope,framework) {
+	
+	$scope.searchInput='';
+	
 	$scope.activityDefs = $scope.$parent.activityDefs;
+	$scope.filteredItems = [];
+	$scope.selectedItemIndex=0;
+	
+	$scope.keyDown = function($event) {
+		if ($event.keyCode==40) {
+			$scope.selectedItemIndex = Math.min($scope.filteredItems.length-1,$scope.selectedItemIndex+1);
+		} else if ($event.keyCode==38) {
+			$scope.selectedItemIndex = Math.max(0,$scope.selectedItemIndex-1);
+		} else if ($event.keyCode==13) {
+			if ($scope.selectedItemIndex>0 && $scope.selectedItemIndex<$scope.filteredItems.length) {
+				var act = $scope.filteredItems[$scope.selectedItemIndex];
+				$scope.startActivity(null,act);
+			}
+		}
+	};
 
 	$scope.startActivity = function($event, activityDef, mode) {
-		$event.stopPropagation();
+		if ($event) {
+			$event.stopPropagation();
+		}
 		var i = new Intent(IntentType.START_ACTIVITY, framework);
 		i.app = activityDef.app;
-		i.activity = activityDef.code;
+		i.activity = activityDef.name;
 		i.parameters = {};
 		i.startMode = mode || 'ROOT';
 		return i.start();

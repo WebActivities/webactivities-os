@@ -1,0 +1,15 @@
+{
+	"id" : "it.webactivities.system",
+	"name" : "System App",
+	"icon" : "/res/app.png",
+	"version" : "1.0.0",
+	"resources" : [
+		"/res/jquery-2.1.1.min.js",
+		"/systemApp.js?%v&%d"
+    ],
+    "services" : [{
+    	
+    }],
+    "settings" : {
+    }
+}

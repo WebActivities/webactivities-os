@@ -211,18 +211,22 @@ angular.module('webActivitiesApp.framework', [])
 
 			apps[app.id] = app;
 
-			var id = null;
-			for (id in app.activities) {
-				var activity = app.activities[id];
-				activity.path = app.path;
-				activity.app = app.id;
-				activity.appName = app.name;
-				activity.id = id;
-				activity.icon = resolveUrl(app, activity.icon);
-				activities[composeActivityId(app.id, id)] = activity;
-
-				log("Registered activity in application <" + app.id + ">: " + activity.name + " <" + id + ">", activity);
+			if ($.isArray(app.activities)) {
+				$.each(app.activities,function(i,activityDef) {
+					activityDef.id = composeActivityId(app.id, activityDef.name);
+					activityDef.path = app.path;
+					activityDef.app = app.id;
+					activityDef.appName = app.name;
+					activityDef.icon = resolveUrl(app, activityDef.icon);
+					activities[activityDef.id] = activityDef;
+					
+					log("Registered activity <" + activityDef.id + "> ", activityDef);
+					
+				});
+			} else {
+				app.activities = [];
 			}
+			
 			webActivities.broadcast('appInstalled', $.extend({}, app));
 
 		}).fail(function(a, e) {
