@@ -454,7 +454,7 @@ angular.module('webActivitiesApp.framework', [])
 		} else {
 			if (intent.intentType) {
 				webActivities.selectActivityForIntent(intent).then(function(act) {
-					webActivities.startActivity(act.id, act.app, intent.parameters, resolveStartMode(intent.startMode), startOptions, q);
+					webActivities.startActivity(act.name, act.app, intent.parameters, resolveStartMode(intent.startMode), startOptions, q);
 				});
 			}
 		}
