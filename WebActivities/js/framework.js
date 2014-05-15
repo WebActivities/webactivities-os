@@ -127,21 +127,6 @@ angular.module('webActivitiesApp.framework', [])
 		listeners[l].push(fn);
 	};
 
-	webActivities.sendMessage = function(source, msg) {
-		var items = webActivities.currentStack().getAll();
-		var i = 0;
-		for (i in items) {
-			var item = items[i];
-			var ls = item.context.getMessageListeners();
-			var l = 0;
-			for (l in ls) {
-				if ($.isFunction(ls[l])) {
-					ls[l](source, msg);
-				}
-			}
-		}
-	};
-
 	webActivities.notify = function(type, message, options) {
 		notifies.push({
 			type : type,
