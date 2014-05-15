@@ -2,22 +2,21 @@
 var Activity = function(webActivities,application,activityDef)  {
 	
 	
-	$.extend(this,activityDef);
+	//TODO
 	
-	this.application = application;
-	this.activityDef = activityDef;
-	
-	this.id = webActivities.composeActivityId(application.id, activityDef.name);
-	this.path = application.path;
-	this.app = application.id;
-	this.appName = application.name;
-	this.icon = webActivities.resolveUrl(application, activityDef.icon);
-	
-	this.searchableIndex = [this.name,this.description];
-	
-	
-	Logger.log("Registered activity <" + this.id + "> ", activityDef);
-	
+};
+
+/**
+ * Completa le informazioni presenti del manifest di una activity
+ */
+Activity.completeActivityDefinition = function(webActivities,application,activityDefinition) {
+	activityDefinition.application = application;
+	activityDefinition.id = webActivities.composeActivityId(application.id, activityDefinition.name);
+	activityDefinition.path = application.path;
+	activityDefinition.app = application.id;
+	activityDefinition.appName = application.name;
+	activityDefinition.icon = webActivities.resolveUrl(application, activityDefinition.icon);
+	activityDefinition.searchableIndex = [activityDefinition.name,activityDefinition.description];
 };
 
 

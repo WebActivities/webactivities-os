@@ -47,8 +47,8 @@ angular.module('webActivitiesApp.framework', [])
 	 * ======================================================================
 	 */
 	var installedApplications = {};
+	var activitiesDefinitions = {};
 	
-	var activities = {};
 	var activityStack = new Stack();
 	var listeners = {};
 	var notifies = [];
@@ -177,14 +177,13 @@ angular.module('webActivitiesApp.framework', [])
 
 	webActivities.installApp = function(appDefinitionUrl) {
 		
-		
-		
 		$.getJSON(appDefinitionUrl).done(function(appDefinition) {
 			
-			var application = new Application(webActivities,appDefinition,appDefinitionUrl);
+			appDefinition.manifestUrl = appDefinitionUrl;
+			var application = new Application(webActivities,appDefinition);
 			
-			$.each(application.activities,function(i,activity) {
-				activities[activity.id] = activity;
+			$.each(application.activitiesDefinitions,function(i,activityDefinition) {
+				activitiesDefinitions[activityDefinition.id] = activityDefinition;
 			});
 			
 			installedApplications[application.id] = application;
@@ -370,7 +369,7 @@ angular.module('webActivitiesApp.framework', [])
 
 	webActivities.selectActivityForIntent = function(intent) {
 		var matchings = [];
-		$.each(activities, function(i, a) {
+		$.each(activitiesDefinitions, function(i, a) {
 			if ($.isArray(a.intentFilters)) {
 				$.each(a.intentFilters, function(x, f) {
 					if (f == intent.intentType) {
@@ -400,7 +399,7 @@ angular.module('webActivitiesApp.framework', [])
 			closeDefer = $q.defer();
 		}
 
-		var activity = activities[composeActivityId(appId, activityId)];
+		var activity = activitiesDefinitions[composeActivityId(appId, activityId)];
 
 		if (activity == null) {
 			Logger.error("Activity <" + activityId + "> in app <" + appId + "> not found");
