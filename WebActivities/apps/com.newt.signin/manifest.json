@@ -12,16 +12,10 @@
 			"activator" : "SigninActivator",
 			"startable" : true,
 			"seamless" : true	
-<<<<<<< HEAD
 		},{
+			
 			"name" : "passwordlost",
 			"description": "Password Lost",
-=======
-		},
-		{
-			"name" : "passwordlost", 
-			"description" : "Password Lost",
->>>>>>> refs/remotes/origin/master
 			"icon" : "/res/signin.png",
 			"activator" : "PasswordLostActivator",
 			"startable" : false,
