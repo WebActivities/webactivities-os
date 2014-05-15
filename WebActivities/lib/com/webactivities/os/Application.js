@@ -27,8 +27,8 @@ var Application = function(webActivities,appDefinition,appDefinitionUrl)  {
 		return $("<div>").append(div).html();
 	};
 
-	webActivities.log("Registered application " + appDefinition.name + " <" + appDefinition.id + ">");
-	webActivities.log(appDefinition);
+	Logger.log("Registered application " + appDefinition.name + " <" + appDefinition.id + ">");
+	Logger.log(appDefinition);
 
 	var self = this;
 	if ($.isArray(appDefinition.activities)) {

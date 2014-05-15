@@ -14,16 +14,7 @@ angular.module('webActivitiesApp.framework', [])
 	 * Internal methods
 	 * ======================================================================
 	 */
-	var log = function(log) {
-		if (window.console) {
-			console.log(log);
-		}
-	};
-	var error = function(error) {
-		if (window.console) {
-			console.error(error);
-		}
-	};
+
 	var resolveUrl = function(app, path) {
 		path = path.replace("%v", app.version);
 		path = path.replace("%d", new Date().getTime());
@@ -131,7 +122,6 @@ angular.module('webActivitiesApp.framework', [])
 	/*spostare su utils*/
 	webActivities.resolveUrl = resolveUrl;
 	webActivities.dirname = dirname;
-	webActivities.log = log;
 	webActivities.composeActivityId = composeActivityId;
 	/* */
 	
@@ -153,7 +143,7 @@ angular.module('webActivitiesApp.framework', [])
 			try {
 				promises.push(listeners[type][e](type, parameters));
 			} catch (ex) {
-				error(ex);
+				Logger.error(ex);
 			}
 		}
 		return $q.all(promises);
@@ -195,6 +185,9 @@ angular.module('webActivitiesApp.framework', [])
 	};
 
 	webActivities.installApp = function(appDefinitionUrl) {
+		
+		
+		
 		$.getJSON(appDefinitionUrl).done(function(appDefinition) {
 			
 			var application = new Application(webActivities,appDefinition,appDefinitionUrl);
@@ -206,14 +199,14 @@ angular.module('webActivitiesApp.framework', [])
 			webActivities.broadcast('appInstalled',application);
 
 		}).fail(function(a, e) {
-			error("Unable to register application <" + appPath + "/app.json>: " + e);
+			Logger.error("Unable to register application <" + appPath + "/app.json>: " + e);
 		});
 	};
 
 	webActivities.startApp = function(appId, preventStartActivity, callback) {
 		var app = apps[appId];
 		if (!app) {
-			error("The application <" + appId + "> doesn't exists");
+			Logger.error("The application <" + appId + "> doesn't exists");
 		} else if (app.status == webActivities.status.REGISTERED) {
 			webActivities.broadcast('appStarting',app);
 			app.status = webActivities.status.STARTING;
@@ -254,11 +247,11 @@ angular.module('webActivitiesApp.framework', [])
 	webActivities.startMainActivity = function(appId) {
 		var app = apps[appId];
 		if (!app) {
-			error("The application <" + appId + "> doesn't exists");
+			Logger.error("The application <" + appId + "> doesn't exists");
 		} else if (app.status != webActivities.status.STARTED) {
-			error("The application <" + appId + "> isn't started");
+			Logger.error("The application <" + appId + "> isn't started");
 		} else if (!app.main) {
-			log("The application <" + appId + "> not have a main activity");
+			Logger.log("The application <" + appId + "> not have a main activity");
 		} else {
 			webActivities.startActivity(app.main, appId, null, webActivities.startMode.ROOT);
 		}
@@ -418,11 +411,11 @@ angular.module('webActivitiesApp.framework', [])
 		var activity = activities[composeActivityId(appId, activityId)];
 
 		if (activity == null) {
-			error("Activity <" + activityId + "> in app <" + appId + "> not found");
+			Logger.error("Activity <" + activityId + "> in app <" + appId + "> not found");
 		} else {
 			var app = apps[activity.app];
 			if (app == null) {
-				error("Application <" + activity.app + "> is not installed");
+				Logger.error("Application <" + activity.app + "> is not installed");
 			} else if (app.status == webActivities.status.REGISTERED) {
 				webActivities.startApp(activity.app, true, function(app) {
 					webActivities.startActivity(activityId, appId, parameters, startMode, startOptions, closeDefer);

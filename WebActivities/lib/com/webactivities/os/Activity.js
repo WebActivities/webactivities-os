@@ -16,6 +16,6 @@ var Activity = function(webActivities,application,activityDef)  {
 	this.searchableIndex = [this.name,this.description];
 	
 	
-	webActivities.log("Registered activity <" + activityDef.id + "> ", activityDef);
+	Logger.log("Registered activity <" + activityDef.id + "> ", activityDef);
 	
 };
