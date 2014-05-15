@@ -12,10 +12,10 @@
 			"activator" : "SigninActivator",
 			"startable" : true,
 			"seamless" : true	
-		},
-		{
-			"name" : "passwordlost", 
-			"description" : "Password Lost",
+		},{
+			
+			"name" : "passwordlost",
+			"description": "Password Lost",
 			"icon" : "/res/signin.png",
 			"activator" : "PasswordLostActivator",
 			"startable" : false,
