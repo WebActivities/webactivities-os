@@ -5,6 +5,8 @@ var Service = function(webActivities, application, serviceDef, $q) {
 	this.instanceId = Utils.getUniqueKey("service_");
 	this.serviceDef = serviceDef;
 	
+	this.context = new ServiceContext(webActivities,self,$q);
+	
 	this.create = function(parameters) {
 		if (this.status!=null) {
 			return $q.when();
@@ -17,12 +19,13 @@ var Service = function(webActivities, application, serviceDef, $q) {
 	this.start = function(parameters,startOptions) {
 		if (this.status==null) {
 			return this.create(parameters).then(function() {
-				return self.start(startOptions);
+				return self.start(parameters,startOptions);
 			});
 		}
-		this.status = Service.status.STARTED;
-		alert("starting service");
-		return webActivities.broadcast('serviceStarted',this);
+		return $q.when(this.context.getStart()(startOptions)).then(function() {			
+			self.status = Service.status.STARTED;
+			return webActivities.broadcast('serviceStarted',this);
+		});
 	};
 	
 };

@@ -6,15 +6,14 @@ var Activity = function(webActivities, application, activityDef, closeDefer, $q)
 	this.instanceId = Utils.getUniqueKey("activity_");
 	this.application = application;
 	
-	// Create a new context
-	var createContext = function() {
-		return new ActivityContext(webActivities,self,closeDefer,$q);
-	};
-	
 	this.activityDef = activityDef;
+	
+	/**
+	 * l'iframe dove viene visualizzata questa activity
+	 */
 	this.iframe = null;
 
-	this.context = createContext(closeDefer);
+	this.context = new ActivityContext(webActivities,self,closeDefer,$q);
 
 	this.instance = null;
 	this.status = null;

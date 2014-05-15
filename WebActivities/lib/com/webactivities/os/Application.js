@@ -79,8 +79,10 @@ var Application = function(webActivities,appDefinition, $q)  {
 		return $("<div>").append(div).html();
 	};
 	
+	this.startingPromise = null;
+	
 	this.startApplication = function(preventStartActivity) {
-
+		
 		if (this.status == Application.status.REGISTERED) {
 			var deferred = $q.defer();
 			webActivities.broadcast('appStarting',this);
@@ -96,12 +98,12 @@ var Application = function(webActivities,appDefinition, $q)  {
 					});
 				}
 			});
-			return deferred.promise;
+			startingPromise = deferred.promise
+			return startingPromise;
 			
 		} else if (this.status == Application.status.STARTING) {
-			// do nothing... wait for start
-			//TODO enqueue promises
 			
+			return startingPromise;
 			
 		} else if (this.status == Application.status.STARTED) {
 			if (!preventStartActivity) {
@@ -146,10 +148,10 @@ var Application = function(webActivities,appDefinition, $q)  {
 		if (activityDefinition == null) {
 			Logger.error("Activity <" + activityName + "> in app <" + this.id + "> not found");
 			return $q.reject();
-			
 		} 
 			
-		if (this.status == Application.status.REGISTERED) {
+		if (this.status == Application.status.REGISTERED ||
+			this.status == Application.status.STARTING) {
 			
 			return this.startApplication(true)
 				.then(function(app) {
@@ -175,7 +177,8 @@ var Application = function(webActivities,appDefinition, $q)  {
 			return $q.reject();
 		} 
 			
-		if (this.status == Application.status.REGISTERED) {
+		if (this.status == Application.status.REGISTERED ||
+			this.status == Application.status.STARTING) {
 			
 			return this.startApplication(true)
 				.then(function(app) {
