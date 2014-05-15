@@ -320,6 +320,7 @@ angular.module('webActivitiesApp.framework', [])
 			$q.when(context.getStop()()).then(function() {
 				var item = webActivities.currentStack().pop();
 				item.status = webActivities.activity.status.STOPPED;
+				item.context.bus.destroy();
 				webActivities.broadcast('destroyActivity', {
 					view : item.iframe,
 					activity : item.activity
