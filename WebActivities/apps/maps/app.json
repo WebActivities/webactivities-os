@@ -4,22 +4,19 @@
 	"icon" : "/res/app.png",
 	"main" : "maps",
 	"version" : "1.0.0",
-	"activities" : [
-		 {
-		 	"name": "maps",
-			"startable" : true,
-			"description" : "Attivita' mappe",
-			"icon" : "/res/activity.png",
-			"activator" : "MapsActivity",
-			"seamless" : false,
-			"intentFilters" : ["map"]	
-		}
-	],
-	"resources" : [
-		"/res/jquery-2.1.1.min.js",
-		"https://maps.googleapis.com/maps/api/js?key=AIzaSyCidUDaXt1HDOrlnuxE069KJUfCy5zJw8Q&sensor=false",
-		"/activities/maps/MapsActivity.js?%v&%d"
-    ],
-    "settings" : {
-    }
+	"activities" : [ {
+		"name" : "maps",
+		"startable" : true,
+		"description" : "Attivita' mappe",
+		"icon" : "/res/activity.png",
+		"activator" : "MapsActivity",
+		"seamless" : false,
+		"intentFilters" : [ "map" ]
+	} ],
+	"resources" : [ 
+	                "/res/jquery-2.1.1.min.js", 
+	                "https://maps.googleapis.com/maps/api/js?key=AIzaSyCidUDaXt1HDOrlnuxE069KJUfCy5zJw8Q&sensor=false", 
+	                "/activities/maps/MapsActivity.js?%v&%d" 
+	               ],
+	"settings" : {}
 }
