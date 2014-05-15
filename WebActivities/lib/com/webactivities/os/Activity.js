@@ -4,6 +4,7 @@ var Activity = function(webActivities, application, activityDef, closeDefer, $q)
 	var self = this;
 	
 	this.instanceId = Utils.getUniqueKey();
+	this.application = application;
 	
 	// Create a new context
 	var createContext = function() {
@@ -34,11 +35,11 @@ var Activity = function(webActivities, application, activityDef, closeDefer, $q)
  */
 Activity.completeActivityDefinition = function(webActivities, application,activityDefinition) {
 	activityDefinition.application = application;
-	activityDefinition.id = webActivities.composeActivityId(application.id,activityDefinition.name);
+	activityDefinition.id = Utils.composeActivityId(application.id,activityDefinition.name);
 	activityDefinition.path = application.path;
 	activityDefinition.app = application.id;
 	activityDefinition.appName = application.name;
-	activityDefinition.icon = webActivities.resolveUrl(application,activityDefinition.icon);
+	activityDefinition.icon = Utils.resolveUrl(application,activityDefinition.icon);
 	activityDefinition.searchableIndex = [ activityDefinition.name,activityDefinition.description ];
 };
 

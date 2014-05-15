@@ -113,8 +113,7 @@ var ActivityContext = function(webActivities, activity, _closeDefer, $q) {
 	};
 
 	this.resolveUrl = function(path) {
-		base = activity.path;
-		return path.indexOf("http") == 0 ? path : base + (path.indexOf("/") == 0 ? path : "/" + path);
+		return Utils.resolveUrl(activity.application,path);
 	};
 
 	this.prepareView = function(url) {

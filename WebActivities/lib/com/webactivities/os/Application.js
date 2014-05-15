@@ -2,12 +2,12 @@
 var Application = function(webActivities,appDefinition, $q)  {
 	
 	var self = this;
-	this.path = webActivities.dirname(appDefinition.manifestUrl);
+	this.path = Utils.dirname(appDefinition.manifestUrl);
 	
 	$.extend(this,appDefinition);
 	this.appDefinition = appDefinition;
 	
-	this.icon = webActivities.resolveUrl(this, appDefinition.icon);
+	this.icon = Utils.resolveUrl(this, appDefinition.icon);
 	appDefinition.icon = this.icon;
 	
 	
@@ -37,7 +37,7 @@ var Application = function(webActivities,appDefinition, $q)  {
 		var resourcesIncluded = "";
 		if ($.isArray(appDefinition.resources)) {
 			$.each(appDefinition.resources, function(index, value) {
-				resourcesIncluded += "<script src='" + webActivities.resolveUrl(self, value) + "' type='application/javascript'><\/script>";
+				resourcesIncluded += "<script src='" + Utils.resolveUrl(self, value) + "' type='application/javascript'><\/script>";
 			});
 		}
 		var iframe = $('<iframe />', {
@@ -118,7 +118,7 @@ var Application = function(webActivities,appDefinition, $q)  {
 			closeDefer = $q.defer();
 		}
 		
-		var activityId = webActivities.composeActivityId(this.id, activityName);
+		var activityId = Utils.composeActivityId(this.id, activityName);
 		var activityDefinition = this.activitiesDefinitions[activityId];
 
 		if (activityDefinition == null) {

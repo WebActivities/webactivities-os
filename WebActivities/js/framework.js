@@ -14,19 +14,7 @@ angular.module('webActivitiesApp.framework', [])
 	 * Internal methods
 	 * ======================================================================
 	 */
-
-	var resolveUrl = function(app, path) {
-		path = path.replace("%v", app.version);
-		path = path.replace("%d", new Date().getTime());
-		var src = path.indexOf("http") == 0 ? path : app.path + (path.indexOf("/") == 0 ? path : "/" + path);
-		return src;
-	};
-	var composeActivityId = function(appId, activityId) {
-		return appId + "@" + activityId;
-	};
-	var dirname = function(path) {
-		return path.replace(/\\/g, '/').replace(/\/[^\/]*$/, '');
-	};
+	
 	var resolveStartMode = function(mode) {
 		for ( var i in webActivities.startMode) {
 			if (i == mode) {
@@ -35,6 +23,7 @@ angular.module('webActivitiesApp.framework', [])
 		}
 		return webActivities.startMode.UNKNOWN;
 	};
+
 
 	/*
 	 * ======================================================================
@@ -106,12 +95,6 @@ angular.module('webActivitiesApp.framework', [])
 		alert('Start mode unknown');
 		return d.promise;
 	};
-
-	/*spostare su utils*/
-	webActivities.resolveUrl = resolveUrl;
-	webActivities.dirname = dirname;
-	webActivities.composeActivityId = composeActivityId;
-	/* */
 	
 	webActivities.listApps = function() {
 		return $.extend({}, installedApplications);
