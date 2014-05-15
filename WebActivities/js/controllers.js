@@ -102,8 +102,8 @@ angular.module('webActivitiesApp.controllers', [])
 	// Listener
 	framework.on('appInstalled', function(event, app) {
 		$scope.apps.push(app);
-		$.each(app.activities, function(i,act) {
-			$scope.activityDefs.push(act);
+		$.each(app.activitiesDefinitions, function(i,activitiesDef) {
+			$scope.activityDefs.push(activitiesDef);
 		});
 	});
 

@@ -36,11 +36,6 @@ angular.module('webActivitiesApp.framework', [])
 		return webActivities.startMode.UNKNOWN;
 	};
 
-	// Create a new context
-	var createContext = function(stackItem, _closeDefer) {
-		return new ActivityContext(webActivities,stackItem,_closeDefer,$q);
-	};
-
 	/*
 	 * ======================================================================
 	 * Internal variables
@@ -180,7 +175,7 @@ angular.module('webActivitiesApp.framework', [])
 		$.getJSON(appDefinitionUrl).done(function(appDefinition) {
 			
 			appDefinition.manifestUrl = appDefinitionUrl;
-			var application = new Application(webActivities,appDefinition);
+			var application = new Application(webActivities,appDefinition,$q);
 			
 			$.each(application.activitiesDefinitions,function(i,activityDefinition) {
 				activitiesDefinitions[activityDefinition.id] = activityDefinition;
@@ -192,15 +187,6 @@ angular.module('webActivitiesApp.framework', [])
 		}).fail(function(a, e) {
 			Logger.error("Unable to register application <" + appDefinitionUrl + "> " + e);
 		});
-	};
-
-	webActivities.startApp = function(appId, preventStartActivity, callback) {
-		var app = installedApplications[appId];
-		if (!app) {
-			Logger.error("The application <" + appId + "> doesn't exists");
-		} else {
-			app.startApplication(preventStartActivity, callback);
-		}
 	};
 
 	webActivities.getCurrentActivity = function() {
@@ -348,48 +334,26 @@ angular.module('webActivitiesApp.framework', [])
 		return $q.reject();
 	};
 
-	webActivities.startActivity = function(activityId, appId, parameters, startMode, startOptions, closeDefer) {
+	var getApplication = function(appId) {
+		var app = installedApplications[appId];
+		if (app == null) {
+			Logger.error("Application <" + appId + "> is not installed");
+		} 
+		return app;
+	};
+	
+	webActivities.startApp = function(appId, preventStartActivity) {
+		return getApplication(appId).startApplication(preventStartActivity);
+	};
+	
+	webActivities.startActivity = function(activityName, appId, parameters, startMode, startOptions, closeDefer) {
 
-		if (closeDefer == null) {
-			closeDefer = $q.defer();
-		}
-
-		var activity = activitiesDefinitions[composeActivityId(appId, activityId)];
-
-		if (activity == null) {
-			Logger.error("Activity <" + activityId + "> in app <" + appId + "> not found");
-		} else {
-			var app = installedApplications[activity.app];
-			if (app == null) {
-				Logger.error("Application <" + activity.app + "> is not installed");
-			} else if (app.status == Application.status.REGISTERED) {
-				webActivities.startApp(activity.app, true, function(app) {
-					webActivities.startActivity(activityId, appId, parameters, startMode, startOptions, closeDefer);
-				});
-			} else {
-
-				var stackItem = {
-					activity : activity,
-					iframe : null,
-					context : null,
-					instance : null,
-					status : null
-				};
-
-				webActivities.broadcast('activityStarting', $.extend({}, activity));
-				stackItem.context = createContext(stackItem, closeDefer);
-
-				startMode(stackItem, startOptions).then(function(activity, stackItem) {
-					return function() {
-						// Run the app
-						stackItem.status = Activity.status.CREATED;
-						stackItem.instance = new app.iframe[0].contentWindow.window[activity.activator](stackItem.context, parameters);
-						webActivities.broadcast('activityStarted', $.extend({}, activity));
-					};
-				}(activity, stackItem));
-			}
-
-		}
+		return getApplication(appId)
+			.startApplication(true)
+			.then(function(application) {
+				return application.startActivity(activityName, parameters, startMode, startOptions, closeDefer);
+			});
+		
 	};
 	
 	webActivities.executeIntent = function(intent,startOptions) {

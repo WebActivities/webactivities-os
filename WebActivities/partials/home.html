@@ -31,11 +31,11 @@
 						...{{activityStack().length - maxBreadcrumbSize}} attività...
 					</span>
 					<span
-						data-ng-repeat="item in activityStack() | limitTo:-maxBreadcrumbSize">
+						data-ng-repeat="item in activityStack() | limitTo:-maxBreadcrumbSize track by $index">
 						<i class="fa fa-caret-right"></i>
 						<i class="fa fa-external-link"
 							data-ng-show="item.openMode == 'CHILD_POPUP'"></i>
-						{{item.activity.name}} &nbsp;
+						{{item.description}} &nbsp;
 					</span>
 				</li>
 			</ul>

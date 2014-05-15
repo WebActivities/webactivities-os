@@ -1,4 +1,4 @@
-var ActivityContext = function(webActivities, stackItem, _closeDefer, $q) {
+var ActivityContext = function(webActivities, activity, _closeDefer, $q) {
 
 	var _stop = function() {
 		return true;
@@ -99,7 +99,7 @@ var ActivityContext = function(webActivities, stackItem, _closeDefer, $q) {
 	};
 
 	this.sendMessage = function(msg) {
-		webActivities.sendMessage(stackItem.activity, msg);
+		webActivities.sendMessage(activity.activity, msg);
 	};
 
 	this.onMessage = function(fn) {
@@ -125,7 +125,7 @@ var ActivityContext = function(webActivities, stackItem, _closeDefer, $q) {
 	};
 	
 	this.resolveUrl = function(path) {
-		base = stackItem.activity.path;
+		base = activity.path;
 		return path.indexOf("http") == 0 ? path : base + (path.indexOf("/") == 0 ? path : "/" + path);
 	};
 
@@ -144,17 +144,17 @@ var ActivityContext = function(webActivities, stackItem, _closeDefer, $q) {
 					viewDeferred.resolve(viewport);
 				}
 			});
-			writeActivityStartingDoc(iframe, stackItem.activity);
+			writeActivityStartingDoc(iframe, activity);
 		});
 
-		stackItem.iframe = iframe;
+		activity.iframe = iframe;
 
 		webActivities.broadcast('displayActivity', {
 			view : iframe,
-			activity : stackItem.activity
+			activity : activity.activity
 		}).then(function() {
-			stackItem.status = Activity.status.ACTIVE;
-			$q.when(stackItem.context.getShow()()).then(function() {
+			activity.status = Activity.status.ACTIVE;
+			$q.when(activity.context.getShow()()).then(function() {
 				// Nothing for the moment
 			});
 		});

@@ -1,5 +1,5 @@
 
-var Application = function(webActivities,appDefinition)  {
+var Application = function(webActivities,appDefinition, $q)  {
 	
 	var self = this;
 	this.path = webActivities.dirname(appDefinition.manifestUrl);
@@ -14,11 +14,14 @@ var Application = function(webActivities,appDefinition)  {
 	/**
 	 * Activity manifest json
 	 */
-	this.activitiesDefinitions = appDefinition.activities || [];
-	$.each(this.activitiesDefinitions,function(i,item) {
-		Activity.completeActivityDefinition(webActivities, self, item);
-		Logger.log("Registered activity <" + item.id + "> ", item);
-	});
+	this.activitiesDefinitions = {};
+	if ($.isArray(appDefinition.activities)) {
+		$.each(appDefinition.activities,function(i,item) {
+			Activity.completeActivityDefinition(webActivities, self, item);
+			self.activitiesDefinitions[item.id]=item;
+			Logger.log("Registered activity <" + item.id + "> ", item);
+		});
+	}
 	
 	
 	/**
@@ -62,46 +65,83 @@ var Application = function(webActivities,appDefinition)  {
 		return $("<div>").append(div).html();
 	};
 	
-	this.startApplication = function(preventStartActivity, callback) {
-		
-		//TODO e la callback??
-		
+	this.startApplication = function(preventStartActivity) {
+
 		if (this.status == Application.status.REGISTERED) {
-			
+			var deferred = $q.defer();
 			webActivities.broadcast('appStarting',this);
 			this.status = Application.status.STARTING;
 			this.iframe = createHostingIframe(function() {
 				self.status = Application.status.STARTED;
 				webActivities.broadcast('appStarted', self);
-				if (!preventStartActivity) {
-					self.startMainActivity();
-				}
-				if (callback) {
-					callback(self);
+				if (preventStartActivity) {
+					deferred.resolve(self);
+				} else {
+					self.startMainActivity().then(function() {
+						deferred.resolve(self);
+					});
 				}
 			});
-			
+			return deferred.promise;
 			
 		} else if (this.status == Application.status.STARTING) {
 			// do nothing... wait for start
+			//TODO enqueue promises
+			
 			
 		} else if (this.status == Application.status.STARTED) {
 			if (!preventStartActivity) {
-				this.startMainActivity();
+				return this.startMainActivity().then(function() {
+					return self;
+				});
+			} else {
+				return $q.when(this);
 			}
 		}
 	};
 	
-	this.startMainActivity = function(callback) {
+	this.startMainActivity = function() {
 		if (this.status != Application.status.STARTED) {
 			Logger.error("The application <" + this.id + "> isn't started");
+			return $q.reject();
 		} else if (!this.appDefinition.main) {
 			Logger.log("The application <" + this.id + "> not have a main activity");
+			return $q.when();
 		} else {
-			webActivities.startActivity(this.appDefinition.main, this.id, null, webActivities.startMode.ROOT);
+			return webActivities.startActivity(this.appDefinition.main, this.id, null, webActivities.startMode.ROOT);
 		}
 	};
+	
+	this.startActivity = function(activityName, parameters, startMode, startOptions, closeDefer) {
+		
+		if (closeDefer == null) {
+			closeDefer = $q.defer();
+		}
+		
+		var activityId = webActivities.composeActivityId(this.id, activityName);
+		var activityDefinition = this.activitiesDefinitions[activityId];
 
+		if (activityDefinition == null) {
+			Logger.error("Activity <" + activityName + "> in app <" + this.id + "> not found");
+			return $q.reject();
+			
+		} 
+			
+		if (this.status == Application.status.REGISTERED) {
+			
+			return startApplication(true)
+				.then(function(app) {
+					return app.startActivity(activityName, parameters, startMode, startOptions, closeDefer);
+				});
+
+		} else {
+
+			var activity = new Activity(webActivities,this,activityDefinition,closeDefer,$q); 
+			webActivities.broadcast('activityStarting',activity);
+			return activity.start(parameters,startMode,startOptions);
+		}
+
+	};
 
 	Logger.log("Registered application " + appDefinition.name + " <" + appDefinition.id + ">");
 	Logger.log(appDefinition);
