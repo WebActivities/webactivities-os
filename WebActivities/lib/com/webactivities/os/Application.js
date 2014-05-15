@@ -7,7 +7,7 @@ var Application = function(webActivities,appDefinition,appDefinitionUrl)  {
 	this.id = appDefinition.id;
 	this.activities = [];
 	
-	this.status = webActivities.status.REGISTERED;
+	this.status = Application.status.REGISTERED;
 	
 	this.path = webActivities.dirname(appDefinitionUrl);
 	
@@ -38,4 +38,10 @@ var Application = function(webActivities,appDefinition,appDefinitionUrl)  {
 		});
 	}
 	
+};
+
+Application.status = {
+	"REGISTERED": 0,
+	"STARTING": 2,
+	"STARTED": 4
 };

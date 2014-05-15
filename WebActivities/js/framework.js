@@ -57,17 +57,7 @@ angular.module('webActivitiesApp.framework', [])
 	 * Public methods
 	 * ======================================================================
 	 */
-	webActivities.status = {};
-	webActivities.status.REGISTERED = 0;
-	webActivities.status.STARTING = 2;
-	webActivities.status.STARTED = 4;
 
-	webActivities.activity = {};
-	webActivities.activity.status = {};
-	webActivities.activity.status.CREATED = 0;
-	webActivities.activity.status.ACTIVE = 2;
-	webActivities.activity.status.PAUSED = 4;
-	webActivities.activity.status.STOPPED = 8;
 
 	webActivities.pushLayer = function(options) {
 		return webActivities.broadcast("pushLayer", options || {});
@@ -207,9 +197,9 @@ angular.module('webActivitiesApp.framework', [])
 		var app = apps[appId];
 		if (!app) {
 			Logger.error("The application <" + appId + "> doesn't exists");
-		} else if (app.status == webActivities.status.REGISTERED) {
+		} else if (app.status == Application.status.REGISTERED) {
 			webActivities.broadcast('appStarting',app);
-			app.status = webActivities.status.STARTING;
+			app.status = Application.status.STARTING;
 			var resourcesIncluded = "";
 			if ($.isArray(app.resources)) {
 				$.each(app.resources, function(index, value) {
@@ -226,7 +216,7 @@ angular.module('webActivitiesApp.framework', [])
 
 			app.iframe = iframe;
 			iframe.load(function() {
-				app.status = webActivities.status.STARTED;
+				app.status = Application.status.STARTED;
 				webActivities.broadcast('appStarted', $.extend({}, app));
 				if (!preventStartActivity) {
 					webActivities.startMainActivity(appId);
@@ -235,9 +225,9 @@ angular.module('webActivitiesApp.framework', [])
 					callback(app);
 				}
 			});
-		} else if (app.status == webActivities.status.STARTING) {
+		} else if (app.status == Application.status.STARTING) {
 			// do nothing... wait for start
-		} else if (app.status == webActivities.status.STARTED) {
+		} else if (app.status == Application.status.STARTED) {
 			if (!preventStartActivity) {
 				webActivities.startMainActivity(appId);
 			}
@@ -248,7 +238,7 @@ angular.module('webActivitiesApp.framework', [])
 		var app = apps[appId];
 		if (!app) {
 			Logger.error("The application <" + appId + "> doesn't exists");
-		} else if (app.status != webActivities.status.STARTED) {
+		} else if (app.status != Application.status.STARTED) {
 			Logger.error("The application <" + appId + "> isn't started");
 		} else if (!app.main) {
 			Logger.log("The application <" + appId + "> not have a main activity");
@@ -273,7 +263,7 @@ angular.module('webActivitiesApp.framework', [])
 		} else {
 			var context = item.context;
 			$q.when(context.getPause()()).then(function() {
-				item.status = webActivities.activity.status.PAUSED;
+				item.status = Activity.status.PAUSED;
 				if (options.mode == 'hidden') {
 					webActivities.broadcast('hideActivity', {
 						view : item.iframe,
@@ -298,7 +288,7 @@ angular.module('webActivitiesApp.framework', [])
 		} else {
 			var context = item.context;
 			$q.when(context.getResume()()).then(function() {
-				item.status = webActivities.activity.status.ACTIVE;
+				item.status = Activity.status.ACTIVE;
 				webActivities.broadcast('displayActivity', {
 					view : item.iframe,
 					activity : item.activity,
@@ -320,7 +310,7 @@ angular.module('webActivitiesApp.framework', [])
 			var context = item.context;
 			$q.when(context.getStop()()).then(function() {
 				var item = webActivities.currentStack().pop();
-				item.status = webActivities.activity.status.STOPPED;
+				item.status = Activity.status.STOPPED;
 				webActivities.broadcast('destroyActivity', {
 					view : item.iframe,
 					activity : item.activity
@@ -416,7 +406,7 @@ angular.module('webActivitiesApp.framework', [])
 			var app = apps[activity.app];
 			if (app == null) {
 				Logger.error("Application <" + activity.app + "> is not installed");
-			} else if (app.status == webActivities.status.REGISTERED) {
+			} else if (app.status == Application.status.REGISTERED) {
 				webActivities.startApp(activity.app, true, function(app) {
 					webActivities.startActivity(activityId, appId, parameters, startMode, startOptions, closeDefer);
 				});
@@ -436,7 +426,7 @@ angular.module('webActivitiesApp.framework', [])
 				startMode(stackItem, startOptions).then(function(activity, stackItem) {
 					return function() {
 						// Run the app
-						stackItem.status = webActivities.activity.status.CREATED;
+						stackItem.status = Activity.status.CREATED;
 						stackItem.instance = new app.iframe[0].contentWindow.window[activity.activator](stackItem.context, parameters);
 						webActivities.broadcast('activityStarted', $.extend({}, activity));
 					};

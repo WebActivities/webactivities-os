@@ -153,7 +153,7 @@ var ActivityContext = function(webActivities, stackItem, _closeDefer, $q) {
 			view : iframe,
 			activity : stackItem.activity
 		}).then(function() {
-			stackItem.status = webActivities.activity.status.ACTIVE;
+			stackItem.status = Activity.status.ACTIVE;
 			$q.when(stackItem.context.getShow()()).then(function() {
 				// Nothing for the moment
 			});

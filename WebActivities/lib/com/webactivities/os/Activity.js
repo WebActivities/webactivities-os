@@ -19,3 +19,11 @@ var Activity = function(webActivities,application,activityDef)  {
 	Logger.log("Registered activity <" + activityDef.id + "> ", activityDef);
 	
 };
+
+
+Activity.status = {
+	"CREATED": 0,
+	"ACTIVE": 2,
+	"PAUSED": 4,
+	"STOPPED": 8
+};
