@@ -198,53 +198,8 @@ angular.module('webActivitiesApp.framework', [])
 		var app = installedApplications[appId];
 		if (!app) {
 			Logger.error("The application <" + appId + "> doesn't exists");
-		} else if (app.status == Application.status.REGISTERED) {
-			webActivities.broadcast('appStarting',app);
-			app.status = Application.status.STARTING;
-			var resourcesIncluded = "";
-			if ($.isArray(app.resources)) {
-				$.each(app.resources, function(index, value) {
-					resourcesIncluded += "<script src='" + resolveUrl(app, value) + "' type='application/javascript'><\/script>";
-				});
-			}
-			var iframe = $('<iframe />', {
-				style : "border: 0; width: 0; height: 0"
-			}).appendTo($("#app-class-loader"));
-			var doc = iframe[0].contentWindow.window.document;
-			doc.open();
-			doc.write("<script type=\"text/javascript\">var top = null; var opener = null; var parent = null; window.opener = null; window.parent = null;</script>" + resourcesIncluded);
-			doc.close();
-
-			app.iframe = iframe;
-			iframe.load(function() {
-				app.status = Application.status.STARTED;
-				webActivities.broadcast('appStarted', $.extend({}, app));
-				if (!preventStartActivity) {
-					webActivities.startMainActivity(appId);
-				}
-				if (callback) {
-					callback(app);
-				}
-			});
-		} else if (app.status == Application.status.STARTING) {
-			// do nothing... wait for start
-		} else if (app.status == Application.status.STARTED) {
-			if (!preventStartActivity) {
-				webActivities.startMainActivity(appId);
-			}
-		}
-	};
-
-	webActivities.startMainActivity = function(appId) {
-		var app = installedApplications[appId];
-		if (!app) {
-			Logger.error("The application <" + appId + "> doesn't exists");
-		} else if (app.status != Application.status.STARTED) {
-			Logger.error("The application <" + appId + "> isn't started");
-		} else if (!app.main) {
-			Logger.log("The application <" + appId + "> not have a main activity");
 		} else {
-			webActivities.startActivity(app.main, appId, null, webActivities.startMode.ROOT);
+			app.startApplication(preventStartActivity, callback);
 		}
 	};
 
