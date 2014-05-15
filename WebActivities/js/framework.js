@@ -46,7 +46,8 @@ angular.module('webActivitiesApp.framework', [])
 	 * Internal variables
 	 * ======================================================================
 	 */
-	var apps = {};
+	var installedApplications = {};
+	
 	var activities = {};
 	var activityStack = new Stack();
 	var listeners = {};
@@ -116,7 +117,7 @@ angular.module('webActivitiesApp.framework', [])
 	/* */
 	
 	webActivities.listApps = function() {
-		return $.extend({}, apps);
+		return $.extend({}, installedApplications);
 	};
 
 	webActivities.listNotifies = function() {
@@ -181,11 +182,12 @@ angular.module('webActivitiesApp.framework', [])
 		$.getJSON(appDefinitionUrl).done(function(appDefinition) {
 			
 			var application = new Application(webActivities,appDefinition,appDefinitionUrl);
+			
 			$.each(application.activities,function(i,activity) {
 				activities[activity.id] = activity;
 			});
 			
-			apps[application.id] = application;
+			installedApplications[application.id] = application;
 			webActivities.broadcast('appInstalled',application);
 
 		}).fail(function(a, e) {
@@ -194,7 +196,7 @@ angular.module('webActivitiesApp.framework', [])
 	};
 
 	webActivities.startApp = function(appId, preventStartActivity, callback) {
-		var app = apps[appId];
+		var app = installedApplications[appId];
 		if (!app) {
 			Logger.error("The application <" + appId + "> doesn't exists");
 		} else if (app.status == Application.status.REGISTERED) {
@@ -235,7 +237,7 @@ angular.module('webActivitiesApp.framework', [])
 	};
 
 	webActivities.startMainActivity = function(appId) {
-		var app = apps[appId];
+		var app = installedApplications[appId];
 		if (!app) {
 			Logger.error("The application <" + appId + "> doesn't exists");
 		} else if (app.status != Application.status.STARTED) {
@@ -403,7 +405,7 @@ angular.module('webActivitiesApp.framework', [])
 		if (activity == null) {
 			Logger.error("Activity <" + activityId + "> in app <" + appId + "> not found");
 		} else {
-			var app = apps[activity.app];
+			var app = installedApplications[activity.app];
 			if (app == null) {
 				Logger.error("Application <" + activity.app + "> is not installed");
 			} else if (app.status == Application.status.REGISTERED) {
