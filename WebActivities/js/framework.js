@@ -47,7 +47,7 @@ angular.module('webActivitiesApp.framework', [])
 
 	// Create a new context
 	var createContext = function(stackItem, _closeDefer) {
-		return new ActivityContext(webActivities,stackItem,_closeDefer,$q);
+		return new ActivityContext(webActivities, stackItem, _closeDefer, $q);
 	};
 
 	/*
@@ -128,13 +128,13 @@ angular.module('webActivitiesApp.framework', [])
 		return d.promise;
 	};
 
-	/*spostare su utils*/
+	/* spostare su utils */
 	webActivities.resolveUrl = resolveUrl;
 	webActivities.dirname = dirname;
 	webActivities.log = log;
 	webActivities.composeActivityId = composeActivityId;
 	/* */
-	
+
 	webActivities.listApps = function() {
 		return $.extend({}, apps);
 	};
@@ -196,14 +196,14 @@ angular.module('webActivitiesApp.framework', [])
 
 	webActivities.installApp = function(appDefinitionUrl) {
 		$.getJSON(appDefinitionUrl).done(function(appDefinition) {
-			
-			var application = new Application(webActivities,appDefinition,appDefinitionUrl);
-			$.each(application.activities,function(i,activity) {
+
+			var application = new Application(webActivities, appDefinition, appDefinitionUrl);
+			$.each(application.activities, function(i, activity) {
 				activities[activity.id] = activity;
 			});
-			
+
 			apps[application.id] = application;
-			webActivities.broadcast('appInstalled',application);
+			webActivities.broadcast('appInstalled', application);
 
 		}).fail(function(a, e) {
 			error("Unable to register application <" + appPath + "/app.json>: " + e);
@@ -215,7 +215,7 @@ angular.module('webActivitiesApp.framework', [])
 		if (!app) {
 			error("The application <" + appId + "> doesn't exists");
 		} else if (app.status == webActivities.status.REGISTERED) {
-			webActivities.broadcast('appStarting',app);
+			webActivities.broadcast('appStarting', app);
 			app.status = webActivities.status.STARTING;
 			var resourcesIncluded = "";
 			if ($.isArray(app.resources)) {
@@ -452,24 +452,18 @@ angular.module('webActivitiesApp.framework', [])
 
 		}
 	};
-	
-	webActivities.executeIntent = function(intent,startOptions) {
+
+	webActivities.executeIntent = function(intent, startOptions) {
 		var q = $q.defer();
 		if (intent.intentType == IntentType.START_ACTIVITY) {
 			if (intent.app && intent.activity) {
-				webActivities.startActivity(intent.activity, intent.app,
-						intent.parameters, resolveStartMode(intent.startMode),
-						startOptions, q);
+				webActivities.startActivity(intent.activity, intent.app, intent.parameters, resolveStartMode(intent.startMode), startOptions, q);
 			}
 		} else {
 			if (intent.intentType) {
-				webActivities.selectActivityForIntent(intent).then(
-						function(act) {
-							webActivities.startActivity(act.id, act.app,
-									intent.parameters,
-									resolveStartMode(intent.startMode), startOptions,
-									q);
-						});
+				webActivities.selectActivityForIntent(intent).then(function(act) {
+					webActivities.startActivity(act.id, act.app, intent.parameters, resolveStartMode(intent.startMode), startOptions, q);
+				});
 			}
 		}
 		return q.promise;

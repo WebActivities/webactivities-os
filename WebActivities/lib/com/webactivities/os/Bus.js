@@ -1,20 +1,22 @@
+var BusNotifyType = {
+	ADD : 0,
+	REMOVE : 2
+};
 var Bus = function() {
 
 	this.data = {};
 	this.activityBuses = [];
 
 	this.topicMatch = function(topic, topicSpec) {
-		function endsWith(str, suffix) {
-			return str.indexOf(suffix, str.length - suffix.length) !== -1;
-		}
 		var regexp = topicSpec.replace(new RegExp("\\.", "g"), "\\.");
-		if (endsWith(topicSpec, "*")) {
-			regexp = regexp.replace(new RegExp("\\*$"), ".+");
-		}
 
-		regexp = regexp.replace(new RegExp("\\*"), "[^\.]+");
+		regexp = regexp.replace(new RegExp("\\*\\*", "g"), "??");
+		regexp = regexp.replace(new RegExp("\\*", "g"), "[^\.]+");
+		regexp = regexp.replace(new RegExp("\\?\\?", "g"), "([^\.]+\.?)+");
 
-		return topic.match(new RegExp("^" + regexp + "$"));
+		var res = topic.match(new RegExp("^" + regexp + "$"));
+
+		return res != null && res[0] == topic;
 	};
 
 	this.createBus = function() {
@@ -44,7 +46,7 @@ var Bus = function() {
 		});
 		var i = 0;
 		for (i = 0; i < this.activityBuses.length; i++) {
-			this.activityBuses[i].notifyData("add", topic, object);
+			this.activityBuses[i].notifyData(BusNotifyType.ADD, topic, object);
 		}
 	};
 
@@ -58,7 +60,7 @@ var Bus = function() {
 				i--;
 				var x = 0;
 				for (x = 0; x < this.activityBuses.length; x++) {
-					this.activityBuses[x].notifyData("remove", topic, object);
+					this.activityBuses[x].notifyData(BusNotifyType.REMOVE, topic, object);
 				}
 			}
 		}
@@ -132,18 +134,34 @@ var ActivityBus = function(bus) {
 
 	this.notifyData = function(action, topic, object) {
 		for (var i = 0; i < this.subscriptions.length; i++) {
+
 			var s = this.subscriptions[i];
+			var collector = s.createOrGetNotifyCollector();
+
 			if (this.bus.topicMatch(topic, s.topicSpec)) {
-				if (typeof (s.onDataChanged) == "function") {
-					s.onDataChanged(action, topic, object);
+
+				if (action == BusNotifyType.ADD) {
+					collector.addChange(topic, object);
+				} else if (action == BusNotifyType.REMOVE) {
+					collector.addRemove(topic, object);
 				}
 			}
 		}
+
 	};
 
 	this.destroy = function() {
+		this.unsubscribeAll();
 		bus.removeBus(this);
 		bus.destroyData(this);
+	};
+
+	this.readTopic = function(topic) {
+		return bus.readData(topic)[topic];
+	};
+
+	this.readAllTopics = function(topicSpec) {
+		return bus.readData(topicSpec);
 	};
 
 };
@@ -152,6 +170,7 @@ var Subscription = function(activityBus, topicSpec, onDataChanged) {
 
 	this.topicSpec = topicSpec;
 	this.onDataChanged = onDataChanged;
+	this.notifyCollector = null;
 
 	this.remove = function() {
 		activityBus.unsubscribe(this);
@@ -161,41 +180,90 @@ var Subscription = function(activityBus, topicSpec, onDataChanged) {
 		return activityBus.bus.readData(this.topicSpec);
 	};
 
+	this.createOrGetNotifyCollector = function() {
+		if (this.notifyCollector == null) {
+			this.notifyCollector = new NotifyCollector(this);
+		}
+		return this.notifyCollector;
+	};
+
+	this.destroyNotifyCollector = function() {
+		this.notifyCollector = null;
+	};
+
+};
+
+var NotifyCollector = function(subscription) {
+
+	this.pendingChanges = {};
+	this.pendingRemoval = {};
+
+	setTimeout(function($this, subscription) {
+		return function() {
+			if (typeof (subscription.onDataChanged) == "function") {
+				if (Object.getOwnPropertyNames($this.pendingChanges).length !== 0 || Object.getOwnPropertyNames($this.pendingRemoval).length !== 0) {
+					subscription.onDataChanged($this.pendingChanges, $this.pendingRemoval);
+				}
+			}
+			subscription.destroyNotifyCollector();
+		};
+	}(this, subscription), 0);
+
+	this.addChange = function(topic, object) {
+		if (!this.pendingChanges[topic]) {
+			this.pendingChanges[topic] = [];
+		}
+		this.pendingChanges[topic].push(object);
+	};
+
+	this.addRemove = function(topic, object) {
+		if (!this.pendingRemoval[topic]) {
+			this.pendingRemoval[topic] = [];
+		}
+		this.pendingRemoval[topic].push(object);
+	};
+
 };
 
 function testBus() {
 
 	var b = new Bus();
+
+	console.log(b.topicMatch("it", "*") === true);
+	console.log(b.topicMatch("it.eng.pippo", "*") === false);
+	console.log(b.topicMatch("it.eng.pippo", "**") === true);
+	console.log(b.topicMatch("it.eng.pippo", "it.eng.pippo") === true);
+	console.log(b.topicMatch("it.eng.pippo", "it.*.pippo") === true);
+	console.log(b.topicMatch("it.eng.pippo.pluto", "it.eng.*") === false);
+	console.log(b.topicMatch("it.eng.pippo.pluto", "it.**.pluto") === true);
+	console.log(b.topicMatch("it.eng.pippo.pluto", "it.*.pluto") === false);
+	console.log(b.topicMatch("it.eng.pippo.pluto", "it.eng.**") === true);
+	console.log(b.topicMatch("it.eng.pippo", "**.pippo") === true);
+	console.log(b.topicMatch("it.eng.mare.pippo.pluto.casa", "it.**.pippo.**.casa") === true);
+	console.log(b.topicMatch("it.eng.mare.pippo.pluto.casa", "it.**.pippo.**") === true);
+	console.log(b.topicMatch("it.eng.mare.pippo.pluto.casa", "it.**.pippo.*.casa") === true);
+	console.log(b.topicMatch("it.eng.mare.pippo.pluto.casa", "it.**.pippo.*.computer") === false);
+
 	var ab1 = b.createBus();
-	var sub1 = ab1.subscribe("it.eng.*", function(action, topic, value) {
-		console.log("1) " + action + " on topic " + topic + ": " + value);
-	});
-
-	var sub2 = ab1.subscribe("it.*.pippo", function(action, topic, value) {
-		console.log("2) " + action + " on topic " + topic + ": " + value);
-	});
-
-	var sub3 = ab1.subscribe("it.eng.pippo", function(action, topic, value) {
-		console.log("3) " + action + " on topic " + topic + ": " + value);
+	var sub1 = ab1.subscribe("it.eng.*", function(added, removed) {
+		console.log("1)");
+		console.log("Added");
+		console.log(added);
+		console.log("Removed");
+		console.log(removed);
 	});
 
 	var ab2 = b.createBus();
 	ab2.publish("it.eng.pippo", "Ciao!");
 	ab2.unpublish("it.eng.pippo", "Ciao!");
-
 	ab2.publish("it.eng.pippo.pluto", "Hello!");
 
-	console.log(sub1.readTopics());
-	console.log(sub2.readTopics());
-	console.log(sub3.readTopics());
+	var ab3 = b.createBus();
+	ab3.publish("it.eng.pippo", "Bonjour!");
+	ab3.unpublish("it.eng.pippo", "Bonjour!");
+	// ab2.destroy();
 
-	sub1.remove();
-	ab2.publish("it.eng.pippo", "Ciao!");
-
-	ab2.destroy();
-
-	console.log(sub1.readTopics());
-	console.log(sub2.readTopics());
-	console.log(sub3.readTopics());
+	// console.log(sub1.readTopics());
 
 }
+// testBus();
