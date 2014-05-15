@@ -3,7 +3,7 @@ var Activity = function(webActivities, application, activityDef, closeDefer, $q)
 	$.extend(this,activityDef);
 	var self = this;
 	
-	this.instanceId = Utils.getUniqueKey();
+	this.instanceId = Utils.getUniqueKey("activity_");
 	this.application = application;
 	
 	// Create a new context

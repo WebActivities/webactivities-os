@@ -2,8 +2,8 @@ var Utils = (function() {
 	
 	var uniqueCounter=0;
 	
-	var getUniqueKey = function() {
-		return uniqueCounter++;
+	var getUniqueKey = function(prefix) {
+		return (prefix||"")+(uniqueCounter++);
 	};
 	
 	var resolveUrl = function(application, path) {
@@ -13,8 +13,8 @@ var Utils = (function() {
 		return src;
 	};
 	
-	var composeActivityId = function(appId, activityId) {
-		return appId + "@" + activityId;
+	var composeId = function(appId, componentId) {
+		return appId + "@" + componentId;
 	};
 	
 	var dirname = function(path) {
@@ -27,7 +27,9 @@ var Utils = (function() {
 		
 		resolveUrl: resolveUrl,
 		
-		composeActivityId: composeActivityId,
+		composeActivityId: composeId,
+		
+		composeServiceId: composeId,
 		
 		dirname : dirname
 		

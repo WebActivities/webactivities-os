@@ -12,7 +12,7 @@ var Application = function(webActivities,appDefinition, $q)  {
 	
 	
 	/**
-	 * Activity manifest json
+	 * Activities manifest json
 	 */
 	this.activitiesDefinitions = {};
 	if ($.isArray(appDefinition.activities)) {
@@ -23,15 +23,30 @@ var Application = function(webActivities,appDefinition, $q)  {
 		});
 	}
 	
+	/**
+	 * Services manifest json
+	 */
+	this.servicesDefinitions = {};
+	if ($.isArray(appDefinition.services)) {
+		$.each(appDefinition.services,function(i,item) {
+			Service.completeServiceDefinition(webActivities, self, item);
+			self.servicesDefinitions[item.id]=item;
+			Logger.log("Registered service <" + item.id + "> ", item);
+		});
+	}
 	
 	/**
 	 * Running activities instances
 	 */
 	this.activities = [];
 	
+	/**
+	 * Running services instances
+	 */
+	this.services = [];
+	
 	this.status = Application.status.REGISTERED;
 	this.version = appDefinition.version || "0.0.0";
-
 
 	var createHostingIframe= function(afterIframeLoadCallback) {
 		var resourcesIncluded = "";
@@ -53,7 +68,6 @@ var Application = function(webActivities,appDefinition, $q)  {
 		return iframe;
 	};
 
-	
 	this.businessCard = function() {
 		var icon = "<img src=\"" + this.appDefinition.icon + "\" style=\"max-width: 32px; vertical-align: middle\"><br />";
 		var bc = "<strong>" + this.appDefinition.name + " (" + this.appDefinition.version + ")</strong><br />";
@@ -100,6 +114,14 @@ var Application = function(webActivities,appDefinition, $q)  {
 		}
 	};
 	
+	this.checkAutostartServices = function() {
+		$.each(this.servicesDefinitions,function(k,v) {
+			if (v.autostart) {
+				self.startService(v.name,{},{});
+			}
+		});
+	};
+	
 	this.startMainActivity = function() {
 		if (this.status != Application.status.STARTED) {
 			Logger.error("The application <" + this.id + "> isn't started");
@@ -129,7 +151,7 @@ var Application = function(webActivities,appDefinition, $q)  {
 			
 		if (this.status == Application.status.REGISTERED) {
 			
-			return startApplication(true)
+			return this.startApplication(true)
 				.then(function(app) {
 					return app.startActivity(activityName, parameters, startMode, startOptions, closeDefer);
 				});
@@ -142,10 +164,34 @@ var Application = function(webActivities,appDefinition, $q)  {
 		}
 
 	};
+	
+	this.startService = function(serviceName, parameters, startOptions) {
+		
+		var serviceId = Utils.composeServiceId(this.id, serviceName);
+		var serviceDefinition = this.servicesDefinitions[serviceId];
+
+		if (serviceDefinition == null) {
+			Logger.error("Service <" + serviceName + "> in app <" + this.id + "> not found");
+			return $q.reject();
+		} 
+			
+		if (this.status == Application.status.REGISTERED) {
+			
+			return this.startApplication(true)
+				.then(function(app) {
+					return app.startService(serviceName, parameters, startOptions);
+				});
+
+		} else {
+
+			var service = new Service(webActivities,this,serviceDefinition,$q);
+			return service.start(parameters,startOptions);
+		}
+		
+	};
 
 	Logger.log("Registered application " + appDefinition.name + " <" + appDefinition.id + ">");
 	Logger.log(appDefinition);
-	
 };
 
 Application.status = {

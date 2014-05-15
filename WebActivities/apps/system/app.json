@@ -5,16 +5,14 @@
 	"icon" : "/res/app.png",
 	"version" : "1.0.0",
 	"resources" : [
-		"/res/jquery-2.1.1.min.js",
 		"/systemApp.js?%v&%d"
     ],
     "services" : [{
     	"name": "ToolbarService",
 		"description" : "Servizio per gestione Toolbar",
 		"icon" : "/res/activity.png",
-		"activator" : "MapsActivity",
-		"seamless" : false,
-		"intentFilters" : ["map"]
+		"activator" : "ToolbarService",
+		"autostart" : true
     }],
     "settings" : {
     }

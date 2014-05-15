@@ -154,6 +154,8 @@ angular.module('webActivitiesApp.framework', [])
 			installedApplications[application.id] = application;
 			webActivities.broadcast('appInstalled',application);
 
+			application.checkAutostartServices();
+			
 		}).fail(function(a, e) {
 			Logger.error("Unable to register application <" + appDefinitionUrl + "> " + e);
 		});
@@ -323,6 +325,16 @@ angular.module('webActivitiesApp.framework', [])
 			.startApplication(true)
 			.then(function(application) {
 				return application.startActivity(activityName, parameters, startMode, startOptions, closeDefer);
+			});
+		
+	};
+	
+	webActivities.startService = function(serviceName, appId, parameters, startOptions) {
+
+		return getApplication(appId)
+			.startApplication(true)
+			.then(function(application) {
+				return application.startService(serviceName, parameters, startOptions);
 			});
 		
 	};
