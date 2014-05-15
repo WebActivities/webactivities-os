@@ -1,1 +1,1 @@
-alert("system App installed");
+//alert("system App installed");

@@ -96,7 +96,7 @@
 	<!-- /.container-fluid -->
 </nav>
 <div data-ng-hide="displayActivity">
-	<div class="pointer app text-center" data-ng-repeat="app in apps"
+	<div class="pointer app text-center" data-ng-repeat="app in apps  | filter:{main:'!!'}"
 		data-ng-click="startApp(app.id)">
 		<img data-ng-src="{{app.icon}}" alt="">
 		<div class="caption">

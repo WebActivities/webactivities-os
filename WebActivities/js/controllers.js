@@ -102,11 +102,8 @@ angular.module('webActivitiesApp.controllers', [])
 	// Listener
 	framework.on('appInstalled', function(event, app) {
 		$scope.apps.push(app);
-		$.each(app.activities, function(k, v) {
-			v.id = app.id + '.' + k;
-			v.code = k;
-			v.appName = app.name;
-			$scope.activityDefs.push(v);
+		$.each(app.activities, function(i,act) {
+			$scope.activityDefs.push(act);
 		});
 	});
 
@@ -395,7 +392,7 @@ angular.module('webActivitiesApp.controllers', [])
 
 } ])
 
-.controller('SearchCtrl', ['$scope','framework', function($scope,framework) {
+.controller('SearchCtrl', ['$scope','framework','$element', function($scope,framework,$element) {
 	
 	$scope.searchInput='';
 	
@@ -403,13 +400,26 @@ angular.module('webActivitiesApp.controllers', [])
 	$scope.filteredItems = [];
 	$scope.selectedItemIndex=0;
 	
+	var scroll = $.throttle( 100, function() {
+		$($element).find(".list-group-item").eq($scope.selectedItemIndex).scrollintoview({
+		    duration: 200,
+		    direction: "vertical"
+		});
+	});
+	
 	$scope.keyDown = function($event) {
+		
 		if ($event.keyCode==40) {
 			$scope.selectedItemIndex = Math.min($scope.filteredItems.length-1,$scope.selectedItemIndex+1);
+			scroll();
+			
 		} else if ($event.keyCode==38) {
 			$scope.selectedItemIndex = Math.max(0,$scope.selectedItemIndex-1);
+			
+			scroll();
+			
 		} else if ($event.keyCode==13) {
-			if ($scope.selectedItemIndex>0 && $scope.selectedItemIndex<$scope.filteredItems.length) {
+			if ($scope.selectedItemIndex>=0 && $scope.selectedItemIndex<$scope.filteredItems.length) {
 				var act = $scope.filteredItems[$scope.selectedItemIndex];
 				$scope.startActivity(null,act);
 			}

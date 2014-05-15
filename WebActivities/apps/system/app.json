@@ -1,6 +1,7 @@
 {
 	"id" : "it.webactivities.system",
 	"name" : "System App",
+	"description": "System App",
 	"icon" : "/res/app.png",
 	"version" : "1.0.0",
 	"resources" : [
@@ -8,7 +9,12 @@
 		"/systemApp.js?%v&%d"
     ],
     "services" : [{
-    	
+    	"name": "ToolbarService",
+		"description" : "Servizio per gestione Toolbar",
+		"icon" : "/res/activity.png",
+		"activator" : "MapsActivity",
+		"seamless" : false,
+		"intentFilters" : ["map"]
     }],
     "settings" : {
     }
