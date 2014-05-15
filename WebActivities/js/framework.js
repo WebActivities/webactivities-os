@@ -199,7 +199,7 @@ angular.module('webActivitiesApp.framework', [])
 			webActivities.broadcast('appInstalled',application);
 
 		}).fail(function(a, e) {
-			Logger.error("Unable to register application <" + appPath + "/app.json>: " + e);
+			Logger.error("Unable to register application <" + appDefinitionUrl + "> " + e);
 		});
 	};
 
