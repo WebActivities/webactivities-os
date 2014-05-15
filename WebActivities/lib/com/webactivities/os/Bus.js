@@ -213,14 +213,29 @@ var NotifyCollector = function(subscription) {
 		if (!this.pendingChanges[topic]) {
 			this.pendingChanges[topic] = [];
 		}
+		this.removeIfFind(this.pendingRemoval[topic], object);
 		this.pendingChanges[topic].push(object);
+
 	};
 
 	this.addRemove = function(topic, object) {
 		if (!this.pendingRemoval[topic]) {
 			this.pendingRemoval[topic] = [];
 		}
+		this.removeIfFind(this.pendingChanges[topic], object);
 		this.pendingRemoval[topic].push(object);
+	};
+	
+	this.removeIfFind = function(list, object) {
+		if (list) {
+			var i = 0;
+			for (i = 0; i < list.length; i++) {
+				if (list[i] == object) {
+					list.splice(i, 1);
+					i--;
+				}
+			}
+		}
 	};
 
 };
@@ -256,6 +271,7 @@ function testBus() {
 	var ab2 = b.createBus();
 	ab2.publish("it.eng.pippo", "Ciao!");
 	ab2.unpublish("it.eng.pippo", "Ciao!");
+	ab2.publish("it.eng.pippo", "Ciao!");
 	ab2.publish("it.eng.pippo.pluto", "Hello!");
 
 	var ab3 = b.createBus();

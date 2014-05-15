@@ -69,6 +69,8 @@ angular.module('webActivitiesApp.framework', [])
 	webActivities.activity.status.PAUSED = 4;
 	webActivities.activity.status.STOPPED = 8;
 
+	webActivities.bus = new Bus();
+	
 	webActivities.pushLayer = function(options) {
 		return webActivities.broadcast("pushLayer", options || {});
 	};
@@ -185,9 +187,6 @@ angular.module('webActivitiesApp.framework', [])
 	};
 
 	webActivities.installApp = function(appDefinitionUrl) {
-		
-		
-		
 		$.getJSON(appDefinitionUrl).done(function(appDefinition) {
 
 			var application = new Application(webActivities, appDefinition, appDefinitionUrl);

@@ -103,7 +103,7 @@ var Activity1 = function(ctx) {
 
 	var btn32 = $("<button type=\"button\" class=\"btn btn-sm btn-primary\">Send Message</button>").appendTo(container);
 	btn32.click(function() {
-		ctx.sendMessage("Hello World!");
+		ctx.bus.publish("it.eng.test", "Ciao!");
 	});
 
 	var types = [ "info", "warning", "error", "success" ];
@@ -118,8 +118,8 @@ var Activity1 = function(ctx) {
 		}(types[i]));
 	}
 
-	ctx.onMessage(function(source, msg) {
-		alert('Received message from ' + source.id + ": " + msg);
+	ctx.bus.subscribe("**", function(added, removed) {
+		alert("Io ascolto tutto:\n - added:\n" + added + "\n - removed:\n" + removed);
 	});
 
 	ctx.prepareView().then(function(root) {
