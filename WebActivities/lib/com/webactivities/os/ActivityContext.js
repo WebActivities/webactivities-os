@@ -16,8 +16,6 @@ var ActivityContext = function(webActivities, activity, _closeDefer, $q) {
 		return true;
 	};
 
-	var _listeners = 0 || [];
-
 	var _result = null;
 
 	var writeActivityStartingDoc = function(iframe, activity) {
@@ -46,6 +44,8 @@ var ActivityContext = function(webActivities, activity, _closeDefer, $q) {
 		doc.write("</html>");
 		doc.close();
 	};
+
+	this.bus = webActivities.bus.createBus();
 
 	this.getCloseDefer = function() {
 		return _closeDefer;
@@ -98,18 +98,6 @@ var ActivityContext = function(webActivities, activity, _closeDefer, $q) {
 		return _pause;
 	};
 
-	this.sendMessage = function(msg) {
-		webActivities.sendMessage(activity.activity, msg);
-	};
-
-	this.onMessage = function(fn) {
-		_listeners.push(fn);
-	};
-
-	this.getMessageListeners = function() {
-		return _listeners;
-	};
-
 	this.newActivityIntent = function(app, activity, parameters) {
 		var i = new Intent(IntentType.START_ACTIVITY, webActivities);
 		i.activity = activity;
@@ -123,7 +111,7 @@ var ActivityContext = function(webActivities, activity, _closeDefer, $q) {
 		i.parameters = parameters;
 		return i;
 	};
-	
+
 	this.resolveUrl = function(path) {
 		base = activity.path;
 		return path.indexOf("http") == 0 ? path : base + (path.indexOf("/") == 0 ? path : "/" + path);

@@ -55,6 +55,8 @@ angular.module('webActivitiesApp.framework', [])
 	 */
 
 
+	webActivities.bus = new Bus();
+	
 	webActivities.pushLayer = function(options) {
 		return webActivities.broadcast("pushLayer", options || {});
 	};
@@ -253,6 +255,7 @@ angular.module('webActivitiesApp.framework', [])
 			$q.when(context.getStop()()).then(function() {
 				var item = webActivities.currentStack().pop();
 				item.status = Activity.status.STOPPED;
+				item.context.bus.destroy();
 				webActivities.broadcast('destroyActivity', {
 					view : item.iframe,
 					activity : item.activity
