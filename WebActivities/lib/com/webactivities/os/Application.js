@@ -76,9 +76,15 @@ var Application = function(framework, appDefinition, $q) {
 		div.append(code);
 		return $("<div>").append(div).html();
 	};
+<<<<<<< HEAD
 
+=======
+	
+	this.startingPromise = null;
+	
+>>>>>>> branch 'master' of https://github.com/WebActivities/webactivities-os
 	this.startApplication = function(preventStartActivity) {
-
+		
 		if (this.status == Application.status.REGISTERED) {
 			var deferred = $q.defer();
 			framework.uiCommunicator.broadcast('appStarting', this);
@@ -94,12 +100,24 @@ var Application = function(framework, appDefinition, $q) {
 					});
 				}
 			});
+<<<<<<< HEAD
 			return deferred.promise;
 
+=======
+			startingPromise = deferred.promise
+			return startingPromise;
+			
+>>>>>>> branch 'master' of https://github.com/WebActivities/webactivities-os
 		} else if (this.status == Application.status.STARTING) {
+<<<<<<< HEAD
 			// do nothing... wait for start
 			// TODO enqueue promises
 
+=======
+			
+			return startingPromise;
+			
+>>>>>>> branch 'master' of https://github.com/WebActivities/webactivities-os
 		} else if (this.status == Application.status.STARTED) {
 			if (!preventStartActivity) {
 				return this.startMainActivity().then(function() {
@@ -143,6 +161,7 @@ var Application = function(framework, appDefinition, $q) {
 		if (activityDefinition == null) {
 			Logger.error("Activity <" + activityName + "> in app <" + this.id + "> not found");
 			return $q.reject();
+<<<<<<< HEAD
 
 		}
 
@@ -151,6 +170,17 @@ var Application = function(framework, appDefinition, $q) {
 			return this.startApplication(true).then(function(app) {
 				return app.startActivity(activityName, parameters, startMode, startOptions, closeDefer);
 			});
+=======
+		} 
+			
+		if (this.status == Application.status.REGISTERED ||
+			this.status == Application.status.STARTING) {
+			
+			return this.startApplication(true)
+				.then(function(app) {
+					return app.startActivity(activityName, parameters, startMode, startOptions, closeDefer);
+				});
+>>>>>>> branch 'master' of https://github.com/WebActivities/webactivities-os
 
 		} else {
 
@@ -169,6 +199,7 @@ var Application = function(framework, appDefinition, $q) {
 		if (serviceDefinition == null) {
 			Logger.error("Service <" + serviceName + "> in app <" + this.id + "> not found");
 			return $q.reject();
+<<<<<<< HEAD
 		}
 
 		if (this.status == Application.status.REGISTERED) {
@@ -176,6 +207,17 @@ var Application = function(framework, appDefinition, $q) {
 			return this.startApplication(true).then(function(app) {
 				return app.startService(serviceName, parameters, startOptions);
 			});
+=======
+		} 
+			
+		if (this.status == Application.status.REGISTERED ||
+			this.status == Application.status.STARTING) {
+			
+			return this.startApplication(true)
+				.then(function(app) {
+					return app.startService(serviceName, parameters, startOptions);
+				});
+>>>>>>> branch 'master' of https://github.com/WebActivities/webactivities-os
 
 		} else {
 

@@ -5,13 +5,19 @@
 	"icon" : "/res/app.png",
 	"version" : "1.0.0",
 	"resources" : [
-		"/systemApp.js?%v&%d"
+		"/systemApp.js"
     ],
     "services" : [{
     	"name": "ToolbarService",
 		"description" : "Servizio per gestione Toolbar",
 		"icon" : "/res/activity.png",
 		"activator" : "ToolbarService",
+		"autostart" : true
+    },{
+    	"name": "SearchService",
+		"description" : "Servizio per gestione Ricerca su tutto applicativo",
+		"icon" : "/res/activity.png",
+		"activator" : "SearchService",
 		"autostart" : true
     }],
     "settings" : {
