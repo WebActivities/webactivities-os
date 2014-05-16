@@ -38,4 +38,8 @@ var ServiceContext = function(framework, service, $q) {
 		return framework.uiCommunicator.broadcast(type, parameters);
 	};
 	
+	this.resolveUrl = function(path) {
+		return Utils.resolveUrl(service.application, path);
+	};
+	
 };

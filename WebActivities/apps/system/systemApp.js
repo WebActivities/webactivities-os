@@ -18,6 +18,12 @@ var ToolbarService = function(ctx) {
 
 var SearchService = function(ctx) {
 	
+	
+	var searchView = $("<div></div>");
+	searchView.load(ctx.resolveUrl("/view/searchPanel.html"),function() {
+		
+	});
+	
 	ctx.onStart(function() {
 		
 		ctx.bus.publish("com.newt.system.toolbar.actions", {
@@ -25,6 +31,9 @@ var SearchService = function(ctx) {
 			iconClass: "fa-cogs",
 			handler: function(e) {
 				console.log("execute: "+e);
+				ctx.broadcast("showSidePanel",{
+					content: $("<div>Settings soon to come.. </div>")
+				});
 			}
 		});
 		
@@ -33,6 +42,9 @@ var SearchService = function(ctx) {
 			iconClass: "fa-search",
 			handler: function(e) {
 				console.log("execute: "+e);
+				ctx.broadcast("showSidePanel",{
+					content: searchView
+				});
 			}
 		});
 		

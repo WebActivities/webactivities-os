@@ -4,6 +4,7 @@ var Service = function(framework, application, serviceDef, $q) {
 
 	this.instanceId = Utils.getUniqueKey("service_");
 	this.serviceDef = serviceDef;
+	this.application = application;
 	this.context = new ServiceContext(framework, this, $q);
 
 	this.create = function(parameters) {

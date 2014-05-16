@@ -104,10 +104,9 @@
 	<div id="viewport" class="viewport"></div>
 	<div id="layers-viewport"></div>
 </div>
-<div id="settings-panel" class="hidden-panel">
 
+<div id="settings-panel" class="hidden-panel">
 	<tabset justified="true"> 
-		
 		<tab data-ng-repeat="settingPanel in settingsPanels" >
 			 <tab-heading>
 				<i class="fa {{ settingPanel.icon }}"></i> {{ settingPanel.title }} 
@@ -115,6 +114,5 @@
 			<div id="settings-panel-body" data-ng-include="settingPanel.templateUrl">
 			</div>
 		</tab>
-	
 	 </tabset>
 </div>

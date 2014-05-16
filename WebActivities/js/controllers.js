@@ -76,24 +76,6 @@ angular.module('webActivitiesApp.controllers', [])
 		}
 	};
 
-	$scope.showSettings = function() {
-		var elements = $(document).add($("iframe").contents());
-
-		var hideFunction = undefined;
-		hideFunction = function(e) {
-			if ($(e.target).closest("#settings-panel").size() == 0) {
-				$("#settings-panel").addClass("hidden-panel", TRANSITION_SPEED);
-				elements.unbind("click", hideFunction);
-			}
-		};
-
-		$("#settings-panel").removeClass("hidden-panel", TRANSITION_SPEED, function() {
-			elements.bind("click", hideFunction);
-			$("#searchActivityInput").focus();
-		});
-
-	};
-
 	// Listener
 	framework.uiCommunicator.on('appInstalled', function(event, app) {
 		$scope.apps.push(app);
@@ -386,6 +368,28 @@ angular.module('webActivitiesApp.controllers', [])
 			$scope.toolbarActions.splice(index, 1);
 		}
 	});
+	
+	framework.uiCommunicator.on('showSidePanel', function(event,obj) {
+		var elements = $(document).add($("iframe").contents());
+
+		var hideFunction = undefined;
+		hideFunction = function(e) {
+			if ($(e.target).closest("#settings-panel").size() == 0) {
+				$("#settings-panel").addClass("hidden-panel", TRANSITION_SPEED);
+				elements.unbind("click", hideFunction);
+			}
+		};
+
+		$("#settings-panel").empty();
+		if (obj.content) {
+			$("#settings-panel").append(obj.content);
+		}
+		$("#settings-panel").removeClass("hidden-panel", TRANSITION_SPEED, function() {
+			elements.bind("click", hideFunction);
+		});
+
+	});
+	
 
 	// Demo configuration
 	framework.applicationRegistry.installApplication("apps/system/app.json");
