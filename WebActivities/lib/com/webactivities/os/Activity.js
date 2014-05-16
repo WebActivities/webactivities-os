@@ -14,7 +14,7 @@ var Activity = function(framework, application, activityDef, closeDefer, $q) {
 	 */
 	this.iframe = null;
 
-	this.context = new ActivityContext(webActivities,self,closeDefer,$q);
+	this.context = new ActivityContext(framework,self,closeDefer,$q);
 
 	this.instance = null;
 	this.status = null;
