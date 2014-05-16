@@ -11,7 +11,13 @@ var Framework = function($q) {
 	this.notifyManager = new NotifyManager(this);
 
 	this.activityStarter = new ActivityStarter(this);
+	
+	this.activityPauser = new ActivityPauser(this);
 
+	this.activityResumer = new ActivityResumer(this);
+	
+	this.activityStopper = new ActivityStopper(this);
+	
 	this.bus = new Bus();
 
 	this.getCurrentActivity = function() {
@@ -48,8 +54,7 @@ var Framework = function($q) {
 
 	this.stopAllPopupActivities = function() {
 		var d = $q.defer();
-		var self = this;
-		var stop = function() {
+		var stop = function(self) {
 			var item = self.activityStack.peek();
 			$q.when(self.stopActivity()).then(function() {
 				if (self.activityStack.getCount() > 0 && item.openMode != 'CHILD_POPUP') {
@@ -59,7 +64,7 @@ var Framework = function($q) {
 				}
 			});
 		};
-		stop();
+		stop(this);
 		return d.promise;
 	};
 
