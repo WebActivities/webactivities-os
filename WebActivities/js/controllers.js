@@ -392,60 +392,12 @@ angular.module('webActivitiesApp.controllers', [])
 	
 
 	// Demo configuration
-	framework.applicationRegistry.installApplication("apps/system/app.json");
+	framework.applicationRegistry.installApplication("apps/com.newt.system/app.json");
 	framework.applicationRegistry.installApplication("apps/app1/app.json");
 	framework.applicationRegistry.installApplication("apps/app2/app.json");
 	framework.applicationRegistry.installApplication("apps/maps/app.json");
 	framework.applicationRegistry.installApplication("apps/com.newt.signin/manifest.json");
 
-
-} ])
-
-.controller('SearchCtrl', ['$scope','framework','$element', function($scope,framework,$element) {
-	
-	$scope.searchInput='';
-	
-	$scope.activityDefs = $scope.$parent.activityDefs;
-	$scope.filteredItems = [];
-	$scope.selectedItemIndex=0;
-	
-	var scroll = $.throttle( 100, function() {
-		$($element).find(".list-group-item").eq($scope.selectedItemIndex).scrollintoview({
-		    duration: 200,
-		    direction: "vertical"
-		});
-	});
-	
-	$scope.keyDown = function($event) {
-		
-		if ($event.keyCode==40) {
-			$scope.selectedItemIndex = Math.min($scope.filteredItems.length-1,$scope.selectedItemIndex+1);
-			scroll();
-			
-		} else if ($event.keyCode==38) {
-			$scope.selectedItemIndex = Math.max(0,$scope.selectedItemIndex-1);
-			
-			scroll();
-			
-		} else if ($event.keyCode==13) {
-			if ($scope.selectedItemIndex>=0 && $scope.selectedItemIndex<$scope.filteredItems.length) {
-				var act = $scope.filteredItems[$scope.selectedItemIndex];
-				$scope.startActivity(null,act);
-			}
-		}
-	};
-
-	$scope.startActivity = function($event, activityDef, mode) {
-		if ($event) {
-			$event.stopPropagation();
-		}
-		var i = new Intent(IntentType.START_ACTIVITY, framework);
-		i.app = activityDef.app;
-		i.activity = activityDef.name;
-		i.parameters = {};
-		i.startMode = mode || 'ROOT';
-		return i.start();
-	};
 
 } ])
 

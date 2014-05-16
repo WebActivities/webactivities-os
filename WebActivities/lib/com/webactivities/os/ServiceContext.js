@@ -38,8 +38,26 @@ var ServiceContext = function(framework, service, $q) {
 		return framework.uiCommunicator.broadcast(type, parameters);
 	};
 	
+	this.framework = function() {
+		return framework;
+	};
+	
 	this.resolveUrl = function(path) {
 		return Utils.resolveUrl(service.application, path);
+	};
+	
+	this.newActivityIntent = function(app, activity, parameters) {
+		var i = new Intent(IntentType.START_ACTIVITY, framework);
+		i.activity = activity;
+		i.parameters = parameters;
+		i.app = app;
+		return i;
+	};
+
+	this.newIntent = function(intentType, parameters) {
+		var i = new Intent(intentType, framework);
+		i.parameters = parameters;
+		return i;
 	};
 	
 };

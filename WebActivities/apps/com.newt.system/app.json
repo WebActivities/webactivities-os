@@ -5,8 +5,11 @@
 	"icon" : "/res/app.png",
 	"version" : "1.0.0",
 	"resources" : [
-		"/systemApp.js",
-		"/res/jquery-2.1.1.min.js"
+		"/res/angular.min.js",
+		"/res/jquery-2.1.1.min.js",
+		"/res/jquery.ba-throttle-debounce.min.js",
+		"/res/jquery.scrollintoview.min.js",
+		"/systemApp.js"
     ],
     "services" : [{
     	"name": "ToolbarService",
