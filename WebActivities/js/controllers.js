@@ -51,22 +51,22 @@ angular.module('webActivitiesApp.controllers', [])
 	};
 
 	$scope.notifies = function() {
-		return framework.listNotifies();
+		return framework.notifyManager.listNotifies();
 	};
 
 	$scope.removeNotify = function(index) {
-		framework.removeNotify(index);
+		framework.notifyManager.removeNotify(index);
 	};
 
 	$scope.removeAllNotifies = function() {
 		var notifies = $scope.notifies().length;
 		for (var i = 0; i < notifies; i++) {
-			framework.removeNotify(0);
+			framework.notifyManager.removeNotify(0);
 		}
 	};
 
 	$scope.startApp = function(appId) {
-		framework.startApp(appId);
+		framework.startApplication(appId);
 	};
 
 	$scope.stopActivity = function() {
@@ -100,22 +100,22 @@ angular.module('webActivitiesApp.controllers', [])
 	};
 
 	// Listener
-	framework.on('appInstalled', function(event, app) {
+	framework.uiCommunicator.on('appInstalled', function(event, app) {
 		$scope.apps.push(app);
 		$.each(app.activitiesDefinitions, function(i,activitiesDef) {
 			$scope.activityDefs.push(activitiesDef);
 		});
 	});
 
-	framework.on('appStarting', function(event, app) {
+	framework.uiCommunicator.on('appStarting', function(event, app) {
 		$scope.startingApp = app.name;
 	});
 
-	framework.on('appStarted', function(event, app) {
+	framework.uiCommunicator.on('appStarted', function(event, app) {
 		$scope.startingApp = null;
 	});
 
-	framework.on('showNotify', function(event, notify) {
+	framework.uiCommunicator.on('showNotify', function(event, notify) {
 		var q = $q.defer();
 		var type = notify.type;
 		var message = notify.message;
@@ -139,7 +139,7 @@ angular.module('webActivitiesApp.controllers', [])
 		return q.promise;
 	});
 
-	framework.on('displayActivity', function(event, o) {
+	framework.uiCommunicator.on('displayActivity', function(event, o) {
 		var q = $q.defer();
 		if (viewports.peek().find(o.view).size() > 0) {
 			if (!o.disableEffects) {
@@ -174,7 +174,7 @@ angular.module('webActivitiesApp.controllers', [])
 		return q.promise;
 	});
 
-	framework.on('hideActivity', function(event, o) {
+	framework.uiCommunicator.on('hideActivity', function(event, o) {
 		var q = $q.defer();
 		$(o.view).animate({
 			left : "-100%"
@@ -193,7 +193,7 @@ angular.module('webActivitiesApp.controllers', [])
 		return q.promise;
 	});
 
-	framework.on('popLayer', function(event, o) {
+	framework.uiCommunicator.on('popLayer', function(event, o) {
 		var q = $q.defer();
 		var element = viewports.pop();
 		$(element.data("arrow")).remove();
@@ -211,7 +211,7 @@ angular.module('webActivitiesApp.controllers', [])
 		return q.promise;
 	});
 
-	framework.on('pushLayer', function(event, o) {
+	framework.uiCommunicator.on('pushLayer', function(event, o) {
 		var windowRelativeOffset = 20;
 
 		var q = $q.defer();
@@ -337,7 +337,7 @@ angular.module('webActivitiesApp.controllers', [])
 		return q.promise;
 	});
 
-	framework.on('destroyActivity', function(event, o) {
+	framework.uiCommunicator.on('destroyActivity', function(event, o) {
 		var q = $q.defer();
 		$(o.view).animate({
 			left : "100%"
@@ -356,7 +356,7 @@ angular.module('webActivitiesApp.controllers', [])
 		return q.promise;
 	});
 
-	framework.on('makeUserSelectOneActivity', function(event, o) {
+	framework.uiCommunicator.on('makeUserSelectOneActivity', function(event, o) {
 		var modalInstance = $modal.open({
 			templateUrl : 'activity-choice.html?' + new Date().getTime(),
 			controller : [ '$scope', '$modalInstance', 'o', function($scope, $modalInstance, o) {
@@ -382,12 +382,11 @@ angular.module('webActivitiesApp.controllers', [])
 	});
 
 	// Demo configuration
-	framework.installApp("apps/system/app.json");
-	
-	framework.installApp("apps/app1/app.json");
-	framework.installApp("apps/app2/app.json");
-	framework.installApp("apps/maps/app.json");
-	framework.installApp("apps/com.newt.signin/manifest.json");
+	framework.applicationRegistry.installApplication("apps/system/app.json");
+	framework.applicationRegistry.installApplication("apps/app1/app.json");
+	framework.applicationRegistry.installApplication("apps/app2/app.json");
+	framework.applicationRegistry.installApplication("apps/maps/app.json");
+	framework.applicationRegistry.installApplication("apps/com.newt.signin/manifest.json");
 
 
 } ])

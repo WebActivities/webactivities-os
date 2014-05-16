@@ -1,4 +1,4 @@
-var Service = function(webActivities, application, serviceDef, $q) {
+var Service = function(framework, application, serviceDef, $q) {
 	
 	var self = this;
 	
@@ -11,7 +11,7 @@ var Service = function(webActivities, application, serviceDef, $q) {
 		}
 		this.status = Service.status.CREATED;
 		this.instance = new application.iframe[0].contentWindow.window[serviceDef.activator](this.context, parameters);
-		return webActivities.broadcast('serviceCreated',this);
+		return framework.uiCommunicator.broadcast('serviceCreated',this);
 	};
 	
 	this.start = function(parameters,startOptions) {
@@ -21,8 +21,7 @@ var Service = function(webActivities, application, serviceDef, $q) {
 			});
 		}
 		this.status = Service.status.STARTED;
-		alert("starting service");
-		return webActivities.broadcast('serviceStarted',this);
+		return framework.uiCommunicator.broadcast('serviceStarted',this);
 	};
 	
 };

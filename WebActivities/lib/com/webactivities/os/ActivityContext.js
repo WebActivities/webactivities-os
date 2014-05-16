@@ -1,4 +1,4 @@
-var ActivityContext = function(webActivities, activity, _closeDefer, $q) {
+var ActivityContext = function(framework, activity, _closeDefer, $q) {
 
 	var _stop = function() {
 		return true;
@@ -45,7 +45,7 @@ var ActivityContext = function(webActivities, activity, _closeDefer, $q) {
 		doc.close();
 	};
 
-	this.bus = webActivities.bus.createBus();
+	this.bus = framework.bus.createBus();
 
 	this.getCloseDefer = function() {
 		return _closeDefer;
@@ -79,7 +79,7 @@ var ActivityContext = function(webActivities, activity, _closeDefer, $q) {
 		if (result !== undefined) {
 			_result = result;
 		}
-		webActivities.stopActivity();
+		framework.stopActivity();
 	};
 
 	this.onResume = function(fn) {
@@ -98,8 +98,16 @@ var ActivityContext = function(webActivities, activity, _closeDefer, $q) {
 		return _pause;
 	};
 
+	this.createFragment = function(app, activity, parameters) {
+		var f = new Fragment(this);
+		f.app = app;
+		f.activity = activity;
+		f.parameters = parameters;
+		return f;
+	};
+
 	this.newActivityIntent = function(app, activity, parameters) {
-		var i = new Intent(IntentType.START_ACTIVITY, webActivities);
+		var i = new Intent(IntentType.START_ACTIVITY, framework);
 		i.activity = activity;
 		i.parameters = parameters;
 		i.app = app;
@@ -107,13 +115,13 @@ var ActivityContext = function(webActivities, activity, _closeDefer, $q) {
 	};
 
 	this.newIntent = function(intentType, parameters) {
-		var i = new Intent(intentType, webActivities);
+		var i = new Intent(intentType, framework);
 		i.parameters = parameters;
 		return i;
 	};
 
 	this.resolveUrl = function(path) {
-		return Utils.resolveUrl(activity.application,path);
+		return Utils.resolveUrl(activity.application, path);
 	};
 
 	this.prepareView = function(url) {
@@ -136,7 +144,7 @@ var ActivityContext = function(webActivities, activity, _closeDefer, $q) {
 
 		activity.iframe = iframe;
 
-		webActivities.broadcast('displayActivity', {
+		framework.uiCommunicator.broadcast('displayActivity', {
 			view : iframe,
 			activity : activity.activity
 		}).then(function() {
@@ -150,7 +158,7 @@ var ActivityContext = function(webActivities, activity, _closeDefer, $q) {
 	};
 
 	this.notify = function(type, message, options) {
-		return webActivities.notify(type, message, options);
+		return framework.notifyManager.notify(type, message, options);
 	};
 
 };
