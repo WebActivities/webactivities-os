@@ -20,6 +20,10 @@ var Framework = function($q) {
 	
 	this.bus = new Bus();
 
+	this.createContext = function(activity, closeDefer, $q) {
+		return new ActivityContext(this, activity, closeDefer, $q);
+	};
+	
 	this.getCurrentActivity = function() {
 		return this.activityStack.peek();
 	};

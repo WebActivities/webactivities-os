@@ -30,6 +30,25 @@ var Utils = (function() {
 		return Activity.startMode.UNKNOWN;
 	};
 
+	var copy = function copy(obj) {
+		// Handle the 3 simple types, and null or undefined
+		if (null == obj || "object" != typeof obj)
+			return obj;
+
+		// Handle Object
+		if (obj instanceof Object) {
+			var copy = {};
+			for ( var attr in obj) {
+				if (obj.hasOwnProperty(attr)) {
+					copy[attr] = obj[attr];
+				}
+			}
+			return copy;
+		}
+
+		throw new Error("Unable to copy obj! Its type isn't supported.");
+	};
+
 	return {
 
 		getUniqueKey : getUniqueKey,
@@ -42,7 +61,9 @@ var Utils = (function() {
 
 		dirname : dirname,
 
-		resolveStartMode : resolveStartMode
+		resolveStartMode : resolveStartMode,
+
+		copy : copy
 
 	};
 

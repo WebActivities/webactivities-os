@@ -99,7 +99,7 @@ var ActivityContext = function(framework, activity, _closeDefer, $q) {
 	};
 
 	this.createFragment = function(app, activity, parameters) {
-		var f = new Fragment(this);
+		var f = new Fragment(framework);
 		f.app = app;
 		f.activity = activity;
 		f.parameters = parameters;

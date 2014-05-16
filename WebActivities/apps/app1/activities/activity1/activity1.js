@@ -155,12 +155,13 @@ var Activity1 = function(ctx) {
 		return deferred.promise();
 	});
 
-	var fragment = ctx.createFragment("it.test.app.one", "activity1");
+	var fragment = ctx.createFragment("it.test.app.one", "activity3");
 	container.append(fragment.getComponent().css({
 		width : "100%",
 		height : "200px",
 		margin : "1em 0",
 		border : "2px solid royalblue"
 	}));
+	fragment.start();
 	
 };

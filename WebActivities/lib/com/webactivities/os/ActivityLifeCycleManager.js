@@ -40,6 +40,12 @@ var ActivityStarter = function(framework) {
 		alert('Start mode unknown');
 		return d.promise;
 	};
+	
+	this.startMode.VOID = function() {
+		var d = framework.$q.defer();
+		d.resolve();
+		return d.promise;
+	};
 
 	this.resolveStartMode = function(mode) {
 		for ( var i in this.startMode) {
@@ -105,7 +111,7 @@ var ActivityStopper = function(framework) {
 			}).then(function() {
 				var q = null;
 				var disableEffects = false;
-				if (self.openMode == 'CHILD_POPUP') {
+				if (activity.openMode == 'CHILD_POPUP') {
 					q = framework.popLayer();
 					disableEffects = true;
 				}
