@@ -20,7 +20,18 @@ angular.module('webActivitiesApp.controllers', [])
 	$scope.startingApp = null;
 	$scope.maxBreadcrumbSize = 3;
 
-	$scope.toolbarActions = [];
+	$scope.settingsPanels = [ {
+		icon : 'fa-search',
+		label : 'Cerca',
+		templateUrl : 'partials/searchPanel.html',
+		controller : 'SearchCtrl'
+	}, {
+		icon : 'fa-picture-o',
+		label : 'Temi e aspetto'
+	}, {
+		icon : 'fa-cog',
+		label : 'Impostazioni'
+	} ];
 
 	// Functions
 	$scope.activityStack = function() {
@@ -69,14 +80,24 @@ angular.module('webActivitiesApp.controllers', [])
 	$scope.stopAllPopupActivities = function() {
 		framework.stopAllPopupActivities();
 	};
-	
-	$scope.executeAction = function(action) {
-		if (action.handler) {
-			action.handler(action);
-		}
-	};
 
-	
+	$scope.showSettings = function() {
+		var elements = $(document).add($("iframe").contents());
+
+		var hideFunction = undefined;
+		hideFunction = function(e) {
+			if ($(e.target).closest("#settings-panel").size() == 0) {
+				$("#settings-panel").addClass("hidden-panel", TRANSITION_SPEED);
+				elements.unbind("click", hideFunction);
+			}
+		};
+
+		$("#settings-panel").removeClass("hidden-panel", TRANSITION_SPEED, function() {
+			elements.bind("click", hideFunction);
+			$("#searchActivityInput").focus();
+		});
+
+	};
 
 	// Listener
 	framework.uiCommunicator.on('appInstalled', function(event, app) {
@@ -93,35 +114,6 @@ angular.module('webActivitiesApp.controllers', [])
 	framework.uiCommunicator.on('appStarted', function(event, app) {
 		$scope.startingApp = null;
 	});
-	
-	framework.on('addedToolbarAction', function(event, action) {
-		$scope.toolbarActions.push(action);
-	});
-	
-	framework.on('removedToolbarAction', function(event, action) {
-		var index = $scope.toolbarActions.indexOf(action);
-		if (index > -1) {
-			$scope.toolbarActions.splice(index, 1);
-		}
-	});
-	
-	
-	framework.on('showSidePanel', function() {
-
-		var hideFunction = undefined;
-		hideFunction = function(e) {
-			if ($(e.target).closest("#side-panel").size() == 0) {
-				$("#side-panel").addClass("hidden-panel", TRANSITION_SPEED);
-				elements.unbind("click", hideFunction);
-			}
-		};
-
-		$("#side-panel").removeClass("hidden-panel", TRANSITION_SPEED, function() {
-			elements.bind("click", hideFunction);
-			
-		});
-	});
-	
 
 	framework.uiCommunicator.on('showNotify', function(event, notify) {
 		var q = $q.defer();

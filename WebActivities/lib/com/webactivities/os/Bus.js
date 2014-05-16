@@ -116,12 +116,6 @@ var ActivityBus = function(bus) {
 		this.subscriptions.push(subscription);
 		return subscription;
 	};
-	
-	this.subscribeTopic = function(topic, onDataChanged) {
-		return this.subscribe(topic,function(added,removed) {
-			onDataChanged(added[topic]||[],removed[topic]||[]); 
-		});
-	};
 
 	this.unsubscribe = function(subscription) {
 		for (var i = 0; i < this.subscriptions.length; i++) {

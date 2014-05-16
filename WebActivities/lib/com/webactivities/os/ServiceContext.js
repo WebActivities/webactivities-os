@@ -9,7 +9,6 @@ var ServiceContext = function(webActivities, service, $q) {
 	};
 
 	this.bus = webActivities.bus.createBus();
-	this.workbenchDocument = window.document;
 
 	this.onStart = function(fn) {
 		_start = fn;
@@ -33,14 +32,6 @@ var ServiceContext = function(webActivities, service, $q) {
 
 	this.notify = function(type, message, options) {
 		return webActivities.notify(type, message, options);
-	};
-	
-	this.broadcast = function(type, parameters) {
-		return webActivities.broadcast(type, parameters);
-	};
-	
-	this.resolveUrl = function(path) {
-		return Utils.resolveUrl(service.application,path);
 	};
 
 };

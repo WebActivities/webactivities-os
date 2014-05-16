@@ -5,17 +5,8 @@ var Activity = function(framework, application, activityDef, closeDefer, $q) {
 
 	this.instanceId = Utils.getUniqueKey("activity_");
 	this.application = application;
-<<<<<<< HEAD
 	this.openMode = null;
 
-	// Create a new context
-	var createContext = function(closeDefer) {
-		return new ActivityContext(framework, self, closeDefer, $q);
-	};
-
-=======
-	
->>>>>>> branch 'master' of https://github.com/WebActivities/webactivities-os
 	this.activityDef = activityDef;
 	
 	/**
@@ -23,7 +14,7 @@ var Activity = function(framework, application, activityDef, closeDefer, $q) {
 	 */
 	this.iframe = null;
 
-	this.context = new ActivityContext(webActivities,self,closeDefer,$q);
+	this.context = new ActivityContext(framework,self,closeDefer,$q);
 
 	this.instance = null;
 	this.status = null;

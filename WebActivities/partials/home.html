@@ -62,9 +62,14 @@
 						</li>
 					</ul>
 				</li>
-				<li ng-repeat="action in toolbarActions" class="dropdown">
-					<a href="" data-ng-click="executeAction(action)">
-						<i class="fa" ng-class="action.iconClass" ></i>
+				<li class="dropdown">
+					<a href="" data-ng-click="showSettings()">
+						<i class="fa fa-search"></i>
+					</a>
+				</li>
+				<li class="dropdown">
+					<a href="" data-ng-click="showSettings()">
+						<i class="fa fa-cogs"></i>
 					</a>
 				</li>
 
@@ -103,7 +108,7 @@
 	<div id="viewport" class="viewport"></div>
 	<div id="layers-viewport"></div>
 </div>
-<div id="side-panel" class="hidden-panel">
+<div id="settings-panel" class="hidden-panel">
 
 	<tabset justified="true"> 
 		
