@@ -5,7 +5,8 @@
 	"icon" : "/res/app.png",
 	"version" : "1.0.0",
 	"resources" : [
-		"/systemApp.js"
+		"/systemApp.js",
+		"/res/jquery-2.1.1.min.js"
     ],
     "services" : [{
     	"name": "ToolbarService",

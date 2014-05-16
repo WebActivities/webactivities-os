@@ -18,11 +18,13 @@ var Service = function(framework, application, serviceDef, $q) {
 	this.start = function(parameters, startOptions) {
 		if (this.status == null) {
 			return this.create(parameters).then(function() {
-				return self.start(startOptions);
+				return self.start(parameters, startOptions);
 			});
 		}
-		this.status = Service.status.STARTED;
-		return framework.uiCommunicator.broadcast('serviceStarted', this);
+		return $q.when(this.context.getStart()(startOptions)).then(function() {			
+			self.status = Service.status.STARTED;
+			return framework.uiCommunicator.broadcast('serviceStarted',this);
+		});
 	};
 
 };

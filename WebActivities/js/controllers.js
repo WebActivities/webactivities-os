@@ -20,18 +20,7 @@ angular.module('webActivitiesApp.controllers', [])
 	$scope.startingApp = null;
 	$scope.maxBreadcrumbSize = 3;
 
-	$scope.settingsPanels = [ {
-		icon : 'fa-search',
-		label : 'Cerca',
-		templateUrl : 'partials/searchPanel.html',
-		controller : 'SearchCtrl'
-	}, {
-		icon : 'fa-picture-o',
-		label : 'Temi e aspetto'
-	}, {
-		icon : 'fa-cog',
-		label : 'Impostazioni'
-	} ];
+	$scope.toolbarActions = [];
 
 	// Functions
 	$scope.activityStack = function() {
@@ -79,6 +68,12 @@ angular.module('webActivitiesApp.controllers', [])
 
 	$scope.stopAllPopupActivities = function() {
 		framework.stopAllPopupActivities();
+	};
+
+	$scope.executeAction = function(action) {
+		if (action.handler) {
+			action.handler(action);
+		}
 	};
 
 	$scope.showSettings = function() {
@@ -379,6 +374,17 @@ angular.module('webActivitiesApp.controllers', [])
 			}
 		});
 		return modalInstance.result;
+	});
+	
+	framework.uiCommunicator.on('addedToolbarAction', function(event, action) {
+		$scope.toolbarActions.push(action);
+	});
+	
+	framework.uiCommunicator.on('removedToolbarAction', function(event, action) {
+		var index = $scope.toolbarActions.indexOf(action);
+		if (index > -1) {
+			$scope.toolbarActions.splice(index, 1);
+		}
 	});
 
 	// Demo configuration
