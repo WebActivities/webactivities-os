@@ -12,6 +12,7 @@ var Activity3 = function(ctx) {
 	ctx.prepareView().then(function(root) {
 		$(root).append(container);
 	});
+
 };
 
 var Activity1 = function(ctx) {
@@ -41,6 +42,7 @@ var Activity1 = function(ctx) {
 		});
 	});
 
+
 	var btn18 = $("<button type=\"button\" class=\"btn btn-sm btn-primary\">Avvia Activity3 POPUP grande</button>").appendTo(container);
 	btn18.click(function() {
 		var i = ctx.newActivityIntent("it.test.app.one", "activity1");
@@ -62,7 +64,7 @@ var Activity1 = function(ctx) {
 			container.append("The result is " + result);
 		});
 	});
-	
+
 	var btn118 = $("<button type=\"button\" class=\"btn btn-sm btn-primary\">Avvia Activity3 POPUP RELATIVO!</button>").appendTo(container);
 	btn118.draggable();
 	btn118.click(function() {
@@ -153,4 +155,12 @@ var Activity1 = function(ctx) {
 		return deferred.promise();
 	});
 
+	var fragment = ctx.createFragment("it.test.app.one", "activity1");
+	container.append(fragment.getComponent().css({
+		width : "100%",
+		height : "200px",
+		margin : "1em 0",
+		border : "2px solid royalblue"
+	}));
+	
 };

@@ -1,9 +1,11 @@
+
 var Service = function(webActivities, application, serviceDef, $q) {
 	
 	var self = this;
 	
 	this.instanceId = Utils.getUniqueKey("service_");
 	this.serviceDef = serviceDef;
+	this.application = application;
 	
 	this.context = new ServiceContext(webActivities,self,$q);
 	

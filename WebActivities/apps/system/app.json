@@ -5,6 +5,8 @@
 	"icon" : "/res/app.png",
 	"version" : "1.0.0",
 	"resources" : [
+		"/res/jquery-2.1.1.min.js",
+		"/res/angular.min.js",
 		"/systemApp.js"
     ],
     "services" : [{

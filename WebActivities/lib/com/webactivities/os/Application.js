@@ -1,54 +1,52 @@
+var Application = function(framework, appDefinition, $q) {
 
-var Application = function(webActivities,appDefinition, $q)  {
-	
 	var self = this;
 	this.path = Utils.dirname(appDefinition.manifestUrl);
-	
-	$.extend(this,appDefinition);
+
+	$.extend(this, appDefinition);
 	this.appDefinition = appDefinition;
-	
+
 	this.icon = Utils.resolveUrl(this, appDefinition.icon);
 	appDefinition.icon = this.icon;
-	
-	
+
 	/**
 	 * Activities manifest json
 	 */
 	this.activitiesDefinitions = {};
 	if ($.isArray(appDefinition.activities)) {
-		$.each(appDefinition.activities,function(i,item) {
-			Activity.completeActivityDefinition(webActivities, self, item);
-			self.activitiesDefinitions[item.id]=item;
+		$.each(appDefinition.activities, function(i, item) {
+			Activity.completeActivityDefinition(framework, self, item);
+			self.activitiesDefinitions[item.id] = item;
 			Logger.log("Registered activity <" + item.id + "> ", item);
 		});
 	}
-	
+
 	/**
 	 * Services manifest json
 	 */
 	this.servicesDefinitions = {};
 	if ($.isArray(appDefinition.services)) {
-		$.each(appDefinition.services,function(i,item) {
-			Service.completeServiceDefinition(webActivities, self, item);
-			self.servicesDefinitions[item.id]=item;
+		$.each(appDefinition.services, function(i, item) {
+			Service.completeServiceDefinition(framework, self, item);
+			self.servicesDefinitions[item.id] = item;
 			Logger.log("Registered service <" + item.id + "> ", item);
 		});
 	}
-	
+
 	/**
 	 * Running activities instances
 	 */
 	this.activities = [];
-	
+
 	/**
 	 * Running services instances
 	 */
 	this.services = [];
-	
+
 	this.status = Application.status.REGISTERED;
 	this.version = appDefinition.version || "0.0.0";
 
-	var createHostingIframe= function(afterIframeLoadCallback) {
+	var createHostingIframe = function(afterIframeLoadCallback) {
 		var resourcesIncluded = "";
 		if ($.isArray(appDefinition.resources)) {
 			$.each(appDefinition.resources, function(index, value) {
@@ -78,18 +76,22 @@ var Application = function(webActivities,appDefinition, $q)  {
 		div.append(code);
 		return $("<div>").append(div).html();
 	};
+<<<<<<< HEAD
+
+=======
 	
 	this.startingPromise = null;
 	
+>>>>>>> branch 'master' of https://github.com/WebActivities/webactivities-os
 	this.startApplication = function(preventStartActivity) {
 		
 		if (this.status == Application.status.REGISTERED) {
 			var deferred = $q.defer();
-			webActivities.broadcast('appStarting',this);
+			framework.uiCommunicator.broadcast('appStarting', this);
 			this.status = Application.status.STARTING;
 			this.iframe = createHostingIframe(function() {
 				self.status = Application.status.STARTED;
-				webActivities.broadcast('appStarted', self);
+				framework.uiCommunicator.broadcast('appStarted', self);
 				if (preventStartActivity) {
 					deferred.resolve(self);
 				} else {
@@ -98,13 +100,24 @@ var Application = function(webActivities,appDefinition, $q)  {
 					});
 				}
 			});
+<<<<<<< HEAD
+			return deferred.promise;
+
+=======
 			startingPromise = deferred.promise
 			return startingPromise;
 			
+>>>>>>> branch 'master' of https://github.com/WebActivities/webactivities-os
 		} else if (this.status == Application.status.STARTING) {
+<<<<<<< HEAD
+			// do nothing... wait for start
+			// TODO enqueue promises
+
+=======
 			
 			return startingPromise;
 			
+>>>>>>> branch 'master' of https://github.com/WebActivities/webactivities-os
 		} else if (this.status == Application.status.STARTED) {
 			if (!preventStartActivity) {
 				return this.startMainActivity().then(function() {
@@ -115,15 +128,15 @@ var Application = function(webActivities,appDefinition, $q)  {
 			}
 		}
 	};
-	
+
 	this.checkAutostartServices = function() {
-		$.each(this.servicesDefinitions,function(k,v) {
+		$.each(this.servicesDefinitions, function(k, v) {
 			if (v.autostart) {
-				self.startService(v.name,{},{});
+				self.startService(v.name, {}, {});
 			}
 		});
 	};
-	
+
 	this.startMainActivity = function() {
 		if (this.status != Application.status.STARTED) {
 			Logger.error("The application <" + this.id + "> isn't started");
@@ -132,22 +145,32 @@ var Application = function(webActivities,appDefinition, $q)  {
 			Logger.log("The application <" + this.id + "> not have a main activity");
 			return $q.when();
 		} else {
-			return webActivities.startActivity(this.appDefinition.main, this.id, null, webActivities.startMode.ROOT);
+			return framework.startActivity(this.appDefinition.main, this.id, null, framework.activityStarter.startMode.ROOT);
 		}
 	};
-	
+
 	this.startActivity = function(activityName, parameters, startMode, startOptions, closeDefer) {
-		
+
 		if (closeDefer == null) {
 			closeDefer = $q.defer();
 		}
-		
+
 		var activityId = Utils.composeActivityId(this.id, activityName);
-		var activityDefinition = this.activitiesDefinitions[activityId];
+		var activityDefinition = framework.applicationRegistry.getActivitiesDefinition(activityId);
 
 		if (activityDefinition == null) {
 			Logger.error("Activity <" + activityName + "> in app <" + this.id + "> not found");
 			return $q.reject();
+<<<<<<< HEAD
+
+		}
+
+		if (this.status == Application.status.REGISTERED) {
+
+			return this.startApplication(true).then(function(app) {
+				return app.startActivity(activityName, parameters, startMode, startOptions, closeDefer);
+			});
+=======
 		} 
 			
 		if (this.status == Application.status.REGISTERED ||
@@ -157,24 +180,34 @@ var Application = function(webActivities,appDefinition, $q)  {
 				.then(function(app) {
 					return app.startActivity(activityName, parameters, startMode, startOptions, closeDefer);
 				});
+>>>>>>> branch 'master' of https://github.com/WebActivities/webactivities-os
 
 		} else {
 
-			var activity = new Activity(webActivities,this,activityDefinition,closeDefer,$q); 
-			webActivities.broadcast('activityStarting',activity);
-			return activity.start(parameters,startMode,startOptions);
+			var activity = new Activity(framework, this, activityDefinition, closeDefer, $q);
+			framework.uiCommunicator.broadcast('activityStarting', activity);
+			return activity.start(parameters, startMode, startOptions);
 		}
 
 	};
-	
+
 	this.startService = function(serviceName, parameters, startOptions) {
-		
+
 		var serviceId = Utils.composeServiceId(this.id, serviceName);
 		var serviceDefinition = this.servicesDefinitions[serviceId];
 
 		if (serviceDefinition == null) {
 			Logger.error("Service <" + serviceName + "> in app <" + this.id + "> not found");
 			return $q.reject();
+<<<<<<< HEAD
+		}
+
+		if (this.status == Application.status.REGISTERED) {
+
+			return this.startApplication(true).then(function(app) {
+				return app.startService(serviceName, parameters, startOptions);
+			});
+=======
 		} 
 			
 		if (this.status == Application.status.REGISTERED ||
@@ -184,13 +217,14 @@ var Application = function(webActivities,appDefinition, $q)  {
 				.then(function(app) {
 					return app.startService(serviceName, parameters, startOptions);
 				});
+>>>>>>> branch 'master' of https://github.com/WebActivities/webactivities-os
 
 		} else {
 
-			var service = new Service(webActivities,this,serviceDefinition,$q);
-			return service.start(parameters,startOptions);
+			var service = new Service(framework, this, serviceDefinition, $q);
+			return service.start(parameters, startOptions);
 		}
-		
+
 	};
 
 	Logger.log("Registered application " + appDefinition.name + " <" + appDefinition.id + ">");
@@ -198,7 +232,7 @@ var Application = function(webActivities,appDefinition, $q)  {
 };
 
 Application.status = {
-	"REGISTERED": 0,
-	"STARTING": 2,
-	"STARTED": 4
+	"REGISTERED" : 0,
+	"STARTING" : 2,
+	"STARTED" : 4
 };
