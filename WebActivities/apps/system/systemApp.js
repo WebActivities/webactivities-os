@@ -1,6 +1,3 @@
-//alert("system App installed");
-
-alert("sss");
 
 var ToolbarService = function(ctx) {
 	
@@ -28,4 +25,4 @@ var SearchService = function(ctx) {
 	});
 	
 };
-alert(SearchService);
+

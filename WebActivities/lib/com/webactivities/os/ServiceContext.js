@@ -1,4 +1,4 @@
-var ServiceContext = function(webActivities, service, $q) {
+var ServiceContext = function(framework, service, $q) {
 
 	var _stop = function() {
 		return true;
@@ -8,7 +8,7 @@ var ServiceContext = function(webActivities, service, $q) {
 		return true;
 	};
 
-	this.bus = webActivities.bus.createBus();
+	this.bus = framework.bus.createBus();
 
 	this.onStart = function(fn) {
 		_start = fn;
@@ -31,7 +31,7 @@ var ServiceContext = function(webActivities, service, $q) {
 	};
 
 	this.notify = function(type, message, options) {
-		return webActivities.notify(type, message, options);
+		return framework.notify(type, message, options);
 	};
 
 };
