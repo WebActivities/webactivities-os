@@ -317,7 +317,7 @@ angular.module('webActivitiesApp.controllers', [])
 	framework.uiCommunicator.on('destroyActivity', function(event, o) {
 		var q = $q.defer();
 		$(o.view).animate({
-			left : "100%"
+			top : "100%"
 		}, {
 			duration : TRANSITION_SPEED,
 			complete : function() {
@@ -370,24 +370,22 @@ angular.module('webActivitiesApp.controllers', [])
 	});
 	
 	framework.uiCommunicator.on('showSidePanel', function(event,obj) {
-		var elements = $(document).add($("iframe").contents());
 
-		var hideFunction = undefined;
-		hideFunction = function(e) {
-			if ($(e.target).closest("#settings-panel").size() == 0) {
-				$("#settings-panel").addClass("hidden-panel", TRANSITION_SPEED);
-				elements.unbind("click", hideFunction);
-			}
-		};
-
+		$("#settings-modal").show().one("click", function() {
+			$("#settings-panel").addClass("hidden-panel", TRANSITION_SPEED, function() {
+				$("#settings-modal").hide();
+			});
+		});
+		
 		$("#settings-panel").empty();
 		if (obj.content) {
 			$("#settings-panel").append(obj.content);
 		}
+		var defer = $q.defer();
 		$("#settings-panel").removeClass("hidden-panel", TRANSITION_SPEED, function() {
-			elements.bind("click", hideFunction);
+			defer.resolve();
 		});
-
+		return defer.promise;
 	});
 	
 

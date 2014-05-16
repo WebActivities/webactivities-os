@@ -1,0 +1,27 @@
+#searchPanel {
+	position: absolute;
+	top: 0px;
+	bottom: 0px;
+	left: 0px;
+	right: 0px;
+}
+#searchPanel .searchPanelHeader {
+	position: absolute;
+	top: 0px;
+	height: 50px;
+	left: 0px;
+	right: 0px;
+}
+#searchPanel .searchPanelHeader .form-group {
+	margin: 7px;
+}
+
+#searchPanel .list-group {
+	position: absolute;
+	top: 50px;
+	bottom: 0px;
+	left: 0px;
+	right: 0px;
+	overflow: auto;
+	margin-bottom: 0px;
+}
