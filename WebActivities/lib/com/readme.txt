@@ -6,4 +6,4 @@ npm -g install yuidocjs
 
 Per generare la documentazione:
 (dalla cartella del file readme.txt lanciare)
-yuidoc --theme simple -c yuidoc.json .
+yuidoc -c yuidoc.json .
