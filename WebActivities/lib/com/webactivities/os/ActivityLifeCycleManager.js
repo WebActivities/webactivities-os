@@ -131,7 +131,6 @@ var ActivityStopper = function(framework) {
 				});
 
 			});
-
 		});
 		return d.promise;
 	};

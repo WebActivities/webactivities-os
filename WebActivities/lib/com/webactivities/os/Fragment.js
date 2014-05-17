@@ -1,4 +1,5 @@
 var Fragment = function(framework, parentContext) {
+	var self = this;
 
 	var component = $("<div></div>", {
 		style : "position: relative"
@@ -12,7 +13,6 @@ var Fragment = function(framework, parentContext) {
 	this.inited = false;
 	this.parentInited = false;
 
-	var self = this;
 	parentContext.communicator.on("activityDisplayed", function() {
 		self.parentInited = true;
 	});
@@ -39,41 +39,21 @@ var Fragment = function(framework, parentContext) {
 		var $q = framework.$q;
 
 		this.context = new ActivityContext(framework, null, defer, $q);
-		
-		var load = function() {
-			setTimeout(function() {
-				$(self.activityInstance.iframe).trigger("attached");
-			}, 0);
-		};
-		
-		parentContext.communicator.on("iframeLoaded", function() {
-			load();
-		});
 
 		this.context.broadcastDisplayView = function(iframe) {
 			self.activityInstance.status = Activity.status.ACTIVE;
-			var display = function() {
-				$(iframe).css({
-					position : "absolute",
-					left : "0",
-					top : "0",
-					right : "0",
-					bottom : "0",
-					border : "0px none",
-					width : "100%",
-					height : "100%"
-				});
-				component.append(iframe);
-			};
-
-			parentContext.communicator.on("activityDisplayed", function() {
-				display();
+			$(iframe).css({
+				position : "absolute",
+				left : "0",
+				top : "0",
+				right : "0",
+				bottom : "0",
+				border : "0px none",
+				width : "100%",
+				height : "100%"
 			});
-
-			if (self.parentInited) {
-				display();
-				load();
-			}
+			component.append(iframe);
+			$(self.activityInstance.iframe).trigger("attached");
 		};
 
 		this.activityInstance = new Activity(framework, app, activityDef, defer, $q);

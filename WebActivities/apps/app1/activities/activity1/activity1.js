@@ -1,4 +1,5 @@
 var Activity3 = function(ctx) {
+	
 	var container = $("<div></div>");
 	var header = $("<h1>").text("This is another application").appendTo(container);
 
@@ -33,7 +34,7 @@ var Activity3 = function(ctx) {
 };
 
 var Activity1 = function(ctx) {
-
+	var fragment = ctx.createFragment("it.test.app.one", "activity3");
 	var container = $("<div></div>");
 	var header = $("<h1>").text("This is the first application").appendTo(container);
 	var input = $("<input type=\"text\" class=\"form-control\" placeholder=\"Inserisci qualcosa per vedere se mantiene lo stato. Sarà anche il valore tornato all'activity precedente.\">").appendTo(
@@ -142,6 +143,7 @@ var Activity1 = function(ctx) {
 
 	ctx.prepareView().then(function(root) {
 		$(root).append(container);
+		fragment.start();
 	});
 
 	ctx.onStop(function() {
@@ -171,7 +173,7 @@ var Activity1 = function(ctx) {
 		return deferred.promise();
 	});
 
-	var fragment = ctx.createFragment("it.test.app.one", "activity3");
+	
 	container.append("<h2>Questo frammento parte subito</h2>");
 	container.append(fragment.getComponent().css({
 		width : "100%",
@@ -179,7 +181,7 @@ var Activity1 = function(ctx) {
 		margin : "1em 0",
 		border : "2px solid royalblue"
 	}));
-	fragment.start();
+	
 
 	var fragment1 = ctx.createFragment("it.test.app.one", "activity3");
 	container.append("<h2>Questo frammento parte con i pulsanti sotto</h2>");
