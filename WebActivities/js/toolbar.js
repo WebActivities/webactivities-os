@@ -10,11 +10,11 @@ angular.module('webActivitiesApp.toolbar', [])
 	
 	
 	framework.uiCommunicator.on('displayActivity', function(event, o) {
-		showActivityActions(o);
+		showActivityActions(o.activity);
 	});
 	
 	framework.uiCommunicator.on('hideActivity', function(event, o) {
-		hideActivityActions(o);
+		hideActivityActions(o.activity);
 	});
 	
 	framework.uiCommunicator.on('destroyActivity', function(event, o) {

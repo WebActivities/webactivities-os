@@ -11,7 +11,7 @@ var Activity1 = function(context) {
 	context.onShow(function() {
 		context.bus.publish("com.newt.system.toolbar.actions", {
 			order: 1,
-			activityId: context.activityId,
+			activityId: context.activityId(),
 			action: "search",
 			iconClass: "fa-search",
 			handler: function(e) {

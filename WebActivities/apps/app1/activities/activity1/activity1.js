@@ -159,7 +159,7 @@ var Activity1 = function(ctx) {
 	ctx.onShow(function() {
 		ctx.bus.publish("com.newt.system.toolbar.actions", {
 			order: 1,
-			activityId: ctx.activityId,
+			activityId: ctx.activityId(),
 			action: "azione X",
 			iconClass: "fa-coffee",
 			handler: function(e) {
