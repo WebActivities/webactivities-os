@@ -63,6 +63,13 @@ var ActivityPauser = function(framework) {
 	this.pause = function(activity, options) {
 		var d = framework.$q.defer();
 		var context = activity.context;
+		
+		var promises = [ context.getPause()() ];
+
+		for (var i in context.fragments) {
+			promises.push(context.fragments[i].pause());
+		}
+		
 		framework.$q.when(context.getPause()()).then(function() {
 			if (options.mode == 'hidden') {
 				framework.uiCommunicator.broadcast('hideActivity', {
@@ -84,7 +91,14 @@ var ActivityResumer = function(framework) {
 	this.resume = function(activity, options) {
 		var d = framework.$q.defer();
 		var context = activity.context;
-		framework.$q.when(context.getResume()()).then(function() {
+		
+		var promises = [ context.getResume()() ];
+
+		for (var i in context.fragments) {
+			promises.push(context.fragments[i].resume());
+		}
+		
+		framework.$q.when(promises).then(function() {
 			framework.uiCommunicator.broadcast('displayActivity', {
 				view : activity.iframe,
 				activity : activity.activity,
