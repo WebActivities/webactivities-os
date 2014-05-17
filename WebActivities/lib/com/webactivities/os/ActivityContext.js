@@ -121,6 +121,23 @@ var ActivityContext = function(framework, activity, _closeDefer, $q) {
 		return i;
 	};
 
+	this.newActivityIntentAsRoot = function(app, activity, parameters) {
+		var i = new Intent(IntentType.START_ACTIVITY, framework);
+		i.activity = activity;
+		i.parameters = parameters;
+		i.app = app;
+		i.startMode = "ROOT";
+		return i;
+	};
+	this.newActivityIntentAsPopup = function(app, activity, parameters) {
+		var i = new Intent(IntentType.START_ACTIVITY, framework);
+		i.activity = activity;
+		i.parameters = parameters;
+		i.app = app;
+		i.startMode = "CHILD_POPUP";
+		return i;
+	};
+
 	this.newIntent = function(intentType, parameters) {
 		var i = new Intent(intentType, framework);
 		i.parameters = parameters;

@@ -1,5 +1,4 @@
 var Fragment = function(framework, parentContext) {
-	var self = this;
 
 	var component = $("<div></div>", {
 		style : "position: relative"
@@ -12,10 +11,6 @@ var Fragment = function(framework, parentContext) {
 	this.activityInstance = null;
 	this.inited = false;
 	this.parentInited = false;
-
-	parentContext.communicator.on("activityDisplayed", function() {
-		self.parentInited = true;
-	});
 
 	this.getComponent = function() {
 		return component;
