@@ -39,7 +39,14 @@ var Fragment = function(framework, parentContext) {
 		var $q = framework.$q;
 
 		this.context = new ActivityContext(framework, null, defer, $q);
+		parentContext.communicator.on("iframeLoaded", function(e, o) {
+			setTimeout(function() {
+				$(self.activityInstance.iframe).trigger("attached");
+			}, 0);
+		});
+
 		this.context.broadcastDisplayView = function(iframe) {
+			self.activityInstance.status = Activity.status.ACTIVE;
 			var display = function() {
 				$(iframe).css({
 					position : "absolute",
@@ -51,12 +58,7 @@ var Fragment = function(framework, parentContext) {
 					width : "100%",
 					height : "100%"
 				});
-
-				if ($(component).find(iframe).length == 0) {
-					component.append(iframe);
-				}
-				self.activityInstance.status = Activity.status.ACTIVE;
-				$(iframe).trigger("attached");
+				component.append(iframe);
 			};
 
 			parentContext.communicator.on("activityDisplayed", function() {

@@ -17,7 +17,7 @@ var ActivityContext = function(framework, activity, _closeDefer, $q) {
 	};
 
 	var _result = null;
-	
+
 	var writeActivityStartingDoc = function(iframe, activity) {
 		var doc = iframe.contentWindow.window.document;
 		doc.open();
@@ -46,9 +46,9 @@ var ActivityContext = function(framework, activity, _closeDefer, $q) {
 	};
 
 	this.fragments = [];
-	
+
 	this.activity = activity;
-	
+
 	this.bus = framework.bus.createBus();
 
 	this.communicator = new UICommunicator(framework);
@@ -142,9 +142,15 @@ var ActivityContext = function(framework, activity, _closeDefer, $q) {
 				if (url) {
 					$(viewport).load(url, function() {
 						viewDeferred.resolve(viewport);
+						self.communicator.broadcast("iframeLoaded", {
+							iframe : iframe
+						});
 					});
 				} else {
 					viewDeferred.resolve(viewport);
+					self.communicator.broadcast("iframeLoaded", {
+						iframe : iframe
+					});
 				}
 			});
 			writeActivityStartingDoc(iframe, self.activity);
