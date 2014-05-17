@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>webactivities\os\ActivityContext.js - Newt API</title>
+    <link rel="stylesheet" href="http://yui.yahooapis.com/3.9.1/build/cssgrids/cssgrids-min.css">
+    <link rel="stylesheet" href="../assets/vendor/prettify/prettify-min.css">
+    <link rel="stylesheet" href="../assets/css/main.css" id="site_styles">
+    <link rel="shortcut icon" type="image/png" href="../assets/favicon.png">
+    <script src="http://yui.yahooapis.com/combo?3.9.1/build/yui/yui-min.js"></script>
+</head>
+<body class="yui3-skin-sam">
+
+<div id="doc">
+    <div id="hd" class="yui3-g header">
+        <div class="yui3-u-3-4">
+            
+                <h1><img src="../assets/css/logo.png" title="Newt API"></h1>
+            
+        </div>
+        <div class="yui3-u-1-4 version">
+            <em>API Docs for: 1.0.0</em>
+        </div>
+    </div>
+    <div id="bd" class="yui3-g">
+
+        <div class="yui3-u-1-4">
+            <div id="docs-sidebar" class="sidebar apidocs">
+                <div id="api-list">
+    <h2 class="off-left">APIs</h2>
+    <div id="api-tabview" class="tabview">
+        <ul class="tabs">
+            <li><a href="#api-classes">Classes</a></li>
+            <li><a href="#api-modules">Modules</a></li>
+        </ul>
+
+        <div id="api-tabview-filter">
+            <input type="search" id="api-filter" placeholder="Type to filter APIs">
+        </div>
+
+        <div id="api-tabview-panel">
+            <ul id="api-classes" class="apis classes">
+            
+                <li><a href="../classes/Activity.html">Activity</a></li>
+            
+                <li><a href="../classes/ActivityContext.html">ActivityContext</a></li>
+            
+            </ul>
+
+            <ul id="api-modules" class="apis modules">
+            
+                <li><a href="../modules/Activity.html">Activity</a></li>
+            
+                <li><a href="../modules/Context.html">Context</a></li>
+            
+            </ul>
+        </div>
+    </div>
+</div>
+
+            </div>
+        </div>
+        <div class="yui3-u-3-4">
+                <div id="api-options">
+        Show:
+        <label for="api-show-inherited">
+            <input type="checkbox" id="api-show-inherited" checked>
+            Inherited
+        </label>
+
+        <label for="api-show-protected">
+            <input type="checkbox" id="api-show-protected">
+            Protected
+        </label>
+
+        <label for="api-show-private">
+            <input type="checkbox" id="api-show-private">
+            Private
+        </label>
+        <label for="api-show-deprecated">
+            <input type="checkbox" id="api-show-deprecated">
+            Deprecated
+        </label>
+
+    </div>
+
+
+            <div class="apidocs">
+                <div id="docs-main">
+                    <div class="content">
+                        <h1 class="file-heading">File: webactivities\os\ActivityContext.js</h1>
+
+<div class="file">
+    <pre class="code prettyprint linenums">
+/**
+* Activity Context
+*
+* @class ActivityContext
+* @module Context
+* @constructor
+*/
+var ActivityContext = function(framework, activity, _closeDefer, $q) {
+
+	var _stop = function() {
+		return true;
+	};
+
+	var _resume = function() {
+		return true;
+	};
+
+	var _pause = function() {
+		return true;
+	};
+
+	var _show = function() {
+		return true;
+	};
+
+	var _result = null;
+
+	var writeActivityStartingDoc = function(iframe, activity) {
+		var doc = iframe.contentWindow.window.document;
+		doc.open();
+		doc.write(&quot;&lt;html&gt;&quot;);
+		doc.write(&quot;&lt;head&gt;&quot;);
+		if (activity.seamless) {
+			doc.write(&quot;&lt;link rel=\&quot;stylesheet\&quot; href=\&quot;css/yeti.bootstrap.min.css\&quot; /&gt;&quot;);
+		}
+		doc.write(&quot;&lt;base href=\&quot;&quot; + activity.path + &quot;/\&quot;&gt;&quot;);
+		doc.write(&quot;&lt;script type=\&quot;text/javascript\&quot;&gt;&quot;);
+		doc.write(&quot;var top = null;&quot;);
+		doc.write(&quot;var opener = null;&quot;);
+		doc.write(&quot;window.parent = null;&quot;);
+		doc.write(&quot;window.opener = null;&quot;);
+		doc.write(&quot;&lt;/script&gt;&quot;);
+		doc.write(&quot;&lt;/head&gt;&quot;);
+		doc.write(&quot;&lt;body&gt;&quot;);
+		doc.write(&quot;&lt;div id=\&quot;internalViewport\&quot; &quot;);
+		if (activity.seamless) {
+			doc.write(&quot; class=\&quot;container-fluid\&quot;&quot;);
+		}
+		doc.write(&quot;&gt;&lt;/div&gt;&quot;);
+		doc.write(&quot;&lt;/body&gt;&quot;);
+		doc.write(&quot;&lt;/html&gt;&quot;);
+		doc.close();
+	};
+
+	this.fragments = [];
+
+	this.activity = activity;
+
+	this.bus = framework.bus.createBus();
+
+	this.communicator = new UICommunicator(framework);
+
+	this.getCloseDefer = function() {
+		return _closeDefer;
+	};
+
+	this.setResult = function(result) {
+		_result = result;
+	};
+
+	this.getResult = function() {
+		return _result;
+	};
+
+	this.onStop = function(fn) {
+		_stop = fn;
+	};
+
+	this.getStop = function() {
+		return _stop;
+	};
+
+	this.onShow = function(fn) {
+		_show = fn;
+	};
+
+	this.getShow = function() {
+		return _show;
+	};
+
+	this.stop = function(result) {
+		if (result !== undefined) {
+			_result = result;
+		}
+		framework.stopActivity();
+	};
+
+	this.onResume = function(fn) {
+		_resume = fn;
+	};
+
+	this.getResume = function() {
+		return _resume;
+	};
+
+	this.onPause = function(fn) {
+		_pause = fn;
+	};
+
+	this.getPause = function() {
+		return _pause;
+	};
+
+	this.createFragment = function(app, activity, parameters) {
+		var f = new Fragment(framework, this);
+		f.app = app;
+		f.activity = activity;
+		f.parameters = parameters;
+		this.fragments.push(f);
+		return f;
+	};
+
+	this.newActivityIntent = function(app, activity, parameters) {
+		var i = new Intent(IntentType.START_ACTIVITY, framework);
+		i.activity = activity;
+		i.parameters = parameters;
+		i.app = app;
+		return i;
+	};
+
+	this.newActivityIntentAsRoot = function(app, activity, parameters) {
+		var i = new Intent(IntentType.START_ACTIVITY, framework);
+		i.activity = activity;
+		i.parameters = parameters;
+		i.app = app;
+		i.startMode = &quot;ROOT&quot;;
+		return i;
+	};
+	this.newActivityIntentAsPopup = function(app, activity, parameters) {
+		var i = new Intent(IntentType.START_ACTIVITY, framework);
+		i.activity = activity;
+		i.parameters = parameters;
+		i.app = app;
+		i.startMode = &quot;CHILD_POPUP&quot;;
+		return i;
+	};
+
+	this.newIntent = function(intentType, parameters) {
+		var i = new Intent(intentType, framework);
+		i.parameters = parameters;
+		return i;
+	};
+
+	this.resolveUrl = function(path) {
+		return Utils.resolveUrl(this.activity.application, path);
+	};
+
+	this.prepareView = function(url) {
+		var viewDeferred = $q.defer();
+		var iframe = $(&quot;&lt;iframe&gt;&lt;/iframe&gt;&quot;)[0];
+		var self = this;
+		this.activity.iframe = iframe;
+		$(iframe).on(&quot;attached&quot;, function() {
+			$(iframe).load(function() {
+				var viewport = $(iframe).contents().find(&quot;#internalViewport&quot;)[0];
+				if (url) {
+					$(viewport).load(url, function() {
+						viewDeferred.resolve(viewport);
+						self.communicator.broadcast(&quot;iframeLoaded&quot;, {});
+					});
+				} else {
+					viewDeferred.resolve(viewport);
+					self.communicator.broadcast(&quot;iframeLoaded&quot;, {});
+				}
+			});
+			writeActivityStartingDoc(iframe, self.activity);
+		});
+		this.broadcastDisplayView(iframe);
+
+		return viewDeferred.promise;
+	};
+
+	this.broadcastDisplayView = function(iframe) {
+		var self = this;
+		framework.uiCommunicator.broadcast(&#x27;displayActivity&#x27;, {
+			view : iframe,
+			activity : self.activity.activity
+		}).then(function() {
+			self.activity.status = Activity.status.ACTIVE;
+			$q.when(self.activity.context.getShow()()).then(function() {
+				self.communicator.broadcast(&quot;activityDisplayed&quot;, {});
+			});
+		});
+	};
+
+	this.notify = function(type, message, options) {
+		return framework.notifyManager.notify(type, message, options);
+	};
+
+};
+
+    </pre>
+</div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="../assets/vendor/prettify/prettify-min.js"></script>
+<script>prettyPrint();</script>
+<script src="../assets/js/yui-prettify.js"></script>
+<script src="../assets/../api.js"></script>
+<script src="../assets/js/api-filter.js"></script>
+<script src="../assets/js/api-list.js"></script>
+<script src="../assets/js/api-search.js"></script>
+<script src="../assets/js/apidocs.js"></script>
+</body>
+</html>

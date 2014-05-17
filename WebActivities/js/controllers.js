@@ -200,7 +200,7 @@ angular.module('webActivitiesApp.controllers', [])
 
 			var calculatePosition = function(o, element, arrow, currentViewport) {
 				return function() {
-					var position = $(o.relativeTo).position();
+					var position = $(o.relativeTo).offset();
 					var offsetTop = $(currentViewport).find("iframe").contents().scrollTop();
 					var offsetLeft = $(currentViewport).find("iframe").contents().scrollLeft();
 					var windowWidth = $(window).width();

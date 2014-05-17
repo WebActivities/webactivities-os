@@ -1,3 +1,10 @@
+/**
+* Activity Context
+*
+* @class ActivityContext
+* @module Context
+* @constructor
+*/
 var ActivityContext = function(framework, activity, _closeDefer, $q) {
 
 	var _stop = function() {
@@ -118,6 +125,23 @@ var ActivityContext = function(framework, activity, _closeDefer, $q) {
 		i.activity = activity;
 		i.parameters = parameters;
 		i.app = app;
+		return i;
+	};
+
+	this.newActivityIntentAsRoot = function(app, activity, parameters) {
+		var i = new Intent(IntentType.START_ACTIVITY, framework);
+		i.activity = activity;
+		i.parameters = parameters;
+		i.app = app;
+		i.startMode = "ROOT";
+		return i;
+	};
+	this.newActivityIntentAsPopup = function(app, activity, parameters) {
+		var i = new Intent(IntentType.START_ACTIVITY, framework);
+		i.activity = activity;
+		i.parameters = parameters;
+		i.app = app;
+		i.startMode = "CHILD_POPUP";
 		return i;
 	};
 
