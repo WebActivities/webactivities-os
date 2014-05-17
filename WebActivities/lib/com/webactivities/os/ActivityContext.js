@@ -45,7 +45,11 @@ var ActivityContext = function(framework, activity, _closeDefer, $q) {
 		doc.close();
 	};
 
+	this.activity = activity;
+	
 	this.bus = framework.bus.createBus();
+
+	this.communicator = new UICommunicator(framework);
 
 	this.getCloseDefer = function() {
 		return _closeDefer;
@@ -99,7 +103,7 @@ var ActivityContext = function(framework, activity, _closeDefer, $q) {
 	};
 
 	this.createFragment = function(app, activity, parameters) {
-		var f = new Fragment(framework);
+		var f = new Fragment(framework, this);
 		f.app = app;
 		f.activity = activity;
 		f.parameters = parameters;
@@ -121,13 +125,14 @@ var ActivityContext = function(framework, activity, _closeDefer, $q) {
 	};
 
 	this.resolveUrl = function(path) {
-		return Utils.resolveUrl(activity.application, path);
+		return Utils.resolveUrl(this.activity.application, path);
 	};
 
 	this.prepareView = function(url) {
 		var viewDeferred = $q.defer();
 		var iframe = $("<iframe></iframe>")[0];
-
+		var self = this;
+		this.activity.iframe = iframe;
 		$(iframe).on("attached", function() {
 			$(iframe).load(function() {
 				var viewport = $(iframe).contents().find("#internalViewport")[0];
@@ -139,22 +144,24 @@ var ActivityContext = function(framework, activity, _closeDefer, $q) {
 					viewDeferred.resolve(viewport);
 				}
 			});
-			writeActivityStartingDoc(iframe, activity);
+			writeActivityStartingDoc(iframe, self.activity);
 		});
-
-		activity.iframe = iframe;
-
-		framework.uiCommunicator.broadcast('displayActivity', {
-			view : iframe,
-			activity : activity.activity
-		}).then(function() {
-			activity.status = Activity.status.ACTIVE;
-			$q.when(activity.context.getShow()()).then(function() {
-				// Nothing for the moment
-			});
-		});
+		this.broadcastDisplayView(iframe);
 
 		return viewDeferred.promise;
+	};
+
+	this.broadcastDisplayView = function(iframe) {
+		var self = this;
+		framework.uiCommunicator.broadcast('displayActivity', {
+			view : iframe,
+			activity : self.activity.activity
+		}).then(function() {
+			self.activity.status = Activity.status.ACTIVE;
+			$q.when(self.activity.context.getShow()()).then(function() {
+				self.communicator.broadcast("activityDisplayed", {});
+			});
+		});
 	};
 
 	this.notify = function(type, message, options) {

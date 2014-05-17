@@ -22,9 +22,13 @@ var Activity = function(framework, application, activityDef, closeDefer, $q) {
 	this.start = function(parameters, startMode, startOptions) {
 		return startMode(this, startOptions).then(function() {
 			self.status = Activity.status.CREATED;
-			self.instance = new application.iframe[0].contentWindow.window[activityDef.activator](self.context, parameters);
+			self.instance = self.instantiate(self.context, parameters);
 			framework.uiCommunicator.broadcast('activityStarted', self);
 		});
+	};
+	
+	this.instantiate = function(context, parameters) {
+		return new application.iframe[0].contentWindow.window[activityDef.activator](context, parameters);		
 	};
 
 	this.stop = function() {

@@ -134,6 +134,17 @@ var Application = function(framework, appDefinition, $q) {
 			return framework.startActivity(this.appDefinition.main, this.id, null, framework.activityStarter.startMode.ROOT);
 		}
 	};
+	
+	this.instantiateActivity = function(activityName, parameters, context, closeDefer) {
+		var activityId = Utils.composeActivityId(this.id, activityName);
+		var activityDefinition = framework.applicationRegistry.getActivitiesDefinition(activityId);
+		if (activityDefinition == null) {
+			Logger.error("Activity <" + activityName + "> in app <" + this.id + "> not found");
+			return null;
+		} 
+		var activity = new Activity(framework, this, activityDefinition, closeDefer, $q);
+		return activity.instantiate(context, parameters);
+	};
 
 	this.startActivity = function(activityName, parameters, startMode, startOptions, closeDefer) {
 
