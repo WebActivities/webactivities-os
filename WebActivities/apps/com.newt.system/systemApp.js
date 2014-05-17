@@ -1,20 +1,4 @@
 
-var ToolbarService = function(ctx) {
-	
-	ctx.onStart(function() {
-		
-		ctx.bus.subscribeTopic("com.newt.system.toolbar.actions", function(added, removed) {
-			$.each(added,function(i,a) {
-				ctx.broadcast("addedToolbarAction",a);
-			});
-			$.each(removed,function(i,a) {
-				ctx.broadcast("removedToolbarAction",a);
-			});
-		});
-		
-	});
-	
-};
 
 var SearchService = function(ctx) {
 	
@@ -22,7 +6,7 @@ var SearchService = function(ctx) {
 	
 	var getSearchView = function() {
 		if (searchView==null) {
-			searchView = createView();
+			return createView();
 		}
 		return searchView;
 	};
@@ -33,7 +17,7 @@ var SearchService = function(ctx) {
 			action: "search",
 			iconClass: "fa-search",
 			handler: function(e) {
-				ctx.broadcast("showSidePanel",{
+				ctx.framework().uiCommunicator.broadcast("showSidePanel",{
 					content: getSearchView
 				}).then(function() {
 					searchView.find('#searchActivityInput').focus();
@@ -44,7 +28,7 @@ var SearchService = function(ctx) {
 			action: "settings",
 			iconClass: "fa-cogs",
 			handler: function(e) {
-				ctx.broadcast("showSidePanel",{
+				ctx.framework().uiCommunicator.broadcast("showSidePanel",{
 					content: $("<div>Settings soon to come.. </div>")
 				});
 			}
@@ -62,7 +46,9 @@ var SearchService = function(ctx) {
 				angular.bootstrap(view, [ 'SystemModule' ]);
 			});
 		});
-		return $("<div><link href='"+ctx.resolveUrl("/view/searchPanel.css")+"' rel='stylesheet' type='text/css'></div>").append(view);
+		
+		searchView = $("<div><link href='"+ctx.resolveUrl("/view/searchPanel.css")+"' rel='stylesheet' type='text/css'></div>").append(view); 
+		return searchView;
 	};
 	
 	ctx.onStart(onStart);

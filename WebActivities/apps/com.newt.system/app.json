@@ -12,12 +12,6 @@
 		"/systemApp.js"
     ],
     "services" : [{
-    	"name": "ToolbarService",
-		"description" : "Servizio per gestione Toolbar",
-		"icon" : "/res/activity.png",
-		"activator" : "ToolbarService",
-		"autostart" : true
-    },{
     	"name": "SearchService",
 		"description" : "Servizio per gestione Ricerca su tutto applicativo",
 		"icon" : "/res/activity.png",

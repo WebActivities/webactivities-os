@@ -4,6 +4,7 @@
 
 angular.module('webActivitiesApp.controllers', [])
 
+
 .controller('HomeCtrl', [ '$rootScope', '$scope', 'framework', '$modal', 'TRANSITION_SPEED', '$q', function($rootScope, $scope, framework, $modal, TRANSITION_SPEED, $q) {
 
 	// Utilities
@@ -18,18 +19,6 @@ angular.module('webActivitiesApp.controllers', [])
 	$scope.notifies = [];
 	$scope.displayActivity = false;
 	$scope.startingApp = null;
-	$scope.maxBreadcrumbSize = 3;
-
-	$scope.toolbarActions = [];
-
-	// Functions
-	$scope.activityStack = function() {
-		if (framework.getActivityStack() == null) {
-			return [];
-		}
-		var clone = framework.getActivityStack().slice(0);
-		return clone.reverse();
-	};
 
 	$scope.currentActivity = function() {
 		return framework.getCurrentActivity();
@@ -358,16 +347,6 @@ angular.module('webActivitiesApp.controllers', [])
 		return modalInstance.result;
 	});
 	
-	framework.uiCommunicator.on('addedToolbarAction', function(event, action) {
-		$scope.toolbarActions.push(action);
-	});
-	
-	framework.uiCommunicator.on('removedToolbarAction', function(event, action) {
-		var index = $scope.toolbarActions.indexOf(action);
-		if (index > -1) {
-			$scope.toolbarActions.splice(index, 1);
-		}
-	});
 	
 	framework.uiCommunicator.on('showSidePanel', function(event,obj) {
 
@@ -379,7 +358,9 @@ angular.module('webActivitiesApp.controllers', [])
 		
 		$("#settings-panel").empty();
 		if (obj.content) {
-			$("#settings-panel").append(obj.content);
+			$q.when(obj.content).then(function(v) {				
+				$("#settings-panel").append(v);
+			});
 		}
 		var defer = $q.defer();
 		$("#settings-panel").removeClass("hidden-panel", TRANSITION_SPEED, function() {

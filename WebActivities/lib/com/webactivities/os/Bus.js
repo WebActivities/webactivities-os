@@ -36,6 +36,14 @@ var Bus = function() {
 		}
 	};
 
+	var self = this;
+	var notifyAll = function(notifyType, topic, object) {
+		var i = 0;
+		for (i = 0; i < self.activityBuses.length; i++) {
+			self.activityBuses[i].notifyData(notifyType, topic, object);
+		}
+	};
+	
 	this.publishData = function(topic, object, activityBus) {
 		if (!this.data[topic]) {
 			this.data[topic] = [];
@@ -44,10 +52,7 @@ var Bus = function() {
 			payload : object,
 			activityBus : activityBus
 		});
-		var i = 0;
-		for (i = 0; i < this.activityBuses.length; i++) {
-			this.activityBuses[i].notifyData(BusNotifyType.ADD, topic, object);
-		}
+		notifyAll(BusNotifyType.ADD,topic,object);
 	};
 
 	this.unpublishData = function(topic, object, activityBus) {
@@ -58,10 +63,7 @@ var Bus = function() {
 			if (value.payload === object && value.activityBus === activityBus) {
 				arr.splice(i, 1);
 				i--;
-				var x = 0;
-				for (x = 0; x < this.activityBuses.length; x++) {
-					this.activityBuses[x].notifyData(BusNotifyType.REMOVE, topic, object);
-				}
+				notifyAll(BusNotifyType.REMOVE,topic,object);
 			}
 		}
 	};
@@ -90,6 +92,7 @@ var Bus = function() {
 				if (value.activityBus === activityBus) {
 					arr.splice(i, 1);
 					i--;
+					notifyAll(BusNotifyType.REMOVE,topic,value.payload);
 				}
 			}
 		}

@@ -160,7 +160,7 @@ var ActivityContext = function(framework, activity, _closeDefer, $q) {
 		var self = this;
 		framework.uiCommunicator.broadcast('displayActivity', {
 			view : iframe,
-			activity : self.activity.activity
+			activity : self.activity
 		}).then(function() {
 			self.activity.status = Activity.status.ACTIVE;
 			$q.when(self.activity.context.getShow()()).then(function() {

@@ -67,7 +67,7 @@ var ActivityPauser = function(framework) {
 			if (options.mode == 'hidden') {
 				framework.uiCommunicator.broadcast('hideActivity', {
 					view : activity.iframe,
-					activity : activity.activity
+					activity : activity
 				}).then(function() {
 					d.resolve();
 				});
@@ -87,7 +87,7 @@ var ActivityResumer = function(framework) {
 		framework.$q.when(context.getResume()()).then(function() {
 			framework.uiCommunicator.broadcast('displayActivity', {
 				view : activity.iframe,
-				activity : activity.activity,
+				activity : activity,
 				disableEffects : options.disableEffects
 			}).then(function() {
 				d.resolve();
@@ -113,7 +113,7 @@ var ActivityStopper = function(framework) {
 			context.bus.destroy();
 			framework.uiCommunicator.broadcast('destroyActivity', {
 				view : activity.iframe,
-				activity : activity.activity
+				activity : activity
 			}).then(function() {
 				var q = null;
 				var disableEffects = false;

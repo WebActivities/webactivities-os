@@ -8,5 +8,17 @@ var Activity1 = function(context) {
 	
 	context.setResult("oooo");
 	
+	context.onShow(function() {
+		context.bus.publish("com.newt.system.toolbar.actions", {
+			order: 1,
+			activityId: context.activityId,
+			action: "search",
+			iconClass: "fa-search",
+			handler: function(e) {
+				alert("azione di Activity 1");
+			}
+		});
+	});
+	
 };
 
