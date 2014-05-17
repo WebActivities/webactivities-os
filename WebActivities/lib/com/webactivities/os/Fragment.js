@@ -40,7 +40,6 @@ var Fragment = function(framework, parentContext) {
 
 		this.context = new ActivityContext(framework, null, defer, $q);
 		this.context.broadcastDisplayView = function(iframe) {
-
 			var display = function() {
 				$(iframe).css({
 					position : "absolute",
@@ -52,7 +51,7 @@ var Fragment = function(framework, parentContext) {
 					width : "100%",
 					height : "100%"
 				});
-				
+
 				if ($(component).find(iframe).length == 0) {
 					component.append(iframe);
 				}
@@ -61,7 +60,9 @@ var Fragment = function(framework, parentContext) {
 			};
 
 			parentContext.communicator.on("activityDisplayed", function() {
-				display();
+				setTimeout(function() {
+					display();
+				}, 0);
 			});
 
 			if (self.parentInited) {
