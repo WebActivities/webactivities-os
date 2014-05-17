@@ -192,7 +192,7 @@ angular.module('webActivitiesApp.controllers', [])
 		var windowRelativeOffset = 20;
 
 		var q = $q.defer();
-		var element = $("<div></div>").addClass("viewport popup").css("opacity", "0");
+		var element = $("<div></div>").addClass("panel viewport popup").css("opacity", "0");
 		var shadow = $("<div></div>").addClass("viewport-shadow");
 		element.data("shadow", shadow);
 
@@ -317,7 +317,7 @@ angular.module('webActivitiesApp.controllers', [])
 	framework.uiCommunicator.on('destroyActivity', function(event, o) {
 		var q = $q.defer();
 		$(o.view).animate({
-			top : "100%"
+			left : "100%"
 		}, {
 			duration : TRANSITION_SPEED,
 			complete : function() {
