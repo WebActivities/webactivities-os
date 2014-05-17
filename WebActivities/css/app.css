@@ -108,6 +108,16 @@ body {
 	bottom: 0px;
 }
 
+#settings-modal {
+	position: absolute;
+	top: 45px;
+	background: gray;
+	bottom: 0px;
+	left: 0px;
+	right: 0px;
+	opacity: 0.2;
+	display:none;
+}
 #settings-panel {
 	position: absolute;
 	z-index: 99999;

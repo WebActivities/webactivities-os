@@ -33,9 +33,10 @@ var SearchService = function(ctx) {
 			action: "search",
 			iconClass: "fa-search",
 			handler: function(e) {
-				console.log("execute: "+e);
 				ctx.broadcast("showSidePanel",{
 					content: getSearchView
+				}).then(function() {
+					searchView.find('#searchActivityInput').focus();
 				});
 			}
 		});
@@ -43,7 +44,6 @@ var SearchService = function(ctx) {
 			action: "settings",
 			iconClass: "fa-cogs",
 			handler: function(e) {
-				console.log("execute: "+e);
 				ctx.broadcast("showSidePanel",{
 					content: $("<div>Settings soon to come.. </div>")
 				});
@@ -53,7 +53,7 @@ var SearchService = function(ctx) {
 	};
 	
 	var createView = function() {
-		var view = $("<div></div>");
+		var view = $("<div>");
 		view.load(ctx.resolveUrl("/view/searchPanel.html"),function() {
 			angular.element(view).ready(function() {
 				angular.module('SystemModule')
@@ -62,7 +62,7 @@ var SearchService = function(ctx) {
 				angular.bootstrap(view, [ 'SystemModule' ]);
 			});
 		});
-		return view;
+		return $("<div><link href='"+ctx.resolveUrl("/view/searchPanel.css")+"' rel='stylesheet' type='text/css'></div>").append(view);
 	};
 	
 	ctx.onStart(onStart);
