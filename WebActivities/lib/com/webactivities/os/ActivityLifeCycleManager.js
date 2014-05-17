@@ -40,7 +40,7 @@ var ActivityStarter = function(framework) {
 		alert('Start mode unknown');
 		return d.promise;
 	};
-	
+
 	this.startMode.VOID = function() {
 		var d = framework.$q.defer();
 		d.resolve();
@@ -102,7 +102,13 @@ var ActivityStopper = function(framework) {
 	this.stop = function(activity) {
 		var context = activity.context;
 		var d = framework.$q.defer();
-		framework.$q.when(context.getStop()()).then(function() {
+		var promises = [ context.getStop()() ];
+
+		for (var i in context.fragments) {
+			promises.push(context.fragments[i].stop());
+		}
+		
+		framework.$q.all(promises).then(function() {
 			framework.activityStack.pop();
 			context.bus.destroy();
 			framework.uiCommunicator.broadcast('destroyActivity', {

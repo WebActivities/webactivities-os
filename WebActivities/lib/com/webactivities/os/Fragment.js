@@ -60,9 +60,7 @@ var Fragment = function(framework, parentContext) {
 			};
 
 			parentContext.communicator.on("activityDisplayed", function() {
-				setTimeout(function() {
-					display();
-				}, 0);
+				display();
 			});
 
 			if (self.parentInited) {

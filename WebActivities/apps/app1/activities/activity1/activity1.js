@@ -1,6 +1,6 @@
 var Activity3 = function(ctx) {
 	var container = $("<div></div>");
-	$("<h1>").text("This is another application").appendTo(container);
+	var header = $("<h1>").text("This is another application").appendTo(container);
 
 	var btn1 = $("<button type=\"button\" class=\"btn btn-sm btn-primary\">Avvia un altra attività</button>").appendTo(container);
 	btn1.click(function() {
@@ -14,7 +14,12 @@ var Activity3 = function(ctx) {
 	});
 
 	ctx.onStop(function() {
-		container.append("<div>Stopped</div>");
+		var deferred = $.Deferred();
+		header.text("Application will be stopped in 2 seconds...");
+		setTimeout(function() {
+			deferred.resolve();
+		}, 2000);
+		return deferred.promise();
 	});
 
 	ctx.onPause(function() {

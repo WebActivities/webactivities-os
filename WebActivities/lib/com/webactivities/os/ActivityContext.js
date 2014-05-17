@@ -17,7 +17,7 @@ var ActivityContext = function(framework, activity, _closeDefer, $q) {
 	};
 
 	var _result = null;
-
+	
 	var writeActivityStartingDoc = function(iframe, activity) {
 		var doc = iframe.contentWindow.window.document;
 		doc.open();
@@ -45,6 +45,8 @@ var ActivityContext = function(framework, activity, _closeDefer, $q) {
 		doc.close();
 	};
 
+	this.fragments = [];
+	
 	this.activity = activity;
 	
 	this.bus = framework.bus.createBus();
@@ -107,6 +109,7 @@ var ActivityContext = function(framework, activity, _closeDefer, $q) {
 		f.app = app;
 		f.activity = activity;
 		f.parameters = parameters;
+		this.fragments.push(f);
 		return f;
 	};
 
