@@ -1,3 +1,10 @@
+/**
+ * Activity
+ * 
+ * @class Activity
+ * @module Activity
+ * @constructor
+ */
 var Activity = function(framework, application, activityDef, closeDefer, $q) {
 
 	$.extend(this, activityDef);
@@ -10,15 +17,39 @@ var Activity = function(framework, application, activityDef, closeDefer, $q) {
 	this.activityDef = activityDef;
 
 	/**
-	 * l'iframe dove viene visualizzata questa activity
+	 * Connected iframe to Actvitity
+	 * 
+	 * @property iframe
+	 * @type {Object}
+	 * @default "null"
 	 */
 	this.iframe = null;
 
+	/**
+	 * My property description. Like other pieces of your comment blocks, this
+	 * can span multiple lines.
+	 * 
+	 * @property propertyName
+	 * @type {Object}
+	 * @default "foo"
+	 */
 	this.context = framework.createContext(self, closeDefer, $q);
 
 	this.instance = null;
 	this.status = null;
 
+	/**
+	 * Start an Activity
+	 * 
+	 * @method start
+	 * @param {Object} parameters
+	 *            Start parameters
+	 * @param {StartMode} startMode
+	 *            startMode
+	 * @param {Object} startOptions
+	 *            Start options
+	 * @return {Promise} Returns a promise
+	 */
 	this.start = function(parameters, startMode, startOptions) {
 		return startMode(this, startOptions).then(function() {
 			self.status = Activity.status.CREATED;
@@ -26,9 +57,9 @@ var Activity = function(framework, application, activityDef, closeDefer, $q) {
 			framework.uiCommunicator.broadcast('activityStarted', self);
 		});
 	};
-	
+
 	this.instantiate = function(context, parameters) {
-		return new application.iframe[0].contentWindow.window[activityDef.activator](context, parameters);		
+		return new application.iframe[0].contentWindow.window[activityDef.activator](context, parameters);
 	};
 
 	this.stop = function() {

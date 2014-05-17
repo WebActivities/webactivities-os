@@ -1,3 +1,10 @@
+/**
+* Activity Context
+*
+* @class ActivityContext
+* @module Context
+* @constructor
+*/
 var ActivityContext = function(framework, activity, _closeDefer, $q) {
 
 	var _stop = function() {
