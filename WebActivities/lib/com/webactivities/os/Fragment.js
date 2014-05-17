@@ -39,10 +39,15 @@ var Fragment = function(framework, parentContext) {
 		var $q = framework.$q;
 
 		this.context = new ActivityContext(framework, null, defer, $q);
-		parentContext.communicator.on("iframeLoaded", function(e, o) {
+		
+		var load = function() {
 			setTimeout(function() {
 				$(self.activityInstance.iframe).trigger("attached");
 			}, 0);
+		};
+		
+		parentContext.communicator.on("iframeLoaded", function() {
+			load();
 		});
 
 		this.context.broadcastDisplayView = function(iframe) {
@@ -67,6 +72,7 @@ var Fragment = function(framework, parentContext) {
 
 			if (self.parentInited) {
 				display();
+				load();
 			}
 		};
 

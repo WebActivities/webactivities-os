@@ -142,15 +142,11 @@ var ActivityContext = function(framework, activity, _closeDefer, $q) {
 				if (url) {
 					$(viewport).load(url, function() {
 						viewDeferred.resolve(viewport);
-						self.communicator.broadcast("iframeLoaded", {
-							iframe : iframe
-						});
+						self.communicator.broadcast("iframeLoaded", {});
 					});
 				} else {
 					viewDeferred.resolve(viewport);
-					self.communicator.broadcast("iframeLoaded", {
-						iframe : iframe
-					});
+					self.communicator.broadcast("iframeLoaded", {});
 				}
 			});
 			writeActivityStartingDoc(iframe, self.activity);
