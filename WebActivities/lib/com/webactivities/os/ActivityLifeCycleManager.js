@@ -1,6 +1,7 @@
 var ActivityStarter = function(framework) {
 
 	this.startMode = {};
+	
 	this.startMode.CHILD = function(activity, options) {
 		var d = framework.$q.defer();
 		framework.$q.when(framework.pauseActivity({
@@ -61,28 +62,26 @@ var ActivityStarter = function(framework) {
 var ActivityPauser = function(framework) {
 
 	this.pause = function(activity, options) {
-		var d = framework.$q.defer();
 		var context = activity.context;
 		
-		var promises = [ context.getPause()() ];
-
+		var promises = [ framework.$q.when(context.getPause()()) ];
 		for (var i in activity.fragments) {
 			promises.push(activity.fragments[i].pause());
 		}
 		
-		framework.$q.when(context.getPause()()).then(function() {
-			if (options.mode == 'hidden') {
-				framework.uiCommunicator.broadcast('hideActivity', {
+		var pauseAction = framework.$q.all(promises);
+		if (options.mode == 'hidden') {
+			pauseAction.then(function() {
+				return framework.uiCommunicator.broadcast('hideActivity', {
 					view : activity.iframe,
 					activity : activity
-				}).then(function() {
-					d.resolve();
 				});
-			} else if (options.mode == 'visible') {
-				d.resolve();
-			}
+			});
+		}
+		pauseAction.then(function() {
+			return framework.uiCommunicator.broadcast('pausedActivity',activity);
 		});
-		return d.promise;
+		return pauseAction;
 	};
 };
 

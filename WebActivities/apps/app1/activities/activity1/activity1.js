@@ -24,7 +24,17 @@ var Activity3 = function(ctx) {
 	});
 
 	ctx.onPause(function() {
-		container.append("<div>Paused</div>");
+//		var d = $.Deferred();
+//		container.append("<div>Paused</div>");
+//		re
+		
+		var deferred = $.Deferred();
+		container.append("Application will be paused in 2 seconds...");
+		setTimeout(function() {
+			container.append("ok pause now");
+			deferred.resolve();
+		}, 2000);
+		return deferred.promise();
 	});
 
 	ctx.onResume(function() {

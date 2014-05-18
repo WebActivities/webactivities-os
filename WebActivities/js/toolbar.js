@@ -11,8 +11,8 @@ angular.module('webActivitiesApp.toolbar', [])
 		showActivityActions(o.activity);
 	});
 	
-	framework.uiCommunicator.on('hideActivity', function(event, o) {
-		hideActivityActions(o.activity);
+	framework.uiCommunicator.on('pausedActivity', function(event, activity) {
+		hideActivityActions(activity);
 	});
 	
 	var showActivityActions = function(activity) {
@@ -34,6 +34,11 @@ angular.module('webActivitiesApp.toolbar', [])
 	};
 	
 	framework.internalBus().syncTopic("com.newt.system.toolbar.actions",toolbarActionsPubs,function() {
+		toolbarActionsPubs.sort(function(a, b){
+			var aOrder = a.obj.order || 10,
+				bOrder = b.obj.order || 10;
+			return aOrder-bOrder;
+		});
 		$rootScope.$apply();
 	},true);
 	
