@@ -32,7 +32,7 @@ var ActivityContext = function(framework, activity, _closeDefer, $q) {
 		doc.write("<head>");
 		if (activity.seamless) {
 			var theme = framework.getCurrentTheme();
-			doc.write("<link rel=\"stylesheet\" data-newt-theme href=\""+theme.linkCss+"\" />");
+			doc.write("<link rel=\"stylesheet\" data-newt-theme href=\""+theme.link+"\" />");
 		}
 		doc.write("<base href=\"" + activity.path + "/\">");
 		doc.write("<script type=\"text/javascript\">");
