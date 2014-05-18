@@ -1,0 +1,48 @@
+{
+	"id" : "com.newt.demo",
+	"name" : "Newt Demo",
+	"icon" : "/res/app-icon.png",
+	"main" : "signin",
+	"version" : "1.0.0",
+	"activities" : [
+		{
+			"name" : "signin",
+			"description" : "Sign-In",
+			"icon" : "/res/app-icon.png",
+			"activator" : "SigninActivator",
+			"startable" : true,
+			"seamless" : true	
+		},
+		{
+			"name" : "dashboard",
+			"description" : "Dashboard",
+			"icon" : "/res/app-icon.png",
+			"activator" : "DashboardActivator",
+			"startable" : true,
+			"seamless" : true	
+		},
+		{
+			"name" : "messages",
+			"description" : "I tuoi messaggi",
+			"icon" : "/res/app-icon.png",
+			"activator" : "MessagesActivator",
+			"startable" : true,
+			"seamless" : true	
+		},
+		{
+			"name" : "messageReader",
+			"description" : "Leggi i messaggi",
+			"icon" : "/res/app-icon.png",
+			"activator" : "MessageReaderActivator",
+			"startable" : true,
+			"seamless" : true	
+		}
+	],
+	"resources" : [
+	    "/res/activators.js?%v&%d",
+		"/res/angular.min.js",
+		"/res/jquery-2.1.1.min.js"
+    ],
+    "settings" : {
+    }
+}

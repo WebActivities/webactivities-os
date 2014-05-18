@@ -228,9 +228,9 @@ angular.module('webActivitiesApp.controllers', [])
 						top : windowRelativeOffset,
 						left : windowRelativeOffset,
 						width : windowWidth - windowRelativeOffset * 2,
-						height : top - windowRelativeOffset * 2,
+						height : top - windowRelativeOffset * 2 + 10,
 						arrow : "arrow-bottom",
-						arrowtop : top - windowRelativeOffset - 1,
+						arrowtop : top - windowRelativeOffset + 9,
 						arrowleft : left + width / 2 - 10
 					});
 
@@ -375,7 +375,7 @@ angular.module('webActivitiesApp.controllers', [])
 	framework.applicationRegistry.installApplication("apps/app1/app.json");
 	framework.applicationRegistry.installApplication("apps/app2/app.json");
 	framework.applicationRegistry.installApplication("apps/maps/app.json");
-	framework.applicationRegistry.installApplication("apps/com.newt.signin/manifest.json");
+	framework.applicationRegistry.installApplication("apps/com.newt.demo/manifest.json");
 
 
 } ])
