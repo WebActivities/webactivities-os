@@ -119,8 +119,6 @@ body {
 #settings-panel {
 	position: absolute;
 	z-index: 99999;
-	background: white;
-	border: 1px solid #cacaca;
 	box-shadow: 0px 0px 10px #cacaca;
 	top: 50px;
 	bottom: 10px;
