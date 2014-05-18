@@ -9,9 +9,9 @@
 		"/res/jquery-2.1.1.min.js",
 		"/res/jquery.ba-throttle-debounce.min.js",
 		"/res/jquery.scrollintoview.min.js",
-		"/systemApp.js",
-		"/searchService.js",
-		"/themeService.js"
+		"/systemApp.js?%v&%d",
+		"/searchService.js?%v&%d",
+		"/themeService.js?%v&%d"
     ],
     "services" : [{
     	"name": "SearchService",
