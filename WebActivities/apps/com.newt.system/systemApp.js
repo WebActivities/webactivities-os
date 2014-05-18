@@ -11,8 +11,7 @@ var SearchService = function(ctx) {
 		return searchView;
 	};
 	
-	var onStart = function() {
-		
+	var onStart = function() {	
 		ctx.bus.publish("com.newt.system.toolbar.actions", {
 			action: "search",
 			iconClass: "fa-search",
@@ -24,16 +23,6 @@ var SearchService = function(ctx) {
 				});
 			}
 		});
-		ctx.bus.publish("com.newt.system.toolbar.actions", {
-			action: "settings",
-			iconClass: "fa-cogs",
-			handler: function(e) {
-				ctx.framework().uiCommunicator.broadcast("showSidePanel",{
-					content: $("<div>Settings soon to come.. </div>")
-				});
-			}
-		});
-		
 	};
 	
 	var createView = function() {
@@ -55,8 +44,53 @@ var SearchService = function(ctx) {
 
 };
 
+var ThemeService = function(ctx) {
+	
+	var view = null;
+	
+	var getView = function() {
+		if (view==null) {
+			return createView();
+		}
+		return view;
+	};
+	
+	var onStart = function() {	
+		ctx.bus.publish("com.newt.system.toolbar.actions", {
+			action: "themes",
+			iconClass: "fa-picture-o",
+			handler: function(e) {
+				ctx.framework().uiCommunicator.broadcast("showSidePanel",{
+					content: getView
+				});
+			}
+		});
+	};
+	
+	var createView = function() {
+		var view = $("<div>");
+		view.load(ctx.resolveUrl("/view/themePanel.html"),function() {
+			angular.element(view).ready(function() {
+				angular.module('SystemModule')
+					.value("framework",ctx.framework())
+					.value("ctx",ctx);
+				angular.bootstrap(view, [ 'SystemModule' ]);
+			});
+		});
+		
+		searchView = $("<div></div>").append(view); 
+		return searchView;
+	};
+	
+	ctx.onStart(onStart);
+
+};
+
+
+
 
 angular.module('SystemModule', [])
+
 .controller('SearchCtrl', ['$scope','framework','ctx','$element',function($scope,framework,ctx,$element) {
 	
 	$scope.searchInput='';
@@ -69,10 +103,12 @@ angular.module('SystemModule', [])
 	
 
 	var scroll = $.throttle( 100, function() {
-		$($element).find(".list-group-item").eq($scope.selectedItemIndex).scrollintoview({
-		    duration: 200,
-		    direction: "vertical"
-		});
+		if ($element) {
+			$($element).find(".list-group-item").eq($scope.selectedItemIndex).scrollintoview({
+			    duration: 200,
+			    direction: "vertical"
+			});
+		}
 	});
 	
 	var startActivity = function($event, activityDef, mode) {
@@ -105,6 +141,34 @@ angular.module('SystemModule', [])
 	
 	$scope.startActivity = startActivity;
 
-}]);
+}])
+
+
+.controller('ThemeCtrl', ['$scope','framework','ctx','$element',function($scope,framework,ctx,$element) {
+	
+	
+	$scope.themes = [{
+		label: 'amelia',
+		link: "css/amelia.bootstrap.min.css"
+	},{
+		label: 'cerulean',
+		link: "css/cerulean.bootstrap.min.css"
+	},{
+		label: 'cosmo',
+		link: "css/cosmo.bootstrap.min.css"
+	}];
+	
+	$scope.selectedTheme = null;
+	
+	$scope.themeSelected = function() {
+		$(window.top.document).find("link[data-newt-theme]").remove();
+		$(window.top.document).find("head").append("<link rel='stylesheet' data-newt-theme href='"+$scope.selectedTheme+"'  />");
+	};
+	
+}])
+
+
+//end
+;
 
 

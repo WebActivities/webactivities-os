@@ -1,0 +1,12 @@
+
+<div data-ng-controller="ThemeCtrl" id="themePanel">
+	temi boostrap
+	
+	<div class="form-group">
+			<select id="themeSelector" data-ng-model="selectedTheme" 
+			    data-ng-change="themeSelected()"
+				data-ng-options="value.link as value.label for value in themes">
+			</select>
+		</div>
+</div>
+

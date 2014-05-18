@@ -79,7 +79,6 @@ angular.module('webActivitiesApp.toolbar', [])
 	$scope.toolbarActions = ToolbarService.toolbarActions;
 	$scope.maxBreadcrumbSize = 3;
 	
-	
 }])
 
 //END

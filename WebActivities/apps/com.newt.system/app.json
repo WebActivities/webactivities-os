@@ -17,6 +17,12 @@
 		"icon" : "/res/activity.png",
 		"activator" : "SearchService",
 		"autostart" : true
+    },{
+    	"name": "ThemeService",
+		"description" : "Servizio per gestione Temi su tutto applicativo",
+		"icon" : "/res/activity.png",
+		"activator" : "ThemeService",
+		"autostart" : true
     }],
     "settings" : {
     }
