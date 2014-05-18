@@ -19,6 +19,22 @@ var Framework = function($q) {
 	this.activityStopper = new ActivityStopper(this);
 	
 	this.bus = new Bus();
+	
+	this.currentTheme = {
+		label: 'yeti',
+		link: "css/yeti.bootstrap.min.css"
+	};
+	
+	var _internalBus = this.bus.createBus("Framework");
+	
+	/**
+	 * Ritorna il componentBus interno usato dal framework per pubblicare e sottoscrivere topic
+	 * @method toJSON
+	 * @return {ComponentBus} 
+	 */
+	this.internalBus = function() {
+		return _internalBus;
+	};
 
 	this.createContext = function(activity, closeDefer, $q) {
 		return new ActivityContext(this, activity, closeDefer, $q);
@@ -156,6 +172,16 @@ var Framework = function($q) {
 			}
 		}
 		return q.promise;
+	};
+	
+	this.getCurrentTheme = function() {
+		return this.currentTheme;
+	};
+	
+	this.setCurrentTheme = function(newTheme) {
+		this.currentTheme = newTheme;
+		this.uiCommunicator.broadcast("themeChanged", this.currentTheme);
+		return this.currentTheme;
 	};
 
 };

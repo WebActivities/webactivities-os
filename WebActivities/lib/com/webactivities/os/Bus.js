@@ -5,7 +5,7 @@ var BusNotifyType = {
 var Bus = function() {
 
 	this.data = {};
-	this.activityBuses = [];
+	this.componentBuses = [];
 
 	this.topicMatch = function(topic, topicSpec) {
 		var regexp = topicSpec.replace(new RegExp("\\.", "g"), "\\.");
@@ -19,80 +19,96 @@ var Bus = function() {
 		return res != null && res[0] == topic;
 	};
 
-	this.createBus = function() {
-		var ab = new ActivityBus(this);
-		this.activityBuses.push(ab);
+	this.createBus = function(publisherId) {
+		var ab = new ComponentBus(this,publisherId);
+		this.componentBuses.push(ab);
 		return ab;
 	};
 
-	this.removeBus = function(activityBus) {
+	this.removeBus = function(componentBus) {
 		var i = 0;
-		for (i = 0; i < this.activityBuses.length; i++) {
-			var value = this.activityBuses[i];
-			if (value === activityBus) {
-				this.activityBuses.splice(i, 1);
+		for (i = 0; i < this.componentBuses.length; i++) {
+			var value = this.componentBuses[i];
+			if (value === componentBus) {
+				this.componentBuses.splice(i, 1);
 				i--;
 			}
 		}
 	};
 
 	var self = this;
-	var notifyAll = function(notifyType, topic, object) {
+	var notifyAll = function(notifyType, topic, pubData) {
 		var i = 0;
-		for (i = 0; i < self.activityBuses.length; i++) {
-			self.activityBuses[i].notifyData(notifyType, topic, object);
+		for (i = 0; i < self.componentBuses.length; i++) {
+			self.componentBuses[i]._notifyData(notifyType, topic, pubData);
 		}
 	};
 	
-	this.publishData = function(topic, object, activityBus) {
+	this.publishData = function(topic, object, componentBus) {
 		if (!this.data[topic]) {
 			this.data[topic] = [];
 		}
-		this.data[topic].push({
+		var pubData = {
 			payload : object,
-			activityBus : activityBus
-		});
-		notifyAll(BusNotifyType.ADD,topic,object);
+			componentBus : componentBus
+		};
+		this.data[topic].push(pubData);
+		notifyAll(BusNotifyType.ADD,topic,pubData);
 	};
 
-	this.unpublishData = function(topic, object, activityBus) {
+	this.unpublishData = function(topic, object, componentBus) {
 		var arr = this.data[topic];
 		var i = 0;
 		for (i = 0; i < arr.length; i++) {
 			var value = arr[i];
-			if (value.payload === object && value.activityBus === activityBus) {
-				arr.splice(i, 1);
+			if (value.payload === object && value.componentBus === componentBus) {
+				var removed = arr.splice(i, 1);
 				i--;
-				notifyAll(BusNotifyType.REMOVE,topic,object);
+				notifyAll(BusNotifyType.REMOVE,topic,removed[0]);
 			}
 		}
 	};
 
-	this.readData = function(topicSpec) {
+	/**
+	 * Ritorna i dati contenuti nei topics specificati.
+	 * se viene specificato includePubsInfo i dati ritornati per ogni topics includono le informazioni
+	 * su chi ha pubblicato il dato.
+	 *
+	 */
+	this.readData = function(topicSpec,includePubsInfo) {
 		var ret = {};
 		for ( var topic in this.data) {
 			if (this.topicMatch(topic, topicSpec)) {
 				var arr = this.data[topic];
-				var payloads = [];
+				var pubs = [];
 				for ( var i in arr) {
-					payloads.push(arr[i].payload);
+					var p = null, item = arr[i];
+					if (includePubsInfo) {
+						p = {
+							obj: item.payload,
+							publisherId: item.componentBus.publisherId
+						};
+					} else {
+						p = item.payload;
+					};
+					pubs.push(p);
 				}
-				ret[topic] = payloads;
+				ret[topic] = pubs;
 			}
 		}
 		return ret;
 	};
 
-	this.destroyData = function(activityBus) {
+	this.destroyData = function(componentBus) {
 		for ( var topic in this.data) {
 			var arr = this.data[topic];
 			var i = 0;
 			for (i = 0; i < arr.length; i++) {
 				var value = arr[i];
-				if (value.activityBus === activityBus) {
+				if (value.componentBus === componentBus) {
 					arr.splice(i, 1);
 					i--;
-					notifyAll(BusNotifyType.REMOVE,topic,value.payload);
+					notifyAll(BusNotifyType.REMOVE,topic,value);
 				}
 			}
 		}
@@ -100,11 +116,20 @@ var Bus = function() {
 
 };
 
-var ActivityBus = function(bus) {
+var ComponentBus = function(bus,publisherId) {
 
 	this.subscriptions = new Array();
 
 	this.bus = bus;
+	
+	/**
+	 * L'id del publisher che usa questo ComponentBus.
+	 * 
+	 * @property publisherId
+	 * @readOnly
+	 * @type String
+	 */
+	this.publisherId =publisherId;
 
 	this.publish = function(topic, object) {
 		bus.publishData(topic, object, this);
@@ -114,16 +139,17 @@ var ActivityBus = function(bus) {
 		bus.unpublishData(topic, object, this);
 	};
 
-	this.subscribe = function(topicSpec, onDataChanged) {
-		var subscription = new Subscription(this, topicSpec, onDataChanged);
+	this.subscribe = function(topicSpec, onDataChanged, includePubsInfo) {
+		var subscription = new Subscription(this, topicSpec, onDataChanged, includePubsInfo);
 		this.subscriptions.push(subscription);
+		subscription._initialNotify();
 		return subscription;
 	};
 	
-	this.subscribeTopic = function(topic, onDataChanged) {
+	this.subscribeTopic = function(topic, onDataChanged, includePubsInfo) {
 		return this.subscribe(topic,function(added,removed) {
 			onDataChanged(added[topic]||[],removed[topic]||[]);
-		});
+		}, includePubsInfo);
 	};
 
 	this.unsubscribe = function(subscription) {
@@ -141,7 +167,7 @@ var ActivityBus = function(bus) {
 		}
 	};
 
-	this.notifyData = function(action, topic, object) {
+	this._notifyData = function(action, topic, pubData) {
 		for (var i = 0; i < this.subscriptions.length; i++) {
 
 			var s = this.subscriptions[i];
@@ -150,9 +176,9 @@ var ActivityBus = function(bus) {
 			if (this.bus.topicMatch(topic, s.topicSpec)) {
 
 				if (action == BusNotifyType.ADD) {
-					collector.addChange(topic, object);
+					collector.addChange(topic, pubData);
 				} else if (action == BusNotifyType.REMOVE) {
-					collector.addRemove(topic, object);
+					collector.addRemove(topic, pubData);
 				}
 			}
 		}
@@ -172,21 +198,47 @@ var ActivityBus = function(bus) {
 	this.readAllTopics = function(topicSpec) {
 		return bus.readData(topicSpec);
 	};
+	
+	/**
+	 * Sincronizza l'array passato sul topic specificato.
+	 * Chiama l'onChange quando ci sono modifiche.
+	 *
+	 * @method syncTopic
+	 */
+	this.syncTopic = function(topic,arrayTosync,onChange,includePubsInfo) {
+		this.subscribeTopic(topic, function(added,removed) {
+			$.each(added,function(i,a) {
+				arrayTosync.push(a);
+			});
+			$.each(removed,function(i,a) {
+				var i;
+				for (i=arrayTosync.length-1; i>=0; i--) {
+					var item = arrayTosync[i];
+					if (includePubsInfo && item.obj==a.obj || 
+						!includePubsInfo && item==a) {
+						arrayTosync.splice(i,1);
+					}
+				}
+			});
+			onChange();
+		},includePubsInfo);
+	};
 
 };
 
-var Subscription = function(activityBus, topicSpec, onDataChanged) {
+var Subscription = function(componentBus, topicSpec, onDataChanged, includePubsInfo) {
 
 	this.topicSpec = topicSpec;
 	this.onDataChanged = onDataChanged;
 	this.notifyCollector = null;
+	this.includePubsInfo = includePubsInfo;
 
 	this.remove = function() {
-		activityBus.unsubscribe(this);
+		componentBus.unsubscribe(this);
 	};
 
-	this.readTopics = function() {
-		return activityBus.bus.readData(this.topicSpec);
+	this.readTopics = function(includePubsInfo) {
+		return componentBus.bus.readData(this.topicSpec,includePubsInfo||this.includePubsInfo);
 	};
 
 	this.createOrGetNotifyCollector = function() {
@@ -199,11 +251,23 @@ var Subscription = function(activityBus, topicSpec, onDataChanged) {
 	this.destroyNotifyCollector = function() {
 		this.notifyCollector = null;
 	};
+	
+	this._initialNotify = function() {
+		var initialData = this.readTopics();
+		var collector = this.createOrGetNotifyCollector();
+		$.each(initialData,function(k,arr){
+			$.each(arr,function(i,o) {				
+				collector._addChange(k,o);
+			});
+		});
+	};
 
 };
 
 var NotifyCollector = function(subscription) {
 
+	var self = this;
+	this.includePubsInfo = subscription.includePubsInfo;
 	this.pendingChanges = {};
 	this.pendingRemoval = {};
 
@@ -218,7 +282,24 @@ var NotifyCollector = function(subscription) {
 		};
 	}(this, subscription), 0);
 
-	this.addChange = function(topic, object) {
+	var getChangeObject = function(pubData) {
+		if (self.includePubsInfo) {
+			return {
+				obj: pubData.payload,
+				publisherId: pubData.componentBus.publisherId
+			};
+		} else {
+			return pubData.payload;
+		}
+	};
+	
+	this.addChange = function(topic, pubData) {
+		var object =getChangeObject(pubData);
+		this._addChange(topic, object);
+
+	};
+	
+	this._addChange = function(topic, object) {
 		if (!this.pendingChanges[topic]) {
 			this.pendingChanges[topic] = [];
 		}
@@ -227,20 +308,23 @@ var NotifyCollector = function(subscription) {
 
 	};
 
-	this.addRemove = function(topic, object) {
+	this.addRemove = function(topic, pubData) {
 		if (!this.pendingRemoval[topic]) {
 			this.pendingRemoval[topic] = [];
 		}
+		var object =getChangeObject(pubData);
 		this.removeIfFind(this.pendingChanges[topic], object);
 		this.pendingRemoval[topic].push(object);
 	};
 	
-	this.removeIfFind = function(list, object) {
-		if (list) {
+	this.removeIfFind = function(changesList, changeObj) {
+		if (changesList) {
 			var i = 0;
-			for (i = 0; i < list.length; i++) {
-				if (list[i] == object) {
-					list.splice(i, 1);
+			for (i = 0; i < changesList.length; i++) {
+				var changesListItem = changesList[i];
+				if ((this.includePubsInfo && changesListItem.obj == changeObj.obj) ||
+				   (!(this.includePubsInfo) && changesListItem == changeObj)) {
+					changesList.splice(i, 1);
 					i--;
 				}
 			}

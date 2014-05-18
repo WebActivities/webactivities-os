@@ -31,7 +31,8 @@ var ActivityContext = function(framework, activity, _closeDefer, $q) {
 		doc.write("<html>");
 		doc.write("<head>");
 		if (activity.seamless) {
-			doc.write("<link rel=\"stylesheet\" href=\"css/yeti.bootstrap.min.css\" />");
+			var theme = framework.getCurrentTheme();
+			doc.write("<link rel=\"stylesheet\" data-newt-theme href=\""+theme.linkCss+"\" />");
 		}
 		doc.write("<base href=\"" + activity.path + "/\">");
 		doc.write("<script type=\"text/javascript\">");
@@ -56,7 +57,7 @@ var ActivityContext = function(framework, activity, _closeDefer, $q) {
 
 	this.activity = activity;
 
-	this.bus = framework.bus.createBus();
+	this.bus = framework.bus.createBus(this.activity.instanceId);
 
 	this.communicator = new UICommunicator(framework);
 
@@ -195,10 +196,6 @@ var ActivityContext = function(framework, activity, _closeDefer, $q) {
 
 	this.notify = function(type, message, options) {
 		return framework.notifyManager.notify(type, message, options);
-	};
-
-	this.activityId = function() {
-		return this.activity.instanceId;
 	};
 	
 };

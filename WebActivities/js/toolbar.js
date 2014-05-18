@@ -84,4 +84,3 @@ angular.module('webActivitiesApp.toolbar', [])
 
 //END
 ;
-

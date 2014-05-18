@@ -9,13 +9,21 @@
 		"/res/jquery-2.1.1.min.js",
 		"/res/jquery.ba-throttle-debounce.min.js",
 		"/res/jquery.scrollintoview.min.js",
-		"/systemApp.js"
+		"/systemApp.js",
+		"/searchService.js",
+		"/themeService.js"
     ],
     "services" : [{
     	"name": "SearchService",
 		"description" : "Servizio per gestione Ricerca su tutto applicativo",
 		"icon" : "/res/activity.png",
 		"activator" : "SearchService",
+		"autostart" : true
+    },{
+    	"name": "ThemeService",
+		"description" : "Servizio per gestione Temi su tutto applicativo",
+		"icon" : "/res/activity.png",
+		"activator" : "ThemeService",
 		"autostart" : true
     }],
     "settings" : {

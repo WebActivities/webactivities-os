@@ -8,7 +8,7 @@ var ServiceContext = function(framework, service, $q) {
 		return true;
 	};
 
-	this.bus = framework.bus.createBus();
+	this.bus = framework.bus.createBus(service.instanceId);
 
 	this.onStart = function(fn) {
 		_start = fn;
