@@ -142,6 +142,7 @@ var ComponentBus = function(bus,publisherId) {
 	this.subscribe = function(topicSpec, onDataChanged, includePubsInfo) {
 		var subscription = new Subscription(this, topicSpec, onDataChanged, includePubsInfo);
 		this.subscriptions.push(subscription);
+		subscription._initialNotify();
 		return subscription;
 	};
 	
@@ -236,8 +237,8 @@ var Subscription = function(componentBus, topicSpec, onDataChanged, includePubsI
 		componentBus.unsubscribe(this);
 	};
 
-	this.readTopics = function() {
-		return componentBus.bus.readData(this.topicSpec,includePubsInfo);
+	this.readTopics = function(includePubsInfo) {
+		return componentBus.bus.readData(this.topicSpec,includePubsInfo||this.includePubsInfo);
 	};
 
 	this.createOrGetNotifyCollector = function() {
@@ -249,6 +250,16 @@ var Subscription = function(componentBus, topicSpec, onDataChanged, includePubsI
 
 	this.destroyNotifyCollector = function() {
 		this.notifyCollector = null;
+	};
+	
+	this._initialNotify = function() {
+		var initialData = this.readTopics();
+		var collector = this.createOrGetNotifyCollector();
+		$.each(initialData,function(k,arr){
+			$.each(arr,function(i,o) {				
+				collector._addChange(k,o);
+			});
+		});
 	};
 
 };
@@ -283,10 +294,15 @@ var NotifyCollector = function(subscription) {
 	};
 	
 	this.addChange = function(topic, pubData) {
+		var object =getChangeObject(pubData);
+		this._addChange(topic, object);
+
+	};
+	
+	this._addChange = function(topic, object) {
 		if (!this.pendingChanges[topic]) {
 			this.pendingChanges[topic] = [];
 		}
-		var object =getChangeObject(pubData);
 		this.removeIfFind(this.pendingRemoval[topic], object);
 		this.pendingChanges[topic].push(object);
 

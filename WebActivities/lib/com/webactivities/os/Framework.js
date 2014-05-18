@@ -20,6 +20,11 @@ var Framework = function($q) {
 	
 	this.bus = new Bus();
 	
+	this.currentTheme = {
+		label: 'yeti',
+		link: "css/yeti.bootstrap.min.css"
+	};
+	
 	var _internalBus = this.bus.createBus("Framework");
 	
 	/**
@@ -167,6 +172,16 @@ var Framework = function($q) {
 			}
 		}
 		return q.promise;
+	};
+	
+	this.getCurrentTheme = function() {
+		return this.currentTheme;
+	};
+	
+	this.setCurrentTheme = function(newTheme) {
+		this.currentTheme = newTheme;
+		this.uiCommunicator.broadcast("themeChanged", this.currentTheme);
+		return this.currentTheme;
 	};
 
 };

@@ -377,6 +377,12 @@ angular.module('webActivitiesApp.controllers', [])
 	});
 	
 
+	framework.uiCommunicator.on('themeChanged', function(event,theme) {		
+		$("link[data-newt-theme]").remove();
+		$("head").append("<link rel='stylesheet' data-newt-theme href='"+theme.link+"'  />");
+	});
+	
+
 	// Demo configuration
 	framework.applicationRegistry.installApplication("apps/com.newt.system/app.json");
 	framework.applicationRegistry.installApplication("apps/app1/app.json");

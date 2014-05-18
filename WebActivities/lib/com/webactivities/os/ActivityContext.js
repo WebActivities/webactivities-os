@@ -31,7 +31,8 @@ var ActivityContext = function(framework, activity, _closeDefer, $q) {
 		doc.write("<html>");
 		doc.write("<head>");
 		if (activity.seamless) {
-			doc.write("<link rel=\"stylesheet\" href=\"css/yeti.bootstrap.min.css\" />");
+			var theme = framework.getCurrentTheme();
+			doc.write("<link rel=\"stylesheet\" data-newt-theme href=\""+theme.linkCss+"\" />");
 		}
 		doc.write("<base href=\"" + activity.path + "/\">");
 		doc.write("<script type=\"text/javascript\">");
