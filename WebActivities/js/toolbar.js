@@ -5,9 +5,7 @@ angular.module('webActivitiesApp.toolbar', [])
 
 .service('ToolbarService', ['$rootScope','framework', '$q', function($rootScope, framework, $q) {
 	
-	
-	var toolbarActions = [];
-	
+	var toolbarActionsPubs = [];
 	
 	framework.uiCommunicator.on('displayActivity', function(event, o) {
 		showActivityActions(o.activity);
@@ -17,50 +15,30 @@ angular.module('webActivitiesApp.toolbar', [])
 		hideActivityActions(o.activity);
 	});
 	
-	framework.uiCommunicator.on('destroyActivity', function(event, o) {
-		
-	});
-	
 	var showActivityActions = function(activity) {
-		$.each(toolbarActions,function(i,o) {
-			if (o.activityId && o.activityId==activity.instanceId) {
-				o.hide=false;
+		var activityId = activity.instanceId;
+		$.each(toolbarActionsPubs,function(i,o) {
+			if (o.publisherId && o.publisherId===activityId) {
+				o.obj.hide=false;
 			}
 		});
 	};
 	
 	var hideActivityActions = function(activity) {
-		$.each(toolbarActions,function(i,o) {
-			if (o.activityId && o.activityId==activity.instanceId) {
-				o.hide=true;
+		var activityId = activity.instanceId;
+		$.each(toolbarActionsPubs,function(i,o) {
+			if (o.publisherId && o.publisherId===activityId) {
+				o.obj.hide=true;
 			}
 		});
 	};
-
-	var bus = framework.bus.createBus();
 	
-	//utility method to sync an array spostare su Bus
-	var syncTopic = function(topicName,arrayTosync,onChange) {
-		bus.subscribeTopic(topicName, function(added,removed) {
-			$.each(added,function(i,a) {
-				arrayTosync.push(a);
-			});
-			$.each(removed,function(i,a) {
-				var index = toolbarActions.indexOf(a);
-				if (index!=-1) {
-					arrayTosync.splice(index,1);
-				}
-			});
-			onChange();
-		});
-	};
-	
-	syncTopic("com.newt.system.toolbar.actions",toolbarActions,function() {
+	framework.internalBus().syncTopic("com.newt.system.toolbar.actions",toolbarActionsPubs,function() {
 		$rootScope.$apply();
-	});
+	},true);
 	
 	return {
-		toolbarActions : toolbarActions
+		toolbarActions : toolbarActionsPubs
 	};
 	
 }])
@@ -79,8 +57,8 @@ angular.module('webActivitiesApp.toolbar', [])
 	$scope.toolbarActions = ToolbarService.toolbarActions;
 	$scope.maxBreadcrumbSize = 3;
 	
-	
 }])
 
 //END
 ;
+
