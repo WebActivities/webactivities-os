@@ -33,7 +33,8 @@ var Fragment = function(framework, parentContext) {
 		var defer = framework.$q.defer();
 		var $q = framework.$q;
 
-		this.context = new ActivityContext(framework, null, defer, $q);
+		this.activityInstance = new Activity(framework, app, activityDef, defer, $q);
+		this.context = new ActivityContext(framework, this.activityInstance, defer, $q);
 
 		this.context.broadcastDisplayView = function(iframe) {
 			self.activityInstance.status = Activity.status.ACTIVE;
@@ -51,7 +52,6 @@ var Fragment = function(framework, parentContext) {
 			$(self.activityInstance.iframe).trigger("attached");
 		};
 
-		this.activityInstance = new Activity(framework, app, activityDef, defer, $q);
 		this.activityInstance.context = this.context;
 		this.context.activity = this.activityInstance;
 		this.activityInstance.stop = function(activity) {

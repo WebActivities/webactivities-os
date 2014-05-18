@@ -66,9 +66,9 @@
 						</ul>
 					</li>
 					
-					<li data-ng-repeat="action in toolbarActions" class="dropdown" data-ng-hide="action.hide">
-						<a href="" data-ng-click="executeAction(action)">
-							<i class="fa" data-ng-class="action.iconClass" ></i>
+					<li data-ng-repeat="actionPub in toolbarActions" class="dropdown" data-ng-hide="actionPub.obj.hide">
+						<a href="" data-ng-click="executeAction(actionPub.obj)">
+							<i class="fa" data-ng-class="actionPub.obj.iconClass" ></i>
 						</a>
 					</li>
 	

@@ -2,42 +2,40 @@
 
 var SearchService = function(ctx) {
 	
-	var searchView = null;
-	
-	var getSearchView = function() {
-		if (searchView==null) {
-			return createView();
-		}
-		return searchView;
-	};
-	
 	var onStart = function() {	
 		ctx.bus.publish("com.newt.system.toolbar.actions", {
 			action: "search",
 			iconClass: "fa-search",
 			handler: function(e) {
 				ctx.framework().uiCommunicator.broadcast("showSidePanel",{
-					content: getSearchView
+					content: loadView
 				}).then(function() {
-					searchView.find('#searchActivityInput').focus();
+					cachedView.find('#searchActivityInput').focus();
 				});
 			}
 		});
 	};
 	
-	var createView = function() {
+	var cachedView = null;
+	
+	var loadView = function() {
+		if (cachedView!=null) {
+			return cachedView;
+		}
+		var deferred = jQuery.Deferred();
 		var view = $("<div>");
 		view.load(ctx.resolveUrl("/view/searchPanel.html"),function() {
 			angular.element(view).ready(function() {
+				view.prepend("<link href='"+ctx.resolveUrl("/view/searchPanel.css")+"' rel='stylesheet' type='text/css'>");
 				angular.module('SystemModule')
 					.value("framework",ctx.framework())
 					.value("ctx",ctx);
 				angular.bootstrap(view, [ 'SystemModule' ]);
+				cachedView = view;
+				deferred.resolve(view);
 			});
-		});
-		
-		searchView = $("<div><link href='"+ctx.resolveUrl("/view/searchPanel.css")+"' rel='stylesheet' type='text/css'></div>").append(view); 
-		return searchView;
+		}); 
+		return deferred.promise();
 	};
 	
 	ctx.onStart(onStart);
@@ -46,28 +44,25 @@ var SearchService = function(ctx) {
 
 var ThemeService = function(ctx) {
 	
-	var view = null;
-	
-	var getView = function() {
-		if (view==null) {
-			return createView();
-		}
-		return view;
-	};
-	
 	var onStart = function() {	
 		ctx.bus.publish("com.newt.system.toolbar.actions", {
 			action: "themes",
 			iconClass: "fa-picture-o",
 			handler: function(e) {
 				ctx.framework().uiCommunicator.broadcast("showSidePanel",{
-					content: getView
+					content: loadView
 				});
 			}
 		});
 	};
 	
-	var createView = function() {
+	var cachedView = null;
+	
+	var loadView = function() {
+		if (cachedView!=null) {
+			return cachedView;
+		}
+		var deferred = jQuery.Deferred();
 		var view = $("<div>");
 		view.load(ctx.resolveUrl("/view/themePanel.html"),function() {
 			angular.element(view).ready(function() {
@@ -75,11 +70,11 @@ var ThemeService = function(ctx) {
 					.value("framework",ctx.framework())
 					.value("ctx",ctx);
 				angular.bootstrap(view, [ 'SystemModule' ]);
+				cachedView = view;
+				deferred.resolve(view);
 			});
-		});
-		
-		searchView = $("<div></div>").append(view); 
-		return searchView;
+		}); 
+		return deferred.promise();
 	};
 	
 	ctx.onStart(onStart);

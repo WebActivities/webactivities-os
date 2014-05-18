@@ -137,9 +137,9 @@ var Activity1 = function(ctx) {
 		}(types[i]));
 	}
 
-	ctx.bus.subscribe("**", function(added, removed) {
-		alert("Io ascolto tutto:\n - added:\n" + added + "\n - removed:\n" + removed);
-	});
+//	ctx.bus.subscribe("**", function(added, removed) {
+//		alert("Io ascolto tutto:\n - added:\n" + added + "\n - removed:\n" + removed);
+//	});
 
 	ctx.prepareView().then(function(root) {
 		$(root).append(container);
@@ -159,7 +159,6 @@ var Activity1 = function(ctx) {
 	ctx.onShow(function() {
 		ctx.bus.publish("com.newt.system.toolbar.actions", {
 			order: 1,
-			activityId: ctx.activityId(),
 			action: "azione X",
 			iconClass: "fa-coffee",
 			handler: function(e) {

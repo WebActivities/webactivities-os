@@ -19,6 +19,17 @@ var Framework = function($q) {
 	this.activityStopper = new ActivityStopper(this);
 	
 	this.bus = new Bus();
+	
+	var _internalBus = this.bus.createBus("Framework");
+	
+	/**
+	 * Ritorna il componentBus interno usato dal framework per pubblicare e sottoscrivere topic
+	 * @method toJSON
+	 * @return {ComponentBus} 
+	 */
+	this.internalBus = function() {
+		return _internalBus;
+	};
 
 	this.createContext = function(activity, closeDefer, $q) {
 		return new ActivityContext(this, activity, closeDefer, $q);

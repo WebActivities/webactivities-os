@@ -358,9 +358,16 @@ angular.module('webActivitiesApp.controllers', [])
 		
 		$("#settings-panel").empty();
 		if (obj.content) {
-			$q.when(obj.content).then(function(v) {				
-				$("#settings-panel").append(v);
-			});
+			var appendContent = function(c) {
+				$q.when(c).then(function(v) {									
+					$("#settings-panel").append(v);
+				});
+			};
+			if ($.isFunction(obj.content)) {
+				appendContent(obj.content());
+			} else {
+				appendContent(obj.content);
+			}
 		}
 		var defer = $q.defer();
 		$("#settings-panel").removeClass("hidden-panel", TRANSITION_SPEED, function() {

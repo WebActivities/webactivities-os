@@ -56,7 +56,7 @@ var ActivityContext = function(framework, activity, _closeDefer, $q) {
 
 	this.activity = activity;
 
-	this.bus = framework.bus.createBus();
+	this.bus = framework.bus.createBus(this.activity.instanceId);
 
 	this.communicator = new UICommunicator(framework);
 
@@ -195,10 +195,6 @@ var ActivityContext = function(framework, activity, _closeDefer, $q) {
 
 	this.notify = function(type, message, options) {
 		return framework.notifyManager.notify(type, message, options);
-	};
-
-	this.activityId = function() {
-		return this.activity.instanceId;
 	};
 	
 };
