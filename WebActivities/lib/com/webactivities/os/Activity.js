@@ -26,8 +26,8 @@ var Activity = function(framework, application, activityDef, closeDefer, $q) {
 	this.iframe = null;
 
 	/**
-	 * My property description. Like other pieces of your comment blocks, this
-	 * can span multiple lines.
+	 * l'ActivityContext l'API esposta verso l'interno
+	 * dell'activity
 	 * 
 	 * @property propertyName
 	 * @type {Object}
@@ -37,6 +37,15 @@ var Activity = function(framework, application, activityDef, closeDefer, $q) {
 
 	this.instance = null;
 	this.status = null;
+	
+	/**
+	 * I fragments che vivono all'interno di questa Activity
+	 * 
+	 * @property fragments
+	 * @type {Object}
+	 * @default "foo"
+	 */
+	this.fragments = [];
 
 	/**
 	 * Start an Activity
@@ -98,6 +107,9 @@ var Activity = function(framework, application, activityDef, closeDefer, $q) {
 			doc.find("link[data-newt-theme]").remove();
 			doc.find("head").append("<link rel=\"stylesheet\" data-newt-theme href=\""+theme.link+"\" />");
 		}
+		$.each(this.fragments,function(i,f) {
+			f.setCurrentTheme(theme);
+		});
 	};
 	
 	this.prepareView = function(url) {
@@ -163,6 +175,15 @@ var Activity = function(framework, application, activityDef, closeDefer, $q) {
 		doc.write("</body>");
 		doc.write("</html>");
 		doc.close();
+	};
+	
+	this.createFragment = function(appId, activityName, parameters) {
+		var f = new Fragment(framework, this);
+		f.app = appId;
+		f.activity = activityName;
+		f.parameters = parameters;
+		this.fragments.push(f);
+		return f;
 	};
 	
 };

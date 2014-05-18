@@ -1,4 +1,4 @@
-var Fragment = function(framework, parentContext) {
+var Fragment = function(framework, parentActivityInstance) {
 
 	var component = $("<div></div>", {
 		style : "position: relative"
@@ -107,6 +107,10 @@ var Fragment = function(framework, parentContext) {
 			return true;
 		}
 		return this.activityInstance.resume();
+	};
+	
+	this.setCurrentTheme = function(theme) {
+		return this.activityInstance.setCurrentTheme(theme);
 	};
 
 };

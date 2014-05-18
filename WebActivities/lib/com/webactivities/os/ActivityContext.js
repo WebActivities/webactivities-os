@@ -25,8 +25,6 @@ var ActivityContext = function(framework, activity, _closeDefer, $q) {
 
 	var _result = null;
 
-	this.fragments = [];
-
 	this.activity = activity;
 
 	this.bus = framework.bus.createBus(this.activity.instanceId);
@@ -85,12 +83,7 @@ var ActivityContext = function(framework, activity, _closeDefer, $q) {
 	};
 
 	this.createFragment = function(appId, activityName, parameters) {
-		var f = new Fragment(framework, this);
-		f.app = appId;
-		f.activity = activityName;
-		f.parameters = parameters;
-		this.fragments.push(f);
-		return f;
+		return this.activity.createFragment(appId, activityName, parameters);
 	};
 
 	this.newActivityIntent = function(appId, activityName, parameters) {

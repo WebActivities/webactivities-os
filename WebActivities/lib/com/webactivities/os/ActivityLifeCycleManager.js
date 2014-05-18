@@ -66,8 +66,8 @@ var ActivityPauser = function(framework) {
 		
 		var promises = [ context.getPause()() ];
 
-		for (var i in context.fragments) {
-			promises.push(context.fragments[i].pause());
+		for (var i in activity.fragments) {
+			promises.push(activity.fragments[i].pause());
 		}
 		
 		framework.$q.when(context.getPause()()).then(function() {
@@ -94,8 +94,8 @@ var ActivityResumer = function(framework) {
 		
 		var promises = [ context.getResume()() ];
 
-		for (var i in context.fragments) {
-			promises.push(context.fragments[i].resume());
+		for (var i in activity.fragments) {
+			promises.push(activity.fragments[i].resume());
 		}
 		
 		framework.$q.when(promises).then(function() {
@@ -118,8 +118,8 @@ var ActivityStopper = function(framework) {
 		var d = framework.$q.defer();
 		var promises = [ context.getStop()() ];
 
-		for (var i in context.fragments) {
-			promises.push(context.fragments[i].stop());
+		for (var i in activity.fragments) {
+			promises.push(activity.fragments[i].stop());
 		}
 		
 		framework.$q.all(promises).then(function() {
