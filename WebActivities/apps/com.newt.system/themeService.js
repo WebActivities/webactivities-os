@@ -15,55 +15,55 @@ var ThemeService = function(ctx) {
 		
 		ctx.bus.publish("com.newt.system.themes",{
 			label: 'amelia',
-			link: "css/amelia.bootstrap.min.css"
+			link: ctx.toAbsoluteUrl("themes/amelia.bootstrap.min.css")
 		});
 		ctx.bus.publish("com.newt.system.themes",{
 			label: 'cerulean',
-			link: "css/cerulean.bootstrap.min.css"
+			link: ctx.toAbsoluteUrl("themes/cerulean.bootstrap.min.css")
 		});
 		ctx.bus.publish("com.newt.system.themes",{
 			label: 'cosmo',
-			link: "css/cosmo.bootstrap.min.css"
+			link: ctx.toAbsoluteUrl("themes/cosmo.bootstrap.min.css")
 		});
 		ctx.bus.publish("com.newt.system.themes",{
 			label: 'cupid',
-			link: "css/cupid.bootstrap.min.css"
+			link: ctx.toAbsoluteUrl("themes/cupid.bootstrap.min.css")
 		});
 		ctx.bus.publish("com.newt.system.themes",{
 			label: 'cyborg',
-			link: "css/cyborg.bootstrap.min.css"
+			link: ctx.toAbsoluteUrl("themes/cyborg.bootstrap.min.css")
 		});
 		ctx.bus.publish("com.newt.system.themes",{
 			label: 'journal',
-			link: "css/journal.bootstrap.min.css"
+			link: ctx.toAbsoluteUrl("themes/journal.bootstrap.min.css")
 		});
 		ctx.bus.publish("com.newt.system.themes",{
 			label: 'lumen',
-			link: "css/lumen.bootstrap.min.css"
+			link: ctx.toAbsoluteUrl("themes/lumen.bootstrap.min.css")
 		});
 		ctx.bus.publish("com.newt.system.themes",{
 			label: 'readable',
-			link: "css/readable.bootstrap.min.css"
+			link: ctx.toAbsoluteUrl("themes/readable.bootstrap.min.css")
 		});
 		ctx.bus.publish("com.newt.system.themes",{
 			label: 'simplex',
-			link: "css/simplex.bootstrap.min.css"
+			link: ctx.toAbsoluteUrl("themes/simplex.bootstrap.min.css")
 		});
 		ctx.bus.publish("com.newt.system.themes",{
 			label: 'slate',
-			link: "css/slate.bootstrap.min.css"
+			link: ctx.toAbsoluteUrl("themes/slate.bootstrap.min.css")
 		});
 		ctx.bus.publish("com.newt.system.themes",{
 			label: 'spacelab',
-			link: "css/spacelab.bootstrap.min.css"
+			link: ctx.toAbsoluteUrl("themes/spacelab.bootstrap.min.css")
 		});
 		ctx.bus.publish("com.newt.system.themes",{
 			label: 'superhero',
-			link: "css/superhero.bootstrap.min.css"
+			link: ctx.toAbsoluteUrl("themes/superhero.bootstrap.min.css")
 		});
 		ctx.bus.publish("com.newt.system.themes",{
 			label: 'yeti',
-			link: "css/yeti.bootstrap.min.css"
+			link: ctx.toAbsoluteUrl("themes/yeti.bootstrap.min.css")
 		});
 		
 	};

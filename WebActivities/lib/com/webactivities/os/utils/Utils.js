@@ -12,6 +12,15 @@ var Utils = (function() {
 		var src = path.indexOf("http") == 0 ? path : application.path + (path.indexOf("/") == 0 ? path : "/" + path);
 		return src;
 	};
+	
+	var toAbsoluteUrl = function(application, path) {
+		if (path.indexOf("http") == 0) {
+			return path;
+		}
+		var url = resolveUrl(application, path);
+		loc = window.top.location;
+		return loc.origin+loc.pathname+url;
+	};
 
 	var composeId = function(appId, componentId) {
 		return appId + "@" + componentId;
@@ -54,6 +63,8 @@ var Utils = (function() {
 		getUniqueKey : getUniqueKey,
 
 		resolveUrl : resolveUrl,
+		
+		toAbsoluteUrl : toAbsoluteUrl,
 
 		composeActivityId : composeId,
 

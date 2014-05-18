@@ -60,4 +60,16 @@ var Stack = function() {
 			return arr;
 		}
 	};
+	
+	
+	this.forEach = function(fn) {
+		var current = this.top;
+		for (var i = 0; i < this.count; i++) {
+			if (!fn(current.data)) {
+				return;
+			}
+			current = current.next;
+		}
+	};
+	
 };

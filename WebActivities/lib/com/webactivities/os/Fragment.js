@@ -36,7 +36,8 @@ var Fragment = function(framework, parentContext) {
 		this.activityInstance = new Activity(framework, app, activityDef, defer, $q);
 		this.context = new ActivityContext(framework, this.activityInstance, defer, $q);
 
-		this.context.broadcastDisplayView = function(iframe) {
+		this.activityInstance.doDisplayView = function() {
+			var iframe = self.activityInstance.iframe;
 			self.activityInstance.status = Activity.status.ACTIVE;
 			$(iframe).css({
 				position : "absolute",
@@ -49,7 +50,7 @@ var Fragment = function(framework, parentContext) {
 				height : "100%"
 			});
 			component.append(iframe);
-			$(self.activityInstance.iframe).trigger("attached");
+			$(iframe).trigger("attached");
 		};
 
 		this.activityInstance.context = this.context;

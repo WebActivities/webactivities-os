@@ -25,34 +25,6 @@ var ActivityContext = function(framework, activity, _closeDefer, $q) {
 
 	var _result = null;
 
-	var writeActivityStartingDoc = function(iframe, activity) {
-		var doc = iframe.contentWindow.window.document;
-		doc.open();
-		doc.write("<html>");
-		doc.write("<head>");
-		if (activity.seamless) {
-			var theme = framework.getCurrentTheme();
-			doc.write("<link rel=\"stylesheet\" data-newt-theme href=\""+theme.link+"\" />");
-		}
-		doc.write("<base href=\"" + activity.path + "/\">");
-		doc.write("<script type=\"text/javascript\">");
-		doc.write("var top = null;");
-		doc.write("var opener = null;");
-		doc.write("window.parent = null;");
-		doc.write("window.opener = null;");
-		doc.write("</script>");
-		doc.write("</head>");
-		doc.write("<body>");
-		doc.write("<div id=\"internalViewport\" ");
-		if (activity.seamless) {
-			doc.write(" class=\"container-fluid\"");
-		}
-		doc.write("></div>");
-		doc.write("</body>");
-		doc.write("</html>");
-		doc.close();
-	};
-
 	this.fragments = [];
 
 	this.activity = activity;
@@ -112,36 +84,36 @@ var ActivityContext = function(framework, activity, _closeDefer, $q) {
 		return _pause;
 	};
 
-	this.createFragment = function(app, activity, parameters) {
+	this.createFragment = function(appId, activityName, parameters) {
 		var f = new Fragment(framework, this);
-		f.app = app;
-		f.activity = activity;
+		f.app = appId;
+		f.activity = activityName;
 		f.parameters = parameters;
 		this.fragments.push(f);
 		return f;
 	};
 
-	this.newActivityIntent = function(app, activity, parameters) {
+	this.newActivityIntent = function(appId, activityName, parameters) {
 		var i = new Intent(IntentType.START_ACTIVITY, framework);
-		i.activity = activity;
+		i.activity = activityName;
 		i.parameters = parameters;
-		i.app = app;
+		i.app = appId;
 		return i;
 	};
 
-	this.newActivityIntentAsRoot = function(app, activity, parameters) {
+	this.newActivityIntentAsRoot = function(appId, activityName, parameters) {
 		var i = new Intent(IntentType.START_ACTIVITY, framework);
-		i.activity = activity;
+		i.activity = activityName;
 		i.parameters = parameters;
-		i.app = app;
+		i.app = appId;
 		i.startMode = "ROOT";
 		return i;
 	};
-	this.newActivityIntentAsPopup = function(app, activity, parameters) {
+	this.newActivityIntentAsPopup = function(appId, activityName, parameters) {
 		var i = new Intent(IntentType.START_ACTIVITY, framework);
-		i.activity = activity;
+		i.activity = activityName;
 		i.parameters = parameters;
-		i.app = app;
+		i.app = appId;
 		i.startMode = "CHILD_POPUP";
 		return i;
 	};
@@ -157,41 +129,7 @@ var ActivityContext = function(framework, activity, _closeDefer, $q) {
 	};
 
 	this.prepareView = function(url) {
-		var viewDeferred = $q.defer();
-		var iframe = $("<iframe></iframe>")[0];
-		var self = this;
-		this.activity.iframe = iframe;
-		$(iframe).on("attached", function() {
-			$(iframe).load(function() {
-				var viewport = $(iframe).contents().find("#internalViewport")[0];
-				if (url) {
-					$(viewport).load(url, function() {
-						viewDeferred.resolve(viewport);
-						self.communicator.broadcast("iframeLoaded", {});
-					});
-				} else {
-					viewDeferred.resolve(viewport);
-					self.communicator.broadcast("iframeLoaded", {});
-				}
-			});
-			writeActivityStartingDoc(iframe, self.activity);
-		});
-		this.broadcastDisplayView(iframe);
-
-		return viewDeferred.promise;
-	};
-
-	this.broadcastDisplayView = function(iframe) {
-		var self = this;
-		framework.uiCommunicator.broadcast('displayActivity', {
-			view : iframe,
-			activity : self.activity
-		}).then(function() {
-			self.activity.status = Activity.status.ACTIVE;
-			$q.when(self.activity.context.getShow()()).then(function() {
-				self.communicator.broadcast("activityDisplayed", {});
-			});
-		});
+		return activity.prepareView(url);
 	};
 
 	this.notify = function(type, message, options) {

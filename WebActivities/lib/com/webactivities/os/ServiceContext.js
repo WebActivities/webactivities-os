@@ -56,4 +56,12 @@ var ServiceContext = function(framework, service, $q) {
 		return i;
 	};
 	
+	this.resolveUrl = function(path) {
+		return Utils.resolveUrl(service.application,path);
+	};
+	
+	this.toAbsoluteUrl = function(path) {
+		return Utils.toAbsoluteUrl(service.application,path);
+	};
+	
 };

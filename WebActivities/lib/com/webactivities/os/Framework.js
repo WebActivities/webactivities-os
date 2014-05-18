@@ -181,6 +181,9 @@ var Framework = function($q) {
 	this.setCurrentTheme = function(newTheme) {
 		this.currentTheme = newTheme;
 		this.uiCommunicator.broadcast("themeChanged", this.currentTheme);
+		this.activityStack.forEach(function(activity) {
+			activity.setCurrentTheme(newTheme);
+		});
 		return this.currentTheme;
 	};
 
