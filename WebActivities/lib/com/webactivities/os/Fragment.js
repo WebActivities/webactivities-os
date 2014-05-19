@@ -35,11 +35,12 @@ var Fragment = function(framework, parentActivityInstance) {
 
 		this.activityInstance = new Activity(framework, app, activityDef, defer, $q);
 		this.context = new ActivityContext(framework, this.activityInstance, defer, $q);
+		this.activityInstance.context = this.context;
+		this.activityInstance.uiCommunicator = new UICommunicator($q);
+		this.activityInstance.isFragment = true;
 
-		this.activityInstance.doDisplayView = function() {
-			var iframe = self.activityInstance.iframe;
-			self.activityInstance.status = Activity.status.ACTIVE;
-			$(iframe).css({
+		this.activityInstance.uiCommunicator.on("displayActivity",function(event,o) {
+			$(o.activity.iframe).css({
 				position : "absolute",
 				left : "0",
 				top : "0",
@@ -48,42 +49,23 @@ var Fragment = function(framework, parentActivityInstance) {
 				border : "0px none",
 				width : "100%",
 				height : "100%"
-			});
-			component.append(iframe);
-			$(iframe).trigger("attached");
-		};
-
-		this.activityInstance.context = this.context;
-		this.context.activity = this.activityInstance;
-		this.activityInstance.stop = function(activity) {
+			})
+			.appendTo(component)
+			.trigger("attached");
+		});
+		
+		this.activityInstance.uiCommunicator.on("destroyActivity",function(event,o) {
 			self.inited = false;
-			var context = self.activityInstance.context;
-			var d = framework.$q.defer();
-			framework.$q.when(context.getStop()()).then(function() {
-				self.activityInstance.status = Activity.status.STOPPED;
-				$(self.activityInstance.iframe).remove();
-				d.resolve();
-			});
-			return d.promise;
-		};
-		this.activityInstance.pause = function(options) {
-			var context = self.activityInstance.context;
-			var d = framework.$q.defer();
-			framework.$q.when(context.getPause()()).then(function() {
-				self.activityInstance.status = Activity.status.PAUSED;
-				d.resolve();
-			});
-			return d.promise;
-		};
-		this.activityInstance.resume = function(options) {
-			var context = self.activityInstance.context;
-			var d = framework.$q.defer();
-			framework.$q.when(context.getResume()()).then(function() {
-				self.activityInstance.status = Activity.status.ACTIVE;
-				d.resolve();
-			});
-			return d.promise;
-		};
+			$(o.activity.iframe).remove();
+		});
+		
+		this.activityInstance.uiCommunicator.on("pausedActivity",function(event,o) {
+			//return framework.uiCommunicator.broadcast('pausedActivity',o);
+		});
+		
+		this.activityInstance.uiCommunicator.on("resumedActivity",function(event,o) {
+			//return framework.uiCommunicator.broadcast('pausedActivity',o);
+		});
 
 		this.inited = true;
 	};

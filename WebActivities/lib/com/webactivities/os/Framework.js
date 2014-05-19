@@ -2,7 +2,7 @@ var Framework = function($q) {
 
 	this.$q = $q;
 
-	this.uiCommunicator = new UICommunicator(this);
+	this.uiCommunicator = new UICommunicator($q);
 
 	this.applicationRegistry = new ApplicationRegistry(this);
 
@@ -11,12 +11,6 @@ var Framework = function($q) {
 	this.notifyManager = new NotifyManager(this);
 
 	this.activityStarter = new ActivityStarter(this);
-	
-	this.activityPauser = new ActivityPauser(this);
-
-	this.activityResumer = new ActivityResumer(this);
-	
-	this.activityStopper = new ActivityStopper(this);
 	
 	this.bus = new Bus();
 	

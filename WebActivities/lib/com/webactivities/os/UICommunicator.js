@@ -1,7 +1,10 @@
 /**
- * Manage the communication throw framework and UI
+ * UICommunicator
+ * 
+ * @class UICommunicator
+ * @constructor
  */
-var UICommunicator = function(framework) {
+var UICommunicator = function($q) {
 
 	var listeners = {};
 
@@ -14,7 +17,7 @@ var UICommunicator = function(framework) {
 				Logger.error(ex);
 			}
 		}
-		return framework.$q.all(promises);
+		return $q.all(promises);
 	};
 
 	this.on = function(l, fn) {

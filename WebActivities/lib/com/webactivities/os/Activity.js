@@ -15,13 +15,24 @@ var Activity = function(framework, application, activityDef, closeDefer, $q) {
 	this.openMode = null;
 
 	this.activityDef = activityDef;
+	
+	/**
+	 * L'uiCommunicator che usa questa activity per fare il broadcast degli eventi di:
+	 * - activityDisplayed
+	 * - displayActivity
+	 * - iframeLoaded
+	 * - activityStarted
+	 * 
+	 * @property uiCommunicator
+	 * @type {Object}
+	 */
+	this.uiCommunicator = framework.uiCommunicator;
 
 	/**
 	 * Connected iframe to Actvitity
 	 * 
 	 * @property iframe
 	 * @type {Object}
-	 * @default "null"
 	 */
 	this.iframe = null;
 
@@ -31,11 +42,18 @@ var Activity = function(framework, application, activityDef, closeDefer, $q) {
 	 * 
 	 * @property propertyName
 	 * @type {Object}
-	 * @default "foo"
 	 */
 	this.context = framework.createContext(self, closeDefer, $q);
 
+	/**
+	 * l'istanza dell'oggetto specificato sull'Activator del manifest 
+	 * instanziato dentro l'iframe tramite una new
+	 * 
+	 * @property instance
+	 * @type {Object}
+	 */
 	this.instance = null;
+	
 	this.status = null;
 	
 	/**
@@ -46,6 +64,7 @@ var Activity = function(framework, application, activityDef, closeDefer, $q) {
 	 * @default "foo"
 	 */
 	this.fragments = [];
+
 
 	/**
 	 * Start an Activity
@@ -63,7 +82,7 @@ var Activity = function(framework, application, activityDef, closeDefer, $q) {
 		return startMode(this, startOptions).then(function() {
 			self.status = Activity.status.CREATED;
 			self.instance = self.instantiate(self.context, parameters);
-			framework.uiCommunicator.broadcast('activityStarted', self);
+			self.uiCommunicator.broadcast('activityStarted', self);
 		});
 	};
 
@@ -71,34 +90,117 @@ var Activity = function(framework, application, activityDef, closeDefer, $q) {
 		return new application.iframe[0].contentWindow.window[activityDef.activator](context, parameters);
 	};
 
+	
 	this.stop = function() {
-		var d = framework.$q.defer();
-		var self = this;
-		framework.activityStopper.stop(this).then(function() {
+		
+		var promises = [ $q.when(this.context.getStop()()) ];
+
+		for (var i in this.fragments) {
+			promises.push($q.when(this.fragments[i].stop()));
+		}
+		
+		var stopAction = $q.all(promises);
+		
+		stopAction.then(function() {
+			self.context.bus.destroy();
+		});
+		
+		stopAction.then(function() {
+			return self.uiCommunicator.broadcast('destroyActivity', {
+				view : self.iframe,
+				activity : self
+			});
+		});
+		
+		if (!this.isFragment) {
+			
+			stopAction.then(function() {
+				framework.activityStack.pop();
+			});
+			
+			var disableEffects = false;
+			if (this.openMode == 'CHILD_POPUP') {
+				disableEffects=true;
+				stopAction.then(function() {
+					return framework.popLayer();
+				});
+			}
+			stopAction.then(function() {
+				return framework.resumeActivity({
+					disableEffects : disableEffects
+				});
+			});
+		}
+		
+		stopAction.then(function() {
+			self.context.getCloseDefer().resolve(self.context.getResult());
+		});
+		
+		stopAction.then(function() {
 			self.status = Activity.status.STOPPED;
-			d.resolve();
 		});
-		return d.promise;
+		
+		return stopAction;
 	};
-
+	
 	this.pause = function(options) {
-		var d = framework.$q.defer();
-		var self = this;
-		framework.activityPauser.pause(this, options).then(function() {
+		
+		var promises = [ $q.when(this.context.getPause()()) ];
+		
+		for (var i in this.fragments) {
+			promises.push($q.when(this.fragments[i].pause()));
+		}
+		
+		var pauseAction = $q.all(promises);
+		
+		if (options && options.mode == 'hidden') {
+			pauseAction.then(function() {
+				return self.uiCommunicator.broadcast('hideActivity', {
+					view : self.iframe,
+					activity : self
+				});
+			});
+		}
+		
+		pauseAction.then(function() {
+			return self.uiCommunicator.broadcast('pausedActivity',self);
+		});
+		
+		pauseAction.then(function() {
 			self.status = Activity.status.PAUSED;
-			d.resolve();
 		});
-		return d.promise;
+		return pauseAction;
 	};
-
+	
 	this.resume = function(options) {
-		var d = framework.$q.defer();
-		var self = this;
-		framework.activityResumer.resume(this, options).then(function() {
+		
+		var promises = [ $q.when(this.context.getResume()()) ];
+		
+		for (var i in this.fragments) {
+			promises.push($q.when(this.fragments[i].resume()));
+		}
+		
+		var resumeAction = $q.all(promises);
+		
+		if (!this.isFragment) {
+			resumeAction.then(function() {
+				self.uiCommunicator.broadcast('displayActivity', {
+					view : self.iframe,
+					activity : self,
+					disableEffects : options?options.disableEffects:null
+				});
+			});
+		}
+		
+		resumeAction.then(function() {
 			self.status = Activity.status.ACTIVE;
-			d.resolve();
 		});
-		return d.promise;
+		
+		resumeAction.then(function() {
+			return self.uiCommunicator.broadcast('resumedActivity',self);
+		});
+		
+		return resumeAction;
 	};
 	
 	this.setCurrentTheme = function(theme) {
@@ -123,11 +225,11 @@ var Activity = function(framework, application, activityDef, closeDefer, $q) {
 				if (url) {
 					$(viewport).load(url, function() {
 						viewDeferred.resolve(viewport);
-						framework.uiCommunicator.broadcast("iframeLoaded", {});
+						self.uiCommunicator.broadcast("iframeLoaded", {});
 					});
 				} else {
 					viewDeferred.resolve(viewport);
-					framework.uiCommunicator.broadcast("iframeLoaded", {});
+					self.uiCommunicator.broadcast("iframeLoaded", {});
 				}
 			});
 			self.writeActivityStartingDoc();
@@ -138,13 +240,13 @@ var Activity = function(framework, application, activityDef, closeDefer, $q) {
 	
 	this.doDisplayView = function() {
 		var self = this;
-		framework.uiCommunicator.broadcast('displayActivity', {
+		self.uiCommunicator.broadcast('displayActivity', {
 			view : self.iframe,
 			activity : self
 		}).then(function() {
 			self.status = Activity.status.ACTIVE;
 			$q.when(self.context.getShow()()).then(function() {
-				framework.uiCommunicator.broadcast("activityDisplayed", {});
+				self.uiCommunicator.broadcast("activityDisplayed", {});
 			});
 		});
 	};

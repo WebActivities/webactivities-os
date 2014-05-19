@@ -7,6 +7,7 @@ angular.module('webActivitiesApp.toolbar', [])
 	
 	var toolbarActionsPubs = [];
 	
+	/*
 	framework.uiCommunicator.on('displayActivity', function(event, o) {
 		showActivityActions(o.activity);
 	});
@@ -32,6 +33,7 @@ angular.module('webActivitiesApp.toolbar', [])
 			}
 		});
 	};
+	*/
 	
 	framework.internalBus().syncTopic("com.newt.system.toolbar.actions",toolbarActionsPubs,function() {
 		toolbarActionsPubs.sort(function(a, b){
