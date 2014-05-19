@@ -41,12 +41,16 @@ var Activity3 = function(ctx) {
 		container.append("<div>Resumed</div>");
 	});
 	
-	ctx.bus.publish("com.newt.system.toolbar.actions", {
+	
+	if (!ctx.actions) {
+		ctx.actions = [];
+	}
+	ctx.actions.push({
 		order: 1,
 		action: "azione X",
 		iconClass: "fa-coffee",
 		handler: function(e) {
-			alert("azione X dell'activity");
+			alert("azione X dell'activity "+ctx.getActivityInstanceId());
 		}
 	});
 	
@@ -176,14 +180,19 @@ var Activity1 = function(ctx) {
 	});
 
 	ctx.onShow(function() {
-		ctx.bus.publish("com.newt.system.toolbar.actions", {
+		
+		if (!ctx.actions) {
+			ctx.actions = [];
+		}
+		ctx.actions.push({
 			order: 1,
 			action: "azione X",
-			iconClass: "fa-coffee",
+			iconClass: "fa-comment",
 			handler: function(e) {
-				alert("azione X dell'activity");
+				alert("azione X dell'activity "+ctx.getActivityInstanceId());
 			}
 		});
+		
 	});
 
 	ctx.onResume(function() {

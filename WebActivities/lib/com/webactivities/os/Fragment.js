@@ -16,16 +16,6 @@ var Fragment = function(framework, parentActivityInstance) {
 		return component;
 	};
 
-	this.start = function() {
-		var self = this;
-		if (!this.inited) {
-			this.init();
-			framework.applicationRegistry.getApplication(this.app).startApplication(true).then(function(application) {
-				application.instantiateActivity(self.activity, self.parameter, self.context, self.context.getCloseDefer());
-			});
-		}
-	};
-
 	this.init = function() {
 		var self = this;
 		var app = framework.applicationRegistry.getApplication(this.app);
@@ -39,6 +29,10 @@ var Fragment = function(framework, parentActivityInstance) {
 		this.activityInstance.uiCommunicator = new UICommunicator($q);
 		this.activityInstance.isFragment = true;
 
+		this.activityInstance.uiCommunicator.on("activityStarted",function(event,o) {
+			//return framework.uiCommunicator.broadcast('pausedActivity',o);
+		});
+		
 		this.activityInstance.uiCommunicator.on("displayActivity",function(event,o) {
 			$(o.activity.iframe).css({
 				position : "absolute",
@@ -70,6 +64,25 @@ var Fragment = function(framework, parentActivityInstance) {
 		this.inited = true;
 	};
 
+	this.start = function() {
+		var self = this;
+		if (!this.inited) {
+			this.init();
+			
+			framework.applicationRegistry.getApplication(this.app).startApplication(true).then(function(application) {
+				application.instantiateActivity(self.activity, self.parameter, self.context, self.context.getCloseDefer());
+				
+				var actInst = self.activityInstance;
+				actInst.status = Activity.status.CREATED;
+				actInst.uiCommunicator.broadcast('activityStarted', actInst);
+			});
+		}
+	};
+
+	this.instantiate = function(context, parameters) {
+		return new application.iframe[0].contentWindow.window[activityDef.activator](context, parameters);
+	};
+	
 	this.stop = function() {
 		if (!this.activityInstance) {
 			return true;

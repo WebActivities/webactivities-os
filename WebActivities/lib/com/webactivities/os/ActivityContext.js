@@ -129,4 +129,7 @@ var ActivityContext = function(framework, activity, _closeDefer, $q) {
 		return framework.notifyManager.notify(type, message, options);
 	};
 	
+	this.getActivityInstanceId = function() {
+		return this.activity.instanceId;
+	};
 };
