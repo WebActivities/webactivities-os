@@ -41,6 +41,15 @@ var Activity3 = function(ctx) {
 		container.append("<div>Resumed</div>");
 	});
 	
+	ctx.bus.publish("com.newt.system.toolbar.actions", {
+		order: 1,
+		action: "azione X",
+		iconClass: "fa-coffee",
+		handler: function(e) {
+			alert("azione X dell'activity");
+		}
+	});
+	
 };
 
 var Activity1 = function(ctx) {
