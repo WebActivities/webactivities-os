@@ -1,0 +1,9 @@
+{
+    "name": "Newt API",
+    "description": "The Newt API: a library for doing X, Y, and Z",
+    "version": "1.0.0",
+    "url": "http://newt.com/",
+    "options": {
+        "outdir": "../../apidocs"
+    }
+}

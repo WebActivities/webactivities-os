@@ -1,0 +1,245 @@
+{
+    "project": {
+        "name": "Newt API",
+        "description": "The Newt API: a library for doing X, Y, and Z",
+        "version": "1.0.0",
+        "url": "http://newt.com/"
+    },
+    "files": {
+        "webactivities\\os\\Activity.js": {
+            "name": "webactivities\\os\\Activity.js",
+            "modules": {
+                "Activity": 1
+            },
+            "classes": {
+                "Activity": 1
+            },
+            "fors": {},
+            "namespaces": {}
+        },
+        "webactivities\\os\\ActivityContext.js": {
+            "name": "webactivities\\os\\ActivityContext.js",
+            "modules": {
+                "Context": 1
+            },
+            "classes": {
+                "ActivityContext": 1
+            },
+            "fors": {},
+            "namespaces": {}
+        },
+        "webactivities\\os\\Application.js": {
+            "name": "webactivities\\os\\Application.js",
+            "modules": {},
+            "classes": {},
+            "fors": {},
+            "namespaces": {}
+        },
+        "webactivities\\os\\Service.js": {
+            "name": "webactivities\\os\\Service.js",
+            "modules": {},
+            "classes": {},
+            "fors": {},
+            "namespaces": {}
+        },
+        "webactivities\\os\\UICommunicator.js": {
+            "name": "webactivities\\os\\UICommunicator.js",
+            "modules": {},
+            "classes": {},
+            "fors": {},
+            "namespaces": {}
+        }
+    },
+    "modules": {
+        "Activity": {
+            "name": "Activity",
+            "submodules": {},
+            "classes": {
+                "Activity": 1
+            },
+            "fors": {},
+            "namespaces": {},
+            "tag": "module",
+            "file": "webactivities\\os\\Activity.js",
+            "line": 1,
+            "description": "Activity"
+        },
+        "Context": {
+            "name": "Context",
+            "submodules": {},
+            "classes": {
+                "ActivityContext": 1
+            },
+            "fors": {},
+            "namespaces": {},
+            "tag": "module",
+            "file": "webactivities\\os\\ActivityContext.js",
+            "line": 1,
+            "description": "Activity Context"
+        }
+    },
+    "classes": {
+        "Activity": {
+            "name": "Activity",
+            "shortname": "Activity",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "module": "Activity",
+            "file": "webactivities\\os\\Activity.js",
+            "line": 1,
+            "description": "Activity",
+            "is_constructor": 1
+        },
+        "ActivityContext": {
+            "name": "ActivityContext",
+            "shortname": "ActivityContext",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "module": "Context",
+            "namespace": "",
+            "file": "webactivities\\os\\ActivityContext.js",
+            "line": 1,
+            "description": "Activity Context",
+            "is_constructor": 1
+        }
+    },
+    "classitems": [
+        {
+            "file": "webactivities\\os\\Activity.js",
+            "line": 19,
+            "description": "Connected iframe to Actvitity",
+            "itemtype": "property",
+            "name": "iframe",
+            "type": "{Object}",
+            "default": "\"null\"",
+            "class": "Activity",
+            "module": "Activity"
+        },
+        {
+            "file": "webactivities\\os\\Activity.js",
+            "line": 28,
+            "description": "My property description. Like other pieces of your comment blocks, this\ncan span multiple lines.",
+            "itemtype": "property",
+            "name": "propertyName",
+            "type": "{Object}",
+            "default": "\"foo\"",
+            "class": "Activity",
+            "module": "Activity"
+        },
+        {
+            "file": "webactivities\\os\\Activity.js",
+            "line": 41,
+            "description": "Start an Activity",
+            "itemtype": "method",
+            "name": "start",
+            "params": [
+                {
+                    "name": "parameters",
+                    "description": "Start parameters",
+                    "type": "Object"
+                },
+                {
+                    "name": "startMode",
+                    "description": "startMode",
+                    "type": "StartMode"
+                },
+                {
+                    "name": "startOptions",
+                    "description": "Start options",
+                    "type": "Object"
+                }
+            ],
+            "return": {
+                "description": "Returns a promise",
+                "type": "Promise"
+            },
+            "class": "Activity",
+            "module": "Activity"
+        },
+        {
+            "file": "webactivities\\os\\Activity.js",
+            "line": 97,
+            "description": "Completa le informazioni presenti del manifest di una activity",
+            "class": "Activity",
+            "module": "Activity"
+        },
+        {
+            "file": "webactivities\\os\\Application.js",
+            "line": 12,
+            "description": "Activities manifest json",
+            "class": "",
+            "module": "Context"
+        },
+        {
+            "file": "webactivities\\os\\Application.js",
+            "line": 24,
+            "description": "Services manifest json",
+            "class": "",
+            "module": "Context"
+        },
+        {
+            "file": "webactivities\\os\\Application.js",
+            "line": 36,
+            "description": "Running activities instances",
+            "class": "",
+            "module": "Context"
+        },
+        {
+            "file": "webactivities\\os\\Application.js",
+            "line": 41,
+            "description": "Running services instances",
+            "class": "",
+            "module": "Context"
+        },
+        {
+            "file": "webactivities\\os\\Service.js",
+            "line": 33,
+            "description": "Completa le informazioni presenti del manifest di un service",
+            "class": "",
+            "module": "Context"
+        },
+        {
+            "file": "webactivities\\os\\UICommunicator.js",
+            "line": 1,
+            "description": "Manage the communication throw framework and UI",
+            "class": "",
+            "module": "Context"
+        }
+    ],
+    "warnings": [
+        {
+            "message": "Missing item type\nCompleta le informazioni presenti del manifest di una activity",
+            "line": " webactivities\\os\\Activity.js:97"
+        },
+        {
+            "message": "Missing item type\nActivities manifest json",
+            "line": " webactivities\\os\\Application.js:12"
+        },
+        {
+            "message": "Missing item type\nServices manifest json",
+            "line": " webactivities\\os\\Application.js:24"
+        },
+        {
+            "message": "Missing item type\nRunning activities instances",
+            "line": " webactivities\\os\\Application.js:36"
+        },
+        {
+            "message": "Missing item type\nRunning services instances",
+            "line": " webactivities\\os\\Application.js:41"
+        },
+        {
+            "message": "Missing item type\nCompleta le informazioni presenti del manifest di un service",
+            "line": " webactivities\\os\\Service.js:33"
+        },
+        {
+            "message": "Missing item type\nManage the communication throw framework and UI",
+            "line": " webactivities\\os\\UICommunicator.js:1"
+        }
+    ]
+}

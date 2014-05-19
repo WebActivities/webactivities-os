@@ -1,0 +1,80 @@
+{
+	"id" : "com.newt.demo",
+	"name" : "Newt Demo",
+	"icon" : "/res/app-icon.png",
+	"main" : "signin",
+	"version" : "1.0.0",
+	"activities" : [
+		{
+			"name" : "signin",
+			"description" : "Sign-In",
+			"icon" : "/res/app-icon.png",
+			"activator" : "SigninActivator",
+			"startable" : true,
+			"seamless" : true	
+		},
+		{
+			"name" : "dashboard",
+			"description" : "Dashboard",
+			"icon" : "/res/app-icon.png",
+			"activator" : "DashboardActivator",
+			"startable" : true,
+			"seamless" : true	
+		},
+		{
+			"name" : "messages",
+			"description" : "I tuoi messaggi",
+			"icon" : "/res/app-icon.png",
+			"activator" : "MessagesActivator",
+			"startable" : true,
+			"seamless" : true	
+		},
+		{
+			"name" : "messageReader",
+			"description" : "Leggi i messaggi",
+			"icon" : "/res/app-icon.png",
+			"activator" : "MessageReaderActivator",
+			"startable" : true,
+			"seamless" : true	
+		},
+		{
+			"name" : "customerSearch",
+			"description" : "Ricerca clienti",
+			"icon" : "/res/app-icon.png",
+			"activator" : "CustomerSearchActivator",
+			"startable" : true,
+			"seamless" : true	
+		},
+		{
+			"name" : "customerEdit",
+			"description" : "Modifica cliente",
+			"icon" : "/res/app-icon.png",
+			"activator" : "CustomerEditActivator",
+			"startable" : false,
+			"seamless" : true	
+		},
+		{
+			"name" : "projectSearch",
+			"description" : "Ricerca progetti",
+			"icon" : "/res/app-icon.png",
+			"activator" : "ProjectSearchActivator",
+			"startable" : true,
+			"seamless" : true	
+		},
+		{
+			"name" : "projectEdit",
+			"description" : "Modifica progetto",
+			"icon" : "/res/app-icon.png",
+			"activator" : "ProjectEditActivator",
+			"startable" : false,
+			"seamless" : true	
+		}
+	],
+	"resources" : [
+	    "/res/activators.js?%v&%d",
+		"/res/angular.min.js",
+		"/res/jquery-2.1.1.min.js"
+    ],
+    "settings" : {
+    }
+}
