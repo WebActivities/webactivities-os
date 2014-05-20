@@ -15,8 +15,8 @@
 					<span class="icon-bar"></span>
 				</button>
 				<a class="navbar-brand" href=""
-					style="margin: 0px 5px 0px 0px; padding: 0px;">
-					<img src="img/wa-logo.png" alt="" />
+					style="position: relative; margin: 0px 5px 0px 0px; padding: 0px; width: 45px;">
+					<img src="img/wa-logo.png" alt="" style="position: absolute; top: 50%; left: 50%; margin-top: -23px; margin-left: -23px"/>
 				</a>
 			</div>
 	
@@ -66,7 +66,7 @@
 						</ul>
 					</li>
 					
-					<li data-ng-repeat="action in activityActions" class="dropdown">
+					<li data-ng-repeat="action in activityActions">
 						<a href="" data-ng-click="executeAction(action)">
 							<i class="fa" data-ng-class="action.iconClass" ></i>
 						</a>
