@@ -66,6 +66,10 @@ var Fragment = function(framework, parentActivityInstance) {
 		this.activityInstance.eventBus.on("destroyActivity",function(event,o) {
 			self.inited = false;
 			$(o.activity.iframe).remove();
+			component.empty();
+			var newComponent = component.clone();
+			component.replaceWith(newComponent);
+			component = newComponent;
 		});
 		
 		this.activityInstance.eventBus.on("pausedActivity",function(event,o) {
