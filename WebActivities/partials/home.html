@@ -1,7 +1,7 @@
 
 <div>
 	<nav data-ng-controller="ToolbarCtrl" 
-	    class="navbar navbar-inverse navbar-static-top top-bar"
+	    class="navbar navbar-default navbar-static-top top-bar"
 		role="navigation" style="margin-bottom: 0px;" id="navbar">
 		<div class="container-fluid">
 			<!-- Brand and toggle get grouped for better mobile display -->
@@ -23,12 +23,12 @@
 	
 			<div class="collapse navbar-collapse" id="top-bar-collapse">
 				<ul class="nav navbar-nav navbar-left">
-					<li data-ng-show="activityStack().length > 0">
-						<a href="" class="btn-info" data-ng-click="stopAllActivities()">
+					<li data-ng-show="activityStack().length > 0" class="navbar-text">
+						<span data-ng-click="stopAllActivities()">
 							<i class="fa fa-home pointer"></i>
-						</a>
+						</span>
 					</li>
-					<li class="navbar-text">
+					<li class="navbar-text" style="margin-left: 0px;">
 						<span data-ng-show="activityStack().length > maxBreadcrumbSize">
 							<i class="fa fa-caret-right"></i>
 							...{{activityStack().length - maxBreadcrumbSize}} attività...
