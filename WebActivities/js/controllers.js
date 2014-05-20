@@ -396,21 +396,24 @@ angular.module('webActivitiesApp.controllers', [])
 	$scope.toolbarVisible = false;
 	$scope.logoSrc = Utils.toAbsoluteUrl(null,'img/wa-logo.png');
 	
-	$scope.$watch(function () { 
-		var la = fragment.activityInstance;
-		return la?la.context.actions:null; 
-	}, function (newVal, oldVal) {
-		if (newVal) {			
-			$scope.fragmentActions = newVal;
-		} else {
-			$scope.fragmentActions = [];
-		}
-		$scope.toolbarVisible = $scope.fragmentActions.length>0;
-	},true);
+	var updateActions = function() {
+		setTimeout(function() {
+			if (fragment.activityInstance.context.actions) {			
+				$scope.fragmentActions = fragment.activityInstance.context.actions;
+			} else {
+				$scope.fragmentActions = [];
+			}
+			$scope.toolbarVisible = $scope.fragmentActions.length>0;
+			$scope.$apply();
+		},0);
+	};
 	
-	fragment.activityInstance.context.eventBus.on("actionsChanged",function(event,obj) {
-		$scope.$apply();
-	});
+	fragment.activityInstance.context.eventBus.on("actionsChanged",updateActions);
+	
+	if (fragment.activityInstance.context.actions) {			
+		$scope.fragmentActions = fragment.activityInstance.context.actions;
+		$scope.toolbarVisible = $scope.fragmentActions.length>0;
+	}
 	
 	$scope.executeAction = function(action) {
 		if (action.handler) {

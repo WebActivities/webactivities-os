@@ -7,26 +7,27 @@ angular.module('webActivitiesApp.toolbar', [])
 	
 	$scope.liveActivity = null;
 	
+	var updateActions = function() {
+		setTimeout(function() {
+			if ($scope.liveActivity.context.actions) {			
+				$scope.activityActions = $scope.liveActivity.context.actions;
+			} else {
+				$scope.activityActions = [];
+			}
+			$scope.$apply();
+		},0);
+	};
+	
 	var tracker = new LiveActivityTracker(framework.eventBus,
 		function(oldActivity) {
 			$scope.liveActivity = null;
 		},
 		function(newActivity) {
 			$scope.liveActivity = newActivity;
+			$scope.liveActivity.context.eventBus.on("actionsChanged",updateActions);
 		}
 	);
-	
-	$scope.$watch(function () { 
-		var la = $scope.liveActivity;
-		return la?la.context.actions:null; 
-	}, function (newVal, oldVal) {
-		if (newVal) {			
-			$scope.activityActions = newVal;
-		} else {
-			$scope.activityActions = [];
-		}
-	});
-	
+
 	$scope.activityStack = function() {
 		if (framework.getActivityStack() == null) {
 			return [];

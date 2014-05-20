@@ -68,6 +68,7 @@ var Activity3 = function(ctx) {
 		ctx.actions = [];
 	}
 	ctx.actions.push(azione);
+	ctx.eventBus.broadcast("actionsChanged");
 	
 };
 
@@ -195,7 +196,6 @@ var Activity1 = function(ctx) {
 	});
 
 	ctx.onShow(function() {
-		
 		if (!ctx.actions) {
 			ctx.actions = [];
 		}
@@ -207,7 +207,7 @@ var Activity1 = function(ctx) {
 				alert("azione X dell'activity "+ctx.getActivityInstanceId());
 			}
 		});
-		
+		ctx.eventBus.broadcast("actionsChanged");
 	});
 
 	ctx.onResume(function() {
