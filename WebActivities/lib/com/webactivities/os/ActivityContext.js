@@ -41,11 +41,10 @@ var ActivityContext = function(framework, activity, _closeDefer, $q) {
 	this.bus = framework.bus.createBus(this.activity.instanceId);
 
 	/**
-	 * Contains an instance of UICommunicator. Permit the communication with the
-	 * user interface.
+	 * Contains an instance of EventBus. Permit the firing of events outside this Activity.
 	 * 
-	 * @property communicator
-	 * @type UICommunicator
+	 * @property eventBus
+	 * @type EventBus
 	 */
 	this.eventBus = new EventBus($q);
 
@@ -166,5 +165,10 @@ var ActivityContext = function(framework, activity, _closeDefer, $q) {
 
 	this.getActivityInstanceId = function() {
 		return this.activity.instanceId;
+	};
+	
+	this.getService = function(appId, serviceName) {
+		var s = framework.getService(Utils.composeServiceId(appId,serviceName));
+		return s?s.instance:null;
 	};
 };

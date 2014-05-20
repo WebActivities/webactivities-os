@@ -9,7 +9,7 @@ angular.module('webActivitiesApp.toolbar', [])
 	
 	var updateActions = function() {
 		setTimeout(function() {
-			if ($scope.liveActivity.context.actions) {			
+			if ($scope.liveActivity && $scope.liveActivity.context.actions) {			
 				$scope.activityActions = $scope.liveActivity.context.actions;
 			} else {
 				$scope.activityActions = [];
@@ -21,6 +21,7 @@ angular.module('webActivitiesApp.toolbar', [])
 	var tracker = new LiveActivityTracker(framework.eventBus,
 		function(oldActivity) {
 			$scope.liveActivity = null;
+			updateActions();
 		},
 		function(newActivity) {
 			$scope.liveActivity = newActivity;

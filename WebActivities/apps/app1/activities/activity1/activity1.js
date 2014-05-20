@@ -53,22 +53,19 @@ var Activity3 = function(ctx) {
 		}
 	};
 	
+	var added=true;
 	var btnAct = $("<button type=\"button\" class=\"btn btn-sm btn-primary\">Rimuovi rimetti azione nella toolbar</button>").appendTo(container);
 	btnAct.click(function() {
-		var index = ctx.actions.indexOf(azione);
-		if (index!=-1) {
-			ctx.actions.splice(index,1);
-		} else {			
-			ctx.actions.push(azione);
-		}
-		ctx.eventBus.broadcast("actionsChanged");
+		if (added) {
+			ctx.getService("it.newt.system","ActionsService").removeActivityAction(ctx,azione);
+		} else {
+			ctx.getService("it.newt.system","ActionsService").addActivityAction(ctx,azione);
+		} 
+		added = !added;
 	});
 	
-	if (!ctx.actions) {
-		ctx.actions = [];
-	}
-	ctx.actions.push(azione);
-	ctx.eventBus.broadcast("actionsChanged");
+	
+	ctx.getService("it.newt.system","ActionsService").addActivityAction(ctx,azione);
 	
 };
 
@@ -196,10 +193,8 @@ var Activity1 = function(ctx) {
 	});
 
 	ctx.onShow(function() {
-		if (!ctx.actions) {
-			ctx.actions = [];
-		}
-		ctx.actions.push({
+		
+		ctx.getService("it.newt.system","ActionsService").addActivityAction(ctx,{
 			order: 1,
 			action: "azione X",
 			iconClass: "fa-comment",
@@ -207,7 +202,6 @@ var Activity1 = function(ctx) {
 				alert("azione X dell'activity "+ctx.getActivityInstanceId());
 			}
 		});
-		ctx.eventBus.broadcast("actionsChanged");
 	});
 
 	ctx.onResume(function() {
@@ -229,8 +223,8 @@ var Activity1 = function(ctx) {
 	container.append(fragment.getComponent().css({
 		width : "100%",
 		height : "200px",
-		margin : "1em 0",
-		border : "2px solid royalblue"
+		margin : "1em 0"
+		//border : "2px solid royalblue"
 	}));
 	
 
@@ -239,8 +233,8 @@ var Activity1 = function(ctx) {
 	container.append(fragment1.getComponent().css({
 		width : "100%",
 		height : "200px",
-		margin : "1em 0",
-		border : "2px solid royalblue"
+		margin : "1em 0"
+//		border : "2px solid royalblue"
 	}));
 
 	$("<button type=\"button\" class=\"btn btn-sm btn-primary\"><i class=\"glyphicon glyphicon-play\"></i></button>").appendTo(container).click(function() {

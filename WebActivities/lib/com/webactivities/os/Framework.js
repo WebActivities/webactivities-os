@@ -57,6 +57,14 @@ var Framework = function($q) {
 			return application.startService(serviceName, parameters, startOptions);
 		});
 	};
+	
+	this.getService = function(serviceId) {
+		return this.applicationRegistry.getService(serviceId);
+	};
+	
+	this.registerStartedService = function(service) {
+		this.applicationRegistry.registerStartedService(service);
+	};
 
 	this.pushLayer = function(options) {
 		return this.eventBus.broadcast("pushLayer", options || {});

@@ -6,6 +6,8 @@ var Service = function(framework, application, serviceDef, $q) {
 	this.serviceDef = serviceDef;
 	this.application = application;
 	this.context = new ServiceContext(framework, this, $q);
+	
+	this.instance = null;
 
 	this.create = function(parameters) {
 		if (this.status != null) {
@@ -24,7 +26,10 @@ var Service = function(framework, application, serviceDef, $q) {
 		}
 		return $q.when(this.context.getStart()(startOptions)).then(function() {			
 			self.status = Service.status.STARTED;
-			return framework.eventBus.broadcast('serviceStarted',this);
+			framework.registerStartedService(self);
+			return framework.eventBus.broadcast('serviceStarted',this).then(function() {
+				return self;
+			});
 		});
 	};
 

@@ -29,7 +29,7 @@ var Application = function(framework, appDefinition, $q) {
 		$.each(appDefinition.services, function(i, item) {
 			Service.completeServiceDefinition(framework, self, item);
 			self.servicesDefinitions[item.id] = item;
-			Logger.log("Registered service <" + item.id + "> ", item);
+			Logger.log("Discovered service <" + item.id + "> ", item);
 		});
 	}
 
@@ -116,9 +116,17 @@ var Application = function(framework, appDefinition, $q) {
 	};
 
 	this.checkAutostartServices = function() {
+		var action= null;
+		// li fa partire in sequenza, non in parallelo!
 		$.each(this.servicesDefinitions, function(k, v) {
 			if (v.autostart) {
-				self.startService(v.name, {}, {});
+				if (!action) {
+					action = self.startService(v.name, {}, {}); 
+				} else {
+					action.then(function() {
+						return self.startService(v.name, {}, {});
+					});
+				}
 			}
 		});
 	};

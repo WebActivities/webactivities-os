@@ -1,5 +1,5 @@
 {
-	"id" : "it.webactivities.system",
+	"id" : "it.newt.system",
 	"name" : "System App",
 	"description": "System App",
 	"icon" : "/res/app.png",
@@ -10,10 +10,17 @@
 		"/res/jquery.ba-throttle-debounce.min.js",
 		"/res/jquery.scrollintoview.min.js",
 		"/systemApp.js",
+		"/actionsService.js",
 		"/searchService.js",
 		"/themeService.js"
     ],
     "services" : [{
+    	"name": "ActionsService",
+		"description" : "Servizio per gestione Azioni sulla toolbar",
+		"icon" : "/res/activity.png",
+		"activator" : "ActionsService",
+		"autostart" : true
+    },{
     	"name": "SearchService",
 		"description" : "Servizio per gestione Ricerca su tutto applicativo",
 		"icon" : "/res/activity.png",

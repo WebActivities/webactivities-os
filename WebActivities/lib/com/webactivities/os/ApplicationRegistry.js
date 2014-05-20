@@ -2,6 +2,9 @@ var ApplicationRegistry = function(framework) {
 
 	var installedApplications = {};
 	var activitiesDefinitions = {};
+	
+	var runningServicesInstances = {};
+	
 
 	this.getInstalledApplication = function() {
 		return $.extend({}, installedApplication);
@@ -39,5 +42,20 @@ var ApplicationRegistry = function(framework) {
 		}
 		return app;
 	};
+	
+	this.getService = function(serviceId) {
+		return runningServicesInstances[serviceId];
+	};
 
+	this.registerStartedService = function(service) {
+		var id = service.serviceDef.id;
+		var s = this.getService(id);
+		if (s!=null) {
+			Logger.error("Service <" + id + "> is already registered, remember that services are singletons!");
+			return;
+		}
+		runningServicesInstances[id] = service;
+		Logger.log("Registered service <" + id + "> ", service);
+	};
+	
 };

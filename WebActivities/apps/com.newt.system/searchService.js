@@ -1,7 +1,8 @@
 var SearchService = function(ctx) {
 	
 	var onStart = function() {	
-		ctx.bus.publish("com.newt.system.toolbar.actions", {
+
+		ctx.getService("it.newt.system","ActionsService").addPermanentAction(ctx,{
 			action: "search",
 			iconClass: "fa-search",
 			handler: function(e) {

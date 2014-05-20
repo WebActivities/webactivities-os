@@ -64,4 +64,8 @@ var ServiceContext = function(framework, service, $q) {
 		return Utils.toAbsoluteUrl(service.application,path);
 	};
 	
+	this.getService = function(appId, serviceName) {
+		var s = framework.getService(Utils.composeServiceId(appId,serviceName));
+		return s?s.instance:null;
+	};
 };
