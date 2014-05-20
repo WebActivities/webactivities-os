@@ -45,6 +45,8 @@
             
                 <li><a href="../classes/ActivityContext.html">ActivityContext</a></li>
             
+                <li><a href="../classes/UICommunicator.html">UICommunicator</a></li>
+            
             </ul>
 
             <ul id="api-modules" class="apis modules">
@@ -93,12 +95,14 @@
 <div class="file">
     <pre class="code prettyprint linenums">
 /**
-* Activity Context
-*
-* @class ActivityContext
-* @module Context
-* @constructor
-*/
+ * Provide the base Activity functionality. Permit the collaboration of activity
+ * with newt framework.&lt;br /&gt;
+ * This object is the first argument of the activity constructor.
+ * 
+ * @class ActivityContext
+ * @module Context
+ * @constructor
+ */
 var ActivityContext = function(framework, activity, _closeDefer, $q) {
 
 	var _stop = function() {
@@ -119,45 +123,49 @@ var ActivityContext = function(framework, activity, _closeDefer, $q) {
 
 	var _result = null;
 
-	var writeActivityStartingDoc = function(iframe, activity) {
-		var doc = iframe.contentWindow.window.document;
-		doc.open();
-		doc.write(&quot;&lt;html&gt;&quot;);
-		doc.write(&quot;&lt;head&gt;&quot;);
-		if (activity.seamless) {
-			doc.write(&quot;&lt;link rel=\&quot;stylesheet\&quot; href=\&quot;css/yeti.bootstrap.min.css\&quot; /&gt;&quot;);
-		}
-		doc.write(&quot;&lt;base href=\&quot;&quot; + activity.path + &quot;/\&quot;&gt;&quot;);
-		doc.write(&quot;&lt;script type=\&quot;text/javascript\&quot;&gt;&quot;);
-		doc.write(&quot;var top = null;&quot;);
-		doc.write(&quot;var opener = null;&quot;);
-		doc.write(&quot;window.parent = null;&quot;);
-		doc.write(&quot;window.opener = null;&quot;);
-		doc.write(&quot;&lt;/script&gt;&quot;);
-		doc.write(&quot;&lt;/head&gt;&quot;);
-		doc.write(&quot;&lt;body&gt;&quot;);
-		doc.write(&quot;&lt;div id=\&quot;internalViewport\&quot; &quot;);
-		if (activity.seamless) {
-			doc.write(&quot; class=\&quot;container-fluid\&quot;&quot;);
-		}
-		doc.write(&quot;&gt;&lt;/div&gt;&quot;);
-		doc.write(&quot;&lt;/body&gt;&quot;);
-		doc.write(&quot;&lt;/html&gt;&quot;);
-		doc.close();
-	};
-
-	this.fragments = [];
-
 	this.activity = activity;
 
-	this.bus = framework.bus.createBus();
+	/**
+	 * Contains an instance of ActivityBus. Permit the communication with other
+	 * components of framework.
+	 * 
+	 * @property bus
+	 * @type ActivityBus
+	 * @example ctx.bus.publish(&quot;com.newt.system.toolbar.actions&quot;, {..options..}
+	 *          });
+	 */
+	this.bus = framework.bus.createBus(this.activity.instanceId);
 
+	/**
+	 * Contains an instance of UICommunicator. Permit the communication with the
+	 * user interface.
+	 * 
+	 * @property communicator
+	 * @type UICommunicator
+	 */
 	this.communicator = new UICommunicator(framework);
 
+	/**
+	 * Returns the promise/deferred instance for the management of the activity
+	 * closure. &lt;br /&gt;
+	 * Currently use $q AngularJs implementation. View
+	 * https://docs.angularjs.org/api/ng/service/$q for more details.
+	 * 
+	 * @method getCloseDefer
+	 * @return {Defer} The defer for manage promise
+	 */
 	this.getCloseDefer = function() {
 		return _closeDefer;
 	};
 
+	/**
+	 * This method is used for set the activity result. Can be changed any time
+	 * and the value set at activity closure is returned to parent. closure.
+	 * 
+	 * @method setResult
+	 * @param {Object} result
+	 *            The object result
+	 */
 	this.setResult = function(result) {
 		_result = result;
 	};
@@ -205,36 +213,31 @@ var ActivityContext = function(framework, activity, _closeDefer, $q) {
 		return _pause;
 	};
 
-	this.createFragment = function(app, activity, parameters) {
-		var f = new Fragment(framework, this);
-		f.app = app;
-		f.activity = activity;
-		f.parameters = parameters;
-		this.fragments.push(f);
-		return f;
+	this.createFragment = function(appId, activityName, parameters) {
+		return this.activity.createFragment(appId, activityName, parameters);
 	};
 
-	this.newActivityIntent = function(app, activity, parameters) {
+	this.newActivityIntent = function(appId, activityName, parameters) {
 		var i = new Intent(IntentType.START_ACTIVITY, framework);
-		i.activity = activity;
+		i.activity = activityName;
 		i.parameters = parameters;
-		i.app = app;
+		i.app = appId;
 		return i;
 	};
 
-	this.newActivityIntentAsRoot = function(app, activity, parameters) {
+	this.newActivityIntentAsRoot = function(appId, activityName, parameters) {
 		var i = new Intent(IntentType.START_ACTIVITY, framework);
-		i.activity = activity;
+		i.activity = activityName;
 		i.parameters = parameters;
-		i.app = app;
+		i.app = appId;
 		i.startMode = &quot;ROOT&quot;;
 		return i;
 	};
-	this.newActivityIntentAsPopup = function(app, activity, parameters) {
+	this.newActivityIntentAsPopup = function(appId, activityName, parameters) {
 		var i = new Intent(IntentType.START_ACTIVITY, framework);
-		i.activity = activity;
+		i.activity = activityName;
 		i.parameters = parameters;
-		i.app = app;
+		i.app = appId;
 		i.startMode = &quot;CHILD_POPUP&quot;;
 		return i;
 	};
@@ -250,41 +253,7 @@ var ActivityContext = function(framework, activity, _closeDefer, $q) {
 	};
 
 	this.prepareView = function(url) {
-		var viewDeferred = $q.defer();
-		var iframe = $(&quot;&lt;iframe&gt;&lt;/iframe&gt;&quot;)[0];
-		var self = this;
-		this.activity.iframe = iframe;
-		$(iframe).on(&quot;attached&quot;, function() {
-			$(iframe).load(function() {
-				var viewport = $(iframe).contents().find(&quot;#internalViewport&quot;)[0];
-				if (url) {
-					$(viewport).load(url, function() {
-						viewDeferred.resolve(viewport);
-						self.communicator.broadcast(&quot;iframeLoaded&quot;, {});
-					});
-				} else {
-					viewDeferred.resolve(viewport);
-					self.communicator.broadcast(&quot;iframeLoaded&quot;, {});
-				}
-			});
-			writeActivityStartingDoc(iframe, self.activity);
-		});
-		this.broadcastDisplayView(iframe);
-
-		return viewDeferred.promise;
-	};
-
-	this.broadcastDisplayView = function(iframe) {
-		var self = this;
-		framework.uiCommunicator.broadcast(&#x27;displayActivity&#x27;, {
-			view : iframe,
-			activity : self.activity.activity
-		}).then(function() {
-			self.activity.status = Activity.status.ACTIVE;
-			$q.when(self.activity.context.getShow()()).then(function() {
-				self.communicator.broadcast(&quot;activityDisplayed&quot;, {});
-			});
-		});
+		return activity.prepareView(url);
 	};
 
 	this.notify = function(type, message, options) {

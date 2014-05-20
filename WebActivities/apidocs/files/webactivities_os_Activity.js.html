@@ -45,6 +45,8 @@
             
                 <li><a href="../classes/ActivityContext.html">ActivityContext</a></li>
             
+                <li><a href="../classes/UICommunicator.html">UICommunicator</a></li>
+            
             </ul>
 
             <ul id="api-modules" class="apis modules">
@@ -109,28 +111,56 @@ var Activity = function(framework, application, activityDef, closeDefer, $q) {
 	this.openMode = null;
 
 	this.activityDef = activityDef;
+	
+	/**
+	 * L&#x27;uiCommunicator che usa questa activity per fare il broadcast degli eventi di:
+	 * - activityDisplayed
+	 * - displayActivity
+	 * - iframeLoaded
+	 * - activityStarted
+	 * 
+	 * @property uiCommunicator
+	 * @type {Object}
+	 */
+	this.uiCommunicator = framework.uiCommunicator;
 
 	/**
 	 * Connected iframe to Actvitity
 	 * 
 	 * @property iframe
 	 * @type {Object}
-	 * @default &quot;null&quot;
 	 */
 	this.iframe = null;
 
 	/**
-	 * My property description. Like other pieces of your comment blocks, this
-	 * can span multiple lines.
+	 * l&#x27;ActivityContext l&#x27;API esposta verso l&#x27;interno
+	 * dell&#x27;activity
 	 * 
 	 * @property propertyName
 	 * @type {Object}
-	 * @default &quot;foo&quot;
 	 */
 	this.context = framework.createContext(self, closeDefer, $q);
 
+	/**
+	 * l&#x27;istanza dell&#x27;oggetto specificato sull&#x27;Activator del manifest 
+	 * instanziato dentro l&#x27;iframe tramite una new
+	 * 
+	 * @property instance
+	 * @type {Object}
+	 */
 	this.instance = null;
+	
 	this.status = null;
+	
+	/**
+	 * I fragments che vivono all&#x27;interno di questa Activity
+	 * 
+	 * @property fragments
+	 * @type {Object}
+	 * @default &quot;foo&quot;
+	 */
+	this.fragments = [];
+
 
 	/**
 	 * Start an Activity
@@ -148,7 +178,7 @@ var Activity = function(framework, application, activityDef, closeDefer, $q) {
 		return startMode(this, startOptions).then(function() {
 			self.status = Activity.status.CREATED;
 			self.instance = self.instantiate(self.context, parameters);
-			framework.uiCommunicator.broadcast(&#x27;activityStarted&#x27;, self);
+			self.uiCommunicator.broadcast(&#x27;activityStarted&#x27;, self);
 		});
 	};
 
@@ -156,36 +186,204 @@ var Activity = function(framework, application, activityDef, closeDefer, $q) {
 		return new application.iframe[0].contentWindow.window[activityDef.activator](context, parameters);
 	};
 
+	
 	this.stop = function() {
-		var d = framework.$q.defer();
-		var self = this;
-		framework.activityStopper.stop(this).then(function() {
+		
+		var promises = [ $q.when(this.context.getStop()()) ];
+
+		for (var i in this.fragments) {
+			promises.push($q.when(this.fragments[i].stop()));
+		}
+		
+		var stopAction = $q.all(promises);
+		
+		stopAction.then(function() {
+			self.context.bus.destroy();
+		});
+		
+		stopAction.then(function() {
+			return self.uiCommunicator.broadcast(&#x27;destroyActivity&#x27;, {
+				view : self.iframe,
+				activity : self
+			});
+		});
+		
+		if (!this.isFragment) {
+			
+			stopAction.then(function() {
+				framework.activityStack.pop();
+			});
+			
+			var disableEffects = false;
+			if (this.openMode == &#x27;CHILD_POPUP&#x27;) {
+				disableEffects=true;
+				stopAction.then(function() {
+					return framework.popLayer();
+				});
+			}
+			stopAction.then(function() {
+				return framework.resumeActivity({
+					disableEffects : disableEffects
+				});
+			});
+		}
+		
+		stopAction.then(function() {
+			self.context.getCloseDefer().resolve(self.context.getResult());
+		});
+		
+		stopAction.then(function() {
 			self.status = Activity.status.STOPPED;
-			d.resolve();
 		});
-		return d.promise;
+		
+		return stopAction;
 	};
-
+	
 	this.pause = function(options) {
-		var d = framework.$q.defer();
-		var self = this;
-		framework.activityPauser.pause(this, options).then(function() {
+		
+		var promises = [ $q.when(this.context.getPause()()) ];
+		
+		for (var i in this.fragments) {
+			promises.push($q.when(this.fragments[i].pause()));
+		}
+		
+		var pauseAction = $q.all(promises);
+		
+		if (options &amp;&amp; options.mode == &#x27;hidden&#x27;) {
+			pauseAction.then(function() {
+				return self.uiCommunicator.broadcast(&#x27;hideActivity&#x27;, {
+					view : self.iframe,
+					activity : self
+				});
+			});
+		}
+		
+		pauseAction.then(function() {
+			return self.uiCommunicator.broadcast(&#x27;pausedActivity&#x27;,self);
+		});
+		
+		pauseAction.then(function() {
 			self.status = Activity.status.PAUSED;
-			d.resolve();
 		});
-		return d.promise;
+		return pauseAction;
 	};
-
+	
 	this.resume = function(options) {
-		var d = framework.$q.defer();
-		var self = this;
-		framework.activityResumer.resume(this, options).then(function() {
+		
+		var promises = [ $q.when(this.context.getResume()()) ];
+		
+		for (var i in this.fragments) {
+			promises.push($q.when(this.fragments[i].resume()));
+		}
+		
+		var resumeAction = $q.all(promises);
+		
+		if (!this.isFragment) {
+			resumeAction.then(function() {
+				self.uiCommunicator.broadcast(&#x27;displayActivity&#x27;, {
+					view : self.iframe,
+					activity : self,
+					disableEffects : options?options.disableEffects:null
+				});
+			});
+		}
+		
+		resumeAction.then(function() {
 			self.status = Activity.status.ACTIVE;
-			d.resolve();
 		});
-		return d.promise;
+		
+		resumeAction.then(function() {
+			return self.uiCommunicator.broadcast(&#x27;resumedActivity&#x27;,self);
+		});
+		
+		return resumeAction;
+	};
+	
+	this.setCurrentTheme = function(theme) {
+		if (this.seamless) {
+			var doc = $(this.iframe.contentWindow.document);
+			doc.find(&quot;link[data-newt-theme]&quot;).remove();
+			doc.find(&quot;head&quot;).append(&quot;&lt;link rel=\&quot;stylesheet\&quot; data-newt-theme href=\&quot;&quot;+theme.link+&quot;\&quot; /&gt;&quot;);
+		}
+		$.each(this.fragments,function(i,f) {
+			f.setCurrentTheme(theme);
+		});
+	};
+	
+	this.prepareView = function(url) {
+		var self = this;
+		var viewDeferred = $q.defer();
+		this.iframe = $(&quot;&lt;iframe&gt;&lt;/iframe&gt;&quot;)[0];
+		var jIframe = $(this.iframe);
+		jIframe.on(&quot;attached&quot;, function() {
+			jIframe.load(function() {
+				var viewport = jIframe.contents().find(&quot;#internalViewport&quot;)[0];
+				if (url) {
+					$(viewport).load(url, function() {
+						viewDeferred.resolve(viewport);
+						self.uiCommunicator.broadcast(&quot;iframeLoaded&quot;, {});
+					});
+				} else {
+					viewDeferred.resolve(viewport);
+					self.uiCommunicator.broadcast(&quot;iframeLoaded&quot;, {});
+				}
+			});
+			self.writeActivityStartingDoc();
+		});
+		this.doDisplayView();
+		return viewDeferred.promise;
+	};
+	
+	this.doDisplayView = function() {
+		var self = this;
+		self.uiCommunicator.broadcast(&#x27;displayActivity&#x27;, {
+			view : self.iframe,
+			activity : self
+		}).then(function() {
+			self.status = Activity.status.ACTIVE;
+			$q.when(self.context.getShow()()).then(function() {
+				self.uiCommunicator.broadcast(&quot;activityDisplayed&quot;, {});
+			});
+		});
 	};
 
+	this.writeActivityStartingDoc = function() {
+		var doc = this.iframe.contentWindow.window.document;
+		doc.open();
+		doc.write(&quot;&lt;html&gt;&quot;);
+		doc.write(&quot;&lt;head&gt;&quot;);
+		if (this.seamless) {
+			var theme = framework.getCurrentTheme();
+			doc.write(&quot;&lt;link rel=\&quot;stylesheet\&quot; data-newt-theme href=\&quot;&quot;+theme.link+&quot;\&quot; /&gt;&quot;);
+		}
+		doc.write(&quot;&lt;base href=\&quot;&quot; + this.path + &quot;/\&quot;&gt;&quot;);
+		doc.write(&quot;&lt;script type=\&quot;text/javascript\&quot;&gt;&quot;);
+		doc.write(&quot;var top = null;&quot;);
+		doc.write(&quot;var opener = null;&quot;);
+		doc.write(&quot;window.parent = null;&quot;);
+		doc.write(&quot;window.opener = null;&quot;);
+		doc.write(&quot;&lt;/script&gt;&quot;);
+		doc.write(&quot;&lt;/head&gt;&quot;);
+		doc.write(&quot;&lt;body&gt;&quot;);
+		doc.write(&quot;&lt;div id=\&quot;internalViewport\&quot; &quot;);
+		if (this.seamless) {
+			doc.write(&quot; class=\&quot;container-fluid\&quot;&quot;);
+		}
+		doc.write(&quot;&gt;&lt;/div&gt;&quot;);
+		doc.write(&quot;&lt;/body&gt;&quot;);
+		doc.write(&quot;&lt;/html&gt;&quot;);
+		doc.close();
+	};
+	
+	this.createFragment = function(appId, activityName, parameters) {
+		var f = new Fragment(framework, this);
+		f.app = appId;
+		f.activity = activityName;
+		f.parameters = parameters;
+		this.fragments.push(f);
+		return f;
+	};
+	
 };
 
 /**

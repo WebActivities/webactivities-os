@@ -2,7 +2,8 @@ YUI.add("yuidoc-meta", function(Y) {
    Y.YUIDoc = { meta: {
     "classes": [
         "Activity",
-        "ActivityContext"
+        "ActivityContext",
+        "UICommunicator"
     ],
     "modules": [
         "Activity",
@@ -17,7 +18,7 @@ YUI.add("yuidoc-meta", function(Y) {
         {
             "displayName": "Context",
             "name": "Context",
-            "description": "Activity Context"
+            "description": "Provide the base Activity functionality. Permit the collaboration of activity\nwith newt framework.<br />\nThis object is the first argument of the activity constructor."
         }
     ]
 } };
