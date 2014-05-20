@@ -1,10 +1,12 @@
 /**
-* Activity Context
-*
-* @class ActivityContext
-* @module Context
-* @constructor
-*/
+ * Provide the base Activity functionality. Permit the collaboration of activity
+ * with newt framework.<br />
+ * This object is the first argument of the activity constructor.
+ * 
+ * @class ActivityContext
+ * @module Context
+ * @constructor
+ */
 var ActivityContext = function(framework, activity, _closeDefer, $q) {
 
 	var _stop = function() {
@@ -27,14 +29,47 @@ var ActivityContext = function(framework, activity, _closeDefer, $q) {
 
 	this.activity = activity;
 
+	/**
+	 * Contains an instance of ActivityBus. Permit the communication with other
+	 * components of framework.
+	 * 
+	 * @property bus
+	 * @type ActivityBus
+	 * @example ctx.bus.publish("com.newt.system.toolbar.actions", {..options..}
+	 *          });
+	 */
 	this.bus = framework.bus.createBus(this.activity.instanceId);
 
+	/**
+	 * Contains an instance of UICommunicator. Permit the communication with the
+	 * user interface.
+	 * 
+	 * @property communicator
+	 * @type UICommunicator
+	 */
 	this.communicator = new UICommunicator(framework);
 
+	/**
+	 * Returns the promise/deferred instance for the management of the activity
+	 * closure. <br />
+	 * Currently use $q AngularJs implementation. View
+	 * https://docs.angularjs.org/api/ng/service/$q for more details.
+	 * 
+	 * @method getCloseDefer
+	 * @return {Defer} The defer for manage promise
+	 */
 	this.getCloseDefer = function() {
 		return _closeDefer;
 	};
 
+	/**
+	 * This method is used for set the activity result. Can be changed any time
+	 * and the value set at activity closure is returned to parent. closure.
+	 * 
+	 * @method setResult
+	 * @param {Object} result
+	 *            The object result
+	 */
 	this.setResult = function(result) {
 		_result = result;
 	};
@@ -128,5 +163,5 @@ var ActivityContext = function(framework, activity, _closeDefer, $q) {
 	this.notify = function(type, message, options) {
 		return framework.notifyManager.notify(type, message, options);
 	};
-	
+
 };

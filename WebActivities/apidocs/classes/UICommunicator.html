@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>ActivityContext - Newt API</title>
+    <title>UICommunicator - Newt API</title>
     <link rel="stylesheet" href="http://yui.yahooapis.com/3.9.1/build/cssgrids/cssgrids-min.css">
     <link rel="stylesheet" href="../assets/vendor/prettify/prettify-min.css">
     <link rel="stylesheet" href="../assets/css/main.css" id="site_styles">
@@ -90,7 +90,7 @@
             <div class="apidocs">
                 <div id="docs-main">
                     <div class="content">
-                        <h1>ActivityContext Class</h1>
+                        <h1>UICommunicator Class</h1>
 <div class="box meta">
     
 
@@ -98,7 +98,7 @@
 
     
         <div class="foundat">
-            Defined in: <a href="../files/webactivities_os_ActivityContext.js.html#l1"><code>webactivities\os\ActivityContext.js:1</code></a>
+            Defined in: <a href="../files/webactivities_os_UICommunicator.js.html#l1"><code>webactivities\os\UICommunicator.js:1</code></a>
         </div>
     
 
@@ -114,17 +114,15 @@
 
 
 <div class="box intro">
-    <p>Provide the base Activity functionality. Permit the collaboration of activity
-with newt framework.<br />
-This object is the first argument of the activity constructor.</p>
+    <p>UICommunicator</p>
 
 </div>
 
 
     <div class="constructor">
         <h2>Constructor</h2>
-        <div id="method_ActivityContext" class="method item">
-    <h3 class="name"><code>ActivityContext</code></h3>
+        <div id="method_UICommunicator" class="method item">
+    <h3 class="name"><code>UICommunicator</code></h3>
 
     
         <span class="paren">()</span>
@@ -155,7 +153,7 @@ This object is the first argument of the activity constructor.</p>
             
         
         
-        <a href="../files/webactivities_os_ActivityContext.js.html#l1"><code>webactivities\os\ActivityContext.js:1</code></a>
+        <a href="../files/webactivities_os_UICommunicator.js.html#l1"><code>webactivities\os\UICommunicator.js:1</code></a>
         
         </p>
 
@@ -204,14 +202,14 @@ This object is the first argument of the activity constructor.</p>
                     <ul class="index-list methods">
                         
                             <li class="index-item method">
-                                <a href="#method_getCloseDefer">getCloseDefer</a>
+                                <a href="#method_syncTopic">syncTopic</a>
 
                                 
                                 
                             </li>
                         
                             <li class="index-item method">
-                                <a href="#method_setResult">setResult</a>
+                                <a href="#method_toJSON">toJSON</a>
 
                                 
                                 
@@ -228,14 +226,7 @@ This object is the first argument of the activity constructor.</p>
                     <ul class="index-list properties">
                         
                             <li class="index-item property">
-                                <a href="#property_bus">bus</a>
-
-                                
-                                
-                            </li>
-                        
-                            <li class="index-item property">
-                                <a href="#property_communicator">communicator</a>
+                                <a href="#property_publisherId">publisherId</a>
 
                                 
                                 
@@ -255,8 +246,64 @@ This object is the first argument of the activity constructor.</p>
                 <h2 class="off-left">Methods</h2>
 
                 
-                    <div id="method_getCloseDefer" class="method item">
-    <h3 class="name"><code>getCloseDefer</code></h3>
+                    <div id="method_syncTopic" class="method item">
+    <h3 class="name"><code>syncTopic</code></h3>
+
+    
+        <span class="paren">()</span>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/webactivities_os_Bus.js.html#l202"><code>webactivities\os\Bus.js:202</code></a>
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>Sincronizza l&#39;array passato sul topic specificato.
+Chiama l&#39;onChange quando ci sono modifiche.</p>
+
+    </div>
+
+    
+
+    
+
+    
+</div>
+
+                
+                    <div id="method_toJSON" class="method item">
+    <h3 class="name"><code>toJSON</code></h3>
 
     
         <span class="paren">()</span>
@@ -264,7 +311,7 @@ This object is the first argument of the activity constructor.</p>
 
     
         <span class="returns-inline">
-            <span class="type">Defer</span>
+            <span class="type">ComponentBus</span>
         </span>
     
 
@@ -291,7 +338,7 @@ This object is the first argument of the activity constructor.</p>
             
         
         
-        <a href="../files/webactivities_os_ActivityContext.js.html#l52"><code>webactivities\os\ActivityContext.js:52</code></a>
+        <a href="../files/webactivities_os_Framework.js.html#l24"><code>webactivities\os\Framework.js:24</code></a>
         
         </p>
 
@@ -302,10 +349,7 @@ This object is the first argument of the activity constructor.</p>
     </div>
 
     <div class="description">
-        <p>Returns the promise/deferred instance for the management of the activity
-closure. <br />
-Currently use $q AngularJs implementation. View
-<a href="https://docs.angularjs.org/api/ng/service/$q">https://docs.angularjs.org/api/ng/service/$q</a> for more details.</p>
+        <p>Ritorna il componentBus interno usato dal framework per pubblicare e sottoscrivere topic</p>
 
     </div>
 
@@ -318,103 +362,11 @@ Currently use $q AngularJs implementation. View
             <div class="returns-description">
                 
                     
-                        <span class="type">Defer</span>:
+                        <span class="type">ComponentBus</span>:
                     
-                    <p>The defer for manage promise</p>
-
                 
             </div>
         </div>
-    
-
-    
-</div>
-
-                
-                    <div id="method_setResult" class="method item">
-    <h3 class="name"><code>setResult</code></h3>
-
-    
-        <div class="args">
-            <span class="paren">(</span><ul class="args-list inline commas">
-            
-                <li class="arg">
-                    
-                        <code>result</code>
-                    
-                </li>
-            
-            </ul><span class="paren">)</span>
-        </div>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    <div class="meta">
-        
-            
-                
-                <p>
-                
-                Defined in
-                
-            
-        
-        
-        <a href="../files/webactivities_os_ActivityContext.js.html#l65"><code>webactivities\os\ActivityContext.js:65</code></a>
-        
-        </p>
-
-
-        
-
-        
-    </div>
-
-    <div class="description">
-        <p>This method is used for set the activity result. Can be changed any time
-and the value set at activity closure is returned to parent. closure.</p>
-
-    </div>
-
-    
-        <div class="params">
-            <h4>Parameters:</h4>
-
-            <ul class="params-list">
-            
-                <li class="param">
-                    
-                        <code class="param-name">result</code>
-                        <span class="type">Object</span>
-                    
-
-                    
-
-                    <div class="param-description">
-                        <p>The object result</p>
-
-                    </div>
-
-                    
-                </li>
-            
-            </ul>
-        </div>
-    
-
     
 
     
@@ -429,9 +381,9 @@ and the value set at activity closure is returned to parent. closure.</p>
                 <h2 class="off-left">Properties</h2>
 
                 
-                    <div id="property_bus" class="property item">
-    <h3 class="name"><code>bus</code></h3>
-    <span class="type">ActivityBus</span>
+                    <div id="property_publisherId" class="property item">
+    <h3 class="name"><code>publisherId</code></h3>
+    <span class="type">String</span>
 
     
 
@@ -452,7 +404,7 @@ and the value set at activity closure is returned to parent. closure.</p>
             
         
         
-        <a href="../files/webactivities_os_ActivityContext.js.html#l32"><code>webactivities\os\ActivityContext.js:32</code></a>
+        <a href="../files/webactivities_os_Bus.js.html#l125"><code>webactivities\os\Bus.js:125</code></a>
         
         </p>
 
@@ -462,64 +414,7 @@ and the value set at activity closure is returned to parent. closure.</p>
     </div>
 
     <div class="description">
-        <p>Contains an instance of ActivityBus. Permit the communication with other
-components of framework.</p>
-
-    </div>
-
-    
-
-    
-        <div class="example">
-            <h4>Example:</h4>
-
-            <div class="example-content">
-                <p> ctx.bus.publish(&quot;com.newt.system.toolbar.actions&quot;, {..options..}
-         });</p>
-
-            </div>
-        </div>
-    
-
-    
-</div>
-
-                
-                    <div id="property_communicator" class="property item">
-    <h3 class="name"><code>communicator</code></h3>
-    <span class="type"><a href="../classes/UICommunicator.html" class="crosslink">UICommunicator</a></span>
-
-    
-
-    
-
-    
-
-    
-
-    <div class="meta">
-        
-            
-                
-                <p>
-                
-                Defined in
-                
-            
-        
-        
-        <a href="../files/webactivities_os_ActivityContext.js.html#l43"><code>webactivities\os\ActivityContext.js:43</code></a>
-        
-        </p>
-
-        
-
-        
-    </div>
-
-    <div class="description">
-        <p>Contains an instance of UICommunicator. Permit the communication with the
-user interface.</p>
+        <p>L&#39;id del publisher che usa questo ComponentBus.</p>
 
     </div>
 
