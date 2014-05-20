@@ -9,14 +9,19 @@ var Activity1 = function(context) {
 	context.setResult("oooo");
 	
 	context.onShow(function() {
-		context.bus.publish("com.newt.system.toolbar.actions", {
+		
+		if (!ctx.actions) {
+			ctx.actions = [];
+		}
+		ctx.actions.push({
 			order: 1,
-			action: "search",
+			action: "azione X",
 			iconClass: "fa-search",
 			handler: function(e) {
-				alert("azione di Activity 1");
+				alert("azione X dell'activity "+ctx.getActivityInstanceId());
 			}
 		});
+
 	});
 	
 };

@@ -59,31 +59,5 @@ var ActivityStarter = function(framework) {
 
 };
 
-/*
-var ActivityResumer = function(framework) {
-
-	this.resume = function(activity, options) {
-		var d = framework.$q.defer();
-		var context = activity.context;
-		
-		var promises = [ context.getResume()() ];
-
-		for (var i in activity.fragments) {
-			promises.push(activity.fragments[i].resume());
-		}
-		
-		framework.$q.when(promises).then(function() {
-			framework.uiCommunicator.broadcast('displayActivity', {
-				view : activity.iframe,
-				activity : activity,
-				disableEffects : options.disableEffects
-			}).then(function() {
-				d.resolve();
-			});
-		});
-		return d.promise;
-	};
-};
-*/
 
 

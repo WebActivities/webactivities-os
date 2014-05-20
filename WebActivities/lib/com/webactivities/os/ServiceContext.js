@@ -31,7 +31,7 @@ var ServiceContext = function(framework, service, $q) {
 	};
 
 	this.notify = function(type, message, options) {
-		return framework.uiCommunicator.notify(type, message, options);
+		return framework.eventBus.notify(type, message, options);
 	};
 	
 	this.framework = function() {

@@ -2,6 +2,7 @@ var BusNotifyType = {
 	ADD : 0,
 	REMOVE : 2
 };
+
 var Bus = function() {
 
 	this.data = {};
@@ -206,7 +207,7 @@ var ComponentBus = function(bus,publisherId) {
 	 * @method syncTopic
 	 */
 	this.syncTopic = function(topic,arrayTosync,onChange,includePubsInfo) {
-		this.subscribeTopic(topic, function(added,removed) {
+		return this.subscribeTopic(topic, function(added,removed) {
 			$.each(added,function(i,a) {
 				arrayTosync.push(a);
 			});

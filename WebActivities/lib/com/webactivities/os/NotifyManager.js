@@ -16,7 +16,7 @@ var NotifyManager = function(framework) {
 			message : message,
 			options : options
 		});
-		return framework.uiCommunicator.broadcast("showNotify", {
+		return framework.eventBus.broadcast("showNotify", {
 			type : type,
 			message : message,
 			options : options

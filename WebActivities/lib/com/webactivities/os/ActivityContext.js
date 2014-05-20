@@ -47,7 +47,7 @@ var ActivityContext = function(framework, activity, _closeDefer, $q) {
 	 * @property communicator
 	 * @type UICommunicator
 	 */
-	this.communicator = new UICommunicator(framework);
+	this.eventBus = new EventBus($q);
 
 	/**
 	 * Returns the promise/deferred instance for the management of the activity
@@ -164,4 +164,7 @@ var ActivityContext = function(framework, activity, _closeDefer, $q) {
 		return framework.notifyManager.notify(type, message, options);
 	};
 
+	this.getActivityInstanceId = function() {
+		return this.activity.instanceId;
+	};
 };

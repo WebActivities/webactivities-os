@@ -3,56 +3,30 @@
 
 angular.module('webActivitiesApp.toolbar', [])
 
-.service('ToolbarService', ['$rootScope','framework', '$q', function($rootScope, framework, $q) {
+.controller('ToolbarCtrl', [ '$rootScope', '$scope', 'framework', '$q', function($rootScope, $scope, framework, $q ) {
 	
-	var toolbarActionsPubs = [];
+	$scope.liveActivity = null;
 	
-	/*
-	framework.uiCommunicator.on('displayActivity', function(event, o) {
-		showActivityActions(o.activity);
+	var tracker = new LiveActivityTracker(framework.eventBus,
+		function(oldActivity) {
+			$scope.liveActivity = null;
+		},
+		function(newActivity) {
+			$scope.liveActivity = newActivity;
+		}
+	);
+	
+	$scope.$watch(function () { 
+		var la = $scope.liveActivity;
+		return la?la.context.actions:null; 
+	}, function (newVal, oldVal) {
+		if (newVal) {			
+			$scope.activityActions = newVal;
+		} else {
+			$scope.activityActions = [];
+		}
 	});
 	
-	framework.uiCommunicator.on('pausedActivity', function(event, activity) {
-		hideActivityActions(activity);
-	});
-	
-	var showActivityActions = function(activity) {
-		var activityId = activity.instanceId;
-		$.each(toolbarActionsPubs,function(i,o) {
-			if (o.publisherId && o.publisherId===activityId) {
-				o.obj.hide=false;
-			}
-		});
-	};
-	
-	var hideActivityActions = function(activity) {
-		var activityId = activity.instanceId;
-		$.each(toolbarActionsPubs,function(i,o) {
-			if (o.publisherId && o.publisherId===activityId) {
-				o.obj.hide=true;
-			}
-		});
-	};
-	*/
-	
-	framework.internalBus().syncTopic("com.newt.system.toolbar.actions",toolbarActionsPubs,function() {
-		toolbarActionsPubs.sort(function(a, b){
-			var aOrder = a.obj.order || 10,
-				bOrder = b.obj.order || 10;
-			return aOrder-bOrder;
-		});
-		$rootScope.$apply();
-	},true);
-	
-	return {
-		toolbarActions : toolbarActionsPubs
-	};
-	
-}])
-
-.controller('ToolbarCtrl', [ '$rootScope', '$scope', 'framework', '$q', 'ToolbarService', function($rootScope, $scope, framework, $q, ToolbarService) {
-	
-	// Functions
 	$scope.activityStack = function() {
 		if (framework.getActivityStack() == null) {
 			return [];
@@ -61,8 +35,24 @@ angular.module('webActivitiesApp.toolbar', [])
 		return clone.reverse();
 	};
 	
-	$scope.toolbarActions = ToolbarService.toolbarActions;
+	$scope.toolbarActions = [];
+	$scope.activityActions = [];
 	$scope.maxBreadcrumbSize = 3;
+	
+	framework.internalBus().syncTopic("com.newt.system.toolbar.actions",$scope.toolbarActions,function() {
+		$scope.toolbarActions.sort(function(a, b){
+			var aOrder = a.order || 10,
+				bOrder = b.order || 10;
+			return aOrder-bOrder;
+		});
+		$scope.$apply();
+	});
+	
+	$scope.executeAction = function(action) {
+		if (action.handler) {
+			action.handler(action);
+		}
+	};
 	
 }])
 

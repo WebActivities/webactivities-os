@@ -83,11 +83,11 @@ var Application = function(framework, appDefinition, $q) {
 
 		if (this.status == Application.status.REGISTERED) {
 			var deferred = $q.defer();
-			framework.uiCommunicator.broadcast('appStarting', this);
+			framework.eventBus.broadcast('appStarting', this);
 			this.status = Application.status.STARTING;
 			this.iframe = createHostingIframe(function() {
 				self.status = Application.status.STARTED;
-				framework.uiCommunicator.broadcast('appStarted', self);
+				framework.eventBus.broadcast('appStarted', self);
 				if (preventStartActivity) {
 					deferred.resolve(self);
 				} else {
@@ -169,7 +169,7 @@ var Application = function(framework, appDefinition, $q) {
 		} else {
 
 			var activity = new Activity(framework, this, activityDefinition, closeDefer, $q);
-			framework.uiCommunicator.broadcast('activityStarting', activity);
+			framework.eventBus.broadcast('activityStarting', activity);
 			return activity.start(parameters, startMode, startOptions);
 		}
 

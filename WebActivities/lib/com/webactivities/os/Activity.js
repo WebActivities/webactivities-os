@@ -17,16 +17,16 @@ var Activity = function(framework, application, activityDef, closeDefer, $q) {
 	this.activityDef = activityDef;
 	
 	/**
-	 * L'uiCommunicator che usa questa activity per fare il broadcast degli eventi di:
+	 * L'eventBus che usa questa activity per fare il broadcast degli eventi di:
 	 * - activityDisplayed
 	 * - displayActivity
 	 * - iframeLoaded
 	 * - activityStarted
 	 * 
-	 * @property uiCommunicator
+	 * @property eventBus
 	 * @type {Object}
 	 */
-	this.uiCommunicator = framework.uiCommunicator;
+	this.eventBus = framework.eventBus;
 
 	/**
 	 * Connected iframe to Actvitity
@@ -82,7 +82,7 @@ var Activity = function(framework, application, activityDef, closeDefer, $q) {
 		return startMode(this, startOptions).then(function() {
 			self.status = Activity.status.CREATED;
 			self.instance = self.instantiate(self.context, parameters);
-			self.uiCommunicator.broadcast('activityStarted', self);
+			self.eventBus.broadcast('activityStarted', self);
 		});
 	};
 
@@ -106,7 +106,7 @@ var Activity = function(framework, application, activityDef, closeDefer, $q) {
 		});
 		
 		stopAction.then(function() {
-			return self.uiCommunicator.broadcast('destroyActivity', {
+			return self.eventBus.broadcast('destroyActivity', {
 				view : self.iframe,
 				activity : self
 			});
@@ -155,7 +155,7 @@ var Activity = function(framework, application, activityDef, closeDefer, $q) {
 		
 		if (options && options.mode == 'hidden') {
 			pauseAction.then(function() {
-				return self.uiCommunicator.broadcast('hideActivity', {
+				return self.eventBus.broadcast('hideActivity', {
 					view : self.iframe,
 					activity : self
 				});
@@ -163,7 +163,7 @@ var Activity = function(framework, application, activityDef, closeDefer, $q) {
 		}
 		
 		pauseAction.then(function() {
-			return self.uiCommunicator.broadcast('pausedActivity',self);
+			return self.eventBus.broadcast('pausedActivity',self);
 		});
 		
 		pauseAction.then(function() {
@@ -184,7 +184,7 @@ var Activity = function(framework, application, activityDef, closeDefer, $q) {
 		
 		if (!this.isFragment) {
 			resumeAction.then(function() {
-				self.uiCommunicator.broadcast('displayActivity', {
+				self.eventBus.broadcast('displayActivity', {
 					view : self.iframe,
 					activity : self,
 					disableEffects : options?options.disableEffects:null
@@ -197,7 +197,7 @@ var Activity = function(framework, application, activityDef, closeDefer, $q) {
 		});
 		
 		resumeAction.then(function() {
-			return self.uiCommunicator.broadcast('resumedActivity',self);
+			return self.eventBus.broadcast('resumedActivity',self);
 		});
 		
 		return resumeAction;
@@ -207,7 +207,10 @@ var Activity = function(framework, application, activityDef, closeDefer, $q) {
 		if (this.seamless) {
 			var doc = $(this.iframe.contentWindow.document);
 			doc.find("link[data-newt-theme]").remove();
-			doc.find("head").append("<link rel=\"stylesheet\" data-newt-theme href=\""+theme.link+"\" />");
+			var i=0, head=doc.find("head");
+			for (i=0; i<theme.links.length; i++) {
+				head.append("<link rel=\"stylesheet\" data-newt-theme href=\""+theme.links[i]+"\" />");
+			}
 		}
 		$.each(this.fragments,function(i,f) {
 			f.setCurrentTheme(theme);
@@ -225,11 +228,11 @@ var Activity = function(framework, application, activityDef, closeDefer, $q) {
 				if (url) {
 					$(viewport).load(url, function() {
 						viewDeferred.resolve(viewport);
-						self.uiCommunicator.broadcast("iframeLoaded", {});
+						self.eventBus.broadcast("iframeLoaded", {});
 					});
 				} else {
 					viewDeferred.resolve(viewport);
-					self.uiCommunicator.broadcast("iframeLoaded", {});
+					self.eventBus.broadcast("iframeLoaded", {});
 				}
 			});
 			self.writeActivityStartingDoc();
@@ -240,13 +243,13 @@ var Activity = function(framework, application, activityDef, closeDefer, $q) {
 	
 	this.doDisplayView = function() {
 		var self = this;
-		self.uiCommunicator.broadcast('displayActivity', {
+		self.eventBus.broadcast('displayActivity', {
 			view : self.iframe,
 			activity : self
 		}).then(function() {
 			self.status = Activity.status.ACTIVE;
 			$q.when(self.context.getShow()()).then(function() {
-				self.uiCommunicator.broadcast("activityDisplayed", {});
+				self.eventBus.broadcast("activityDisplayed", {});
 			});
 		});
 	};
@@ -258,7 +261,13 @@ var Activity = function(framework, application, activityDef, closeDefer, $q) {
 		doc.write("<head>");
 		if (this.seamless) {
 			var theme = framework.getCurrentTheme();
-			doc.write("<link rel=\"stylesheet\" data-newt-theme href=\""+theme.link+"\" />");
+			var i=0;
+			for (i=0; i<theme.links.length; i++) {
+				doc.write("<link rel=\"stylesheet\" data-newt-theme href=\""+theme.links[i]+"\" />");
+				doc.write("<link rel=\"stylesheet\" href=\"css/font-awesome.min.css\" />");
+				doc.write("<script src=\"lib/jquery/jquery-2.1.1.min.js\"></script>");
+				doc.write("<script src=\"lib/uibootstrap/bootstrap.min.js\"></script>");
+			}
 		}
 		doc.write("<base href=\"" + this.path + "/\">");
 		doc.write("<script type=\"text/javascript\">");

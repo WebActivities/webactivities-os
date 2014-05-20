@@ -23,7 +23,7 @@ var ApplicationRegistry = function(framework) {
 				activitiesDefinitions[activityDefinition.id] = activityDefinition;
 			});
 			installedApplications[application.id] = application;
-			framework.uiCommunicator.broadcast('appInstalled', application);
+			framework.eventBus.broadcast('appInstalled', application);
 
 			application.checkAutostartServices();
 
