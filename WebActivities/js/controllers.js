@@ -59,29 +59,23 @@ angular.module('webActivitiesApp.controllers', [])
 		framework.stopAllPopupActivities();
 	};
 
-	$scope.executeAction = function(action) {
-		if (action.handler) {
-			action.handler(action);
-		}
-	};
-
 	// Listener
-	framework.uiCommunicator.on('appInstalled', function(event, app) {
+	framework.eventBus.on('appInstalled', function(event, app) {
 		$scope.apps.push(app);
 		$.each(app.activitiesDefinitions, function(i,activitiesDef) {
 			$scope.activityDefs.push(activitiesDef);
 		});
 	});
 
-	framework.uiCommunicator.on('appStarting', function(event, app) {
+	framework.eventBus.on('appStarting', function(event, app) {
 		$scope.startingApp = app.name;
 	});
 
-	framework.uiCommunicator.on('appStarted', function(event, app) {
+	framework.eventBus.on('appStarted', function(event, app) {
 		$scope.startingApp = null;
 	});
 
-	framework.uiCommunicator.on('showNotify', function(event, notify) {
+	framework.eventBus.on('showNotify', function(event, notify) {
 		var q = $q.defer();
 		var type = notify.type;
 		var message = notify.message;
@@ -105,7 +99,7 @@ angular.module('webActivitiesApp.controllers', [])
 		return q.promise;
 	});
 
-	framework.uiCommunicator.on('displayActivity', function(event, o) {
+	framework.eventBus.on('displayActivity', function(event, o) {
 		var q = $q.defer();
 		if (viewports.peek().find(o.view).size() > 0) {
 			if (!o.disableEffects) {
@@ -140,7 +134,7 @@ angular.module('webActivitiesApp.controllers', [])
 		return q.promise;
 	});
 
-	framework.uiCommunicator.on('hideActivity', function(event, o) {
+	framework.eventBus.on('hideActivity', function(event, o) {
 		var q = $q.defer();
 		$(o.view).animate({
 			left : "-100%"
@@ -159,7 +153,7 @@ angular.module('webActivitiesApp.controllers', [])
 		return q.promise;
 	});
 
-	framework.uiCommunicator.on('popLayer', function(event, o) {
+	framework.eventBus.on('popLayer', function(event, o) {
 		var q = $q.defer();
 		var element = viewports.pop();
 		$(element.data("arrow")).remove();
@@ -177,7 +171,7 @@ angular.module('webActivitiesApp.controllers', [])
 		return q.promise;
 	});
 
-	framework.uiCommunicator.on('pushLayer', function(event, o) {
+	framework.eventBus.on('pushLayer', function(event, o) {
 		var windowRelativeOffset = 20;
 
 		var q = $q.defer();
@@ -303,7 +297,7 @@ angular.module('webActivitiesApp.controllers', [])
 		return q.promise;
 	});
 
-	framework.uiCommunicator.on('destroyActivity', function(event, o) {
+	framework.eventBus.on('destroyActivity', function(event, o) {
 		var q = $q.defer();
 		$(o.view).animate({
 			left : "100%"
@@ -322,7 +316,7 @@ angular.module('webActivitiesApp.controllers', [])
 		return q.promise;
 	});
 
-	framework.uiCommunicator.on('makeUserSelectOneActivity', function(event, o) {
+	framework.eventBus.on('makeUserSelectOneActivity', function(event, o) {
 		var modalInstance = $modal.open({
 			templateUrl : 'activity-choice.html?' + new Date().getTime(),
 			controller : [ '$scope', '$modalInstance', 'o', function($scope, $modalInstance, o) {
@@ -348,7 +342,7 @@ angular.module('webActivitiesApp.controllers', [])
 	});
 	
 	
-	framework.uiCommunicator.on('showSidePanel', function(event,obj) {
+	framework.eventBus.on('showSidePanel', function(event,obj) {
 
 		$("#settings-modal").show().one("click", function() {
 			$("#settings-panel").addClass("hidden-panel", TRANSITION_SPEED, function() {
@@ -377,9 +371,11 @@ angular.module('webActivitiesApp.controllers', [])
 	});
 	
 
-	framework.uiCommunicator.on('themeChanged', function(event,theme) {		
+	framework.eventBus.on('themeChanged', function(event,theme) {		
 		$("link[data-newt-theme]").remove();
-		$("head").append("<link rel='stylesheet' data-newt-theme href='"+theme.link+"'  />");
+		$.each(theme.links,function(i,o) {			
+			$("head").append("<link rel='stylesheet' data-newt-theme href='"+o+"'  />");
+		});
 	});
 	
 
@@ -392,6 +388,38 @@ angular.module('webActivitiesApp.controllers', [])
 
 
 } ])
+
+.controller('FragmentCtrl', [ '$rootScope', '$scope', 'framework', 'fragment', '$q', function($rootScope, $scope, framework, fragment, $q) {
+
+	$scope.fragmentActions = [];
+	
+	$scope.toolbarVisible = false;
+	$scope.logoSrc = Utils.toAbsoluteUrl(null,'img/wa-logo.png');
+	
+	$scope.$watch(function () { 
+		var la = fragment.activityInstance;
+		return la?la.context.actions:null; 
+	}, function (newVal, oldVal) {
+		if (newVal) {			
+			$scope.fragmentActions = newVal;
+		} else {
+			$scope.fragmentActions = [];
+		}
+		$scope.toolbarVisible = $scope.fragmentActions.length>0;
+	},true);
+	
+	fragment.activityInstance.context.eventBus.on("actionsChanged",function(event,obj) {
+		$scope.$apply();
+	});
+	
+	$scope.executeAction = function(action) {
+		if (action.handler) {
+			action.handler(action);
+		}
+	};
+	
+} ])
+
 
 // end
 ;

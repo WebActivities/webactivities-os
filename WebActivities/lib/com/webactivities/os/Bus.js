@@ -2,6 +2,7 @@ var BusNotifyType = {
 	ADD : 0,
 	REMOVE : 2
 };
+
 var Bus = function() {
 
 	this.data = {};

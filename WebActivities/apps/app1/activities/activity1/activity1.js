@@ -9,6 +9,9 @@ var Activity3 = function(ctx) {
 			container.append("The result is " + result);
 		});
 	});
+	
+	
+
 
 	ctx.prepareView().then(function(root) {
 		$(root).append(container);
@@ -41,18 +44,30 @@ var Activity3 = function(ctx) {
 		container.append("<div>Resumed</div>");
 	});
 	
-	
-	if (!ctx.actions) {
-		ctx.actions = [];
-	}
-	ctx.actions.push({
+	var azione = {
 		order: 1,
 		action: "azione X",
 		iconClass: "fa-coffee",
 		handler: function(e) {
 			alert("azione X dell'activity "+ctx.getActivityInstanceId());
 		}
+	};
+	
+	var btnAct = $("<button type=\"button\" class=\"btn btn-sm btn-primary\">Rimuovi rimetti azione nella toolbar</button>").appendTo(container);
+	btnAct.click(function() {
+		var index = ctx.actions.indexOf(azione);
+		if (index!=-1) {
+			ctx.actions.splice(index,1);
+		} else {			
+			ctx.actions.push(azione);
+		}
+		ctx.eventBus.broadcast("actionsChanged");
 	});
+	
+	if (!ctx.actions) {
+		ctx.actions = [];
+	}
+	ctx.actions.push(azione);
 	
 };
 

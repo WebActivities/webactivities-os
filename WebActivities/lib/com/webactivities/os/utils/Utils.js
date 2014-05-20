@@ -7,9 +7,10 @@ var Utils = (function() {
 	};
 
 	var resolveUrl = function(application, path) {
-		path = path.replace("%v", application.version);
+		path = path.replace("%v", application?application.version:'');
 		path = path.replace("%d", new Date().getTime());
-		var src = path.indexOf("http") == 0 ? path : application.path + (path.indexOf("/") == 0 ? path : "/" + path);
+		var appPath = application?application.path:'';
+		var src = path.indexOf("http") == 0 ? path : appPath + (path.indexOf("/") == 0 ? path : "/" + path);
 		return src;
 	};
 	
@@ -18,6 +19,12 @@ var Utils = (function() {
 			return path;
 		}
 		var url = resolveUrl(application, path);
+		if (url.indexOf("http") == 0) {
+			return url;
+		}
+		if (url.indexOf("/") == 0) {
+			url = url.substring(1);
+		}
 		loc = window.top.location;
 		return loc.origin+loc.pathname+url;
 	};

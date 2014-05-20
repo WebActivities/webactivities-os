@@ -1,0 +1,44 @@
+
+<div data-ng-controller="FragmentCtrl">
+	<nav 
+		data-ng-style="{ display: toolbarVisible?'block':'none' }"
+	    class="navbar navbar-inverse navbar-static-top top-bar"
+		role="navigation" style="margin-bottom: 0px;">
+		
+		<div class="container-fluid">
+			<!-- Brand and toggle get grouped for better mobile display -->
+			<div class="navbar-header">
+				<button type="button" class="navbar-toggle" data-toggle="collapse"
+					data-target="#top-bar-collapse"
+					onclick="setTimeout(function() { window.top.$(window).resize(); }, 1000);">
+					<span class="sr-only">Toggle navigation</span>
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+				</button>
+				<a class="navbar-brand" href=""
+					style="margin: 0px 5px 0px 0px; padding: 0px;">
+					<img data-ng-src="{{logoSrc}}" alt="" />
+				</a>
+			</div>
+	
+			<div class="collapse navbar-collapse" >
+				
+				<ul class="nav navbar-nav navbar-right">
+					
+					<li data-ng-repeat="action in fragmentActions" class="dropdown">
+						<a href="" data-ng-click="executeAction(action)">
+							<i class="fa" data-ng-class="action.iconClass" ></i>
+						</a>
+					</li>
+					
+				</ul>
+			</div>
+		</div>
+	</nav>
+	<div class="fragmentViewport" 
+		style="position: absolute; bottom: 0px; left: 0px; right: 0px;"
+		data-ng-style="{ top: toolbarVisible?'45px':'0px' }"
+		>
+	</div> 
+</div>

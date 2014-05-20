@@ -2,7 +2,7 @@ var Framework = function($q) {
 
 	this.$q = $q;
 
-	this.uiCommunicator = new UICommunicator($q);
+	this.eventBus = new EventBus($q);
 
 	this.applicationRegistry = new ApplicationRegistry(this);
 
@@ -16,7 +16,7 @@ var Framework = function($q) {
 	
 	this.currentTheme = {
 		label: 'yeti',
-		link: "css/yeti.bootstrap.min.css"
+		links: ["css/yeti.bootstrap.min.css"]
 	};
 	
 	var _internalBus = this.bus.createBus("Framework");
@@ -59,11 +59,11 @@ var Framework = function($q) {
 	};
 
 	this.pushLayer = function(options) {
-		return this.uiCommunicator.broadcast("pushLayer", options || {});
+		return this.eventBus.broadcast("pushLayer", options || {});
 	};
 
 	this.popLayer = function() {
-		return this.uiCommunicator.broadcast("popLayer", {});
+		return this.eventBus.broadcast("popLayer", {});
 	};
 
 	this.stopAllPopupActivities = function() {
@@ -142,7 +142,7 @@ var Framework = function($q) {
 			return $q.when(matchings[0]);
 		}
 		if (matchings.length > 0) {
-			return self.uiCommunicator.broadcast("makeUserSelectOneActivity", {
+			return self.eventBus.broadcast("makeUserSelectOneActivity", {
 				activities : matchings
 			}).then(function(results) {
 				return results[0];
@@ -174,7 +174,7 @@ var Framework = function($q) {
 	
 	this.setCurrentTheme = function(newTheme) {
 		this.currentTheme = newTheme;
-		this.uiCommunicator.broadcast("themeChanged", this.currentTheme);
+		this.eventBus.broadcast("themeChanged", this.currentTheme);
 		this.activityStack.forEach(function(activity) {
 			activity.setCurrentTheme(newTheme);
 		});

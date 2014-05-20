@@ -13,7 +13,7 @@ var Service = function(framework, application, serviceDef, $q) {
 		}
 		this.status = Service.status.CREATED;
 		this.instance = new application.iframe[0].contentWindow.window[serviceDef.activator](this.context, parameters);
-		return framework.uiCommunicator.broadcast('serviceCreated', this);
+		return framework.eventBus.broadcast('serviceCreated', this);
 	};
 
 	this.start = function(parameters, startOptions) {
@@ -24,7 +24,7 @@ var Service = function(framework, application, serviceDef, $q) {
 		}
 		return $q.when(this.context.getStart()(startOptions)).then(function() {			
 			self.status = Service.status.STARTED;
-			return framework.uiCommunicator.broadcast('serviceStarted',this);
+			return framework.eventBus.broadcast('serviceStarted',this);
 		});
 	};
 

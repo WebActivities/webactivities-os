@@ -1,10 +1,10 @@
 /**
- * UICommunicator
+ * EventBus
  * 
- * @class UICommunicator
+ * @class EventBus
  * @constructor
  */
-var UICommunicator = function($q) {
+var EventBus = function($q) {
 
 	var listeners = {};
 

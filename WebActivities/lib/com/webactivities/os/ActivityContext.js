@@ -29,7 +29,7 @@ var ActivityContext = function(framework, activity, _closeDefer, $q) {
 
 	this.bus = framework.bus.createBus(this.activity.instanceId);
 
-	this.communicator = new UICommunicator(framework);
+	this.eventBus = new EventBus($q);
 
 	this.getCloseDefer = function() {
 		return _closeDefer;

@@ -6,10 +6,10 @@ var SearchService = function(ctx) {
 			iconClass: "fa-search",
 			handler: function(e) {
 				
-				//questa chiamata non mi piace, l'accesso all'uiCommunicator 
+				//questa chiamata non mi piace, l'accesso all'eventBus
 				//è a un livello troppo basso
 				
-				ctx.framework().uiCommunicator.broadcast("showSidePanel",{
+				ctx.framework().eventBus.broadcast("showSidePanel",{
 					content: loadView
 				}).then(function() {
 					cachedView.find('#searchActivityInput').focus();

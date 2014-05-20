@@ -7,7 +7,7 @@ angular.module('webActivitiesApp.toolbar', [])
 	
 	$scope.liveActivity = null;
 	
-	var tracker = new LiveActivityTracker(framework.uiCommunicator,
+	var tracker = new LiveActivityTracker(framework.eventBus,
 		function(oldActivity) {
 			$scope.liveActivity = null;
 		},
@@ -47,6 +47,12 @@ angular.module('webActivitiesApp.toolbar', [])
 		});
 		$scope.$apply();
 	});
+	
+	$scope.executeAction = function(action) {
+		if (action.handler) {
+			action.handler(action);
+		}
+	};
 	
 }])
 
