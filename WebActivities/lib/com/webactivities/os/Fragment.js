@@ -124,7 +124,9 @@ var Fragment = function(framework, parentActivityInstance) {
 	};
 	
 	this.setCurrentTheme = function(theme) {
-		return this.activityInstance.setCurrentTheme(theme);
+		if (this.activityInstance) {
+			return this.activityInstance.setCurrentTheme(theme);
+		}
 	};
 
 };

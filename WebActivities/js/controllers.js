@@ -373,8 +373,12 @@ angular.module('webActivitiesApp.controllers', [])
 
 	framework.eventBus.on('themeChanged', function(event,theme) {		
 		$("link[data-newt-theme]").remove();
-		$.each(theme.links,function(i,o) {			
-			$("head").append("<link rel='stylesheet' data-newt-theme href='"+o+"'  />");
+		$.each(theme.links,function(i,o) {	
+			var link  = $("<link rel='stylesheet' data-newt-theme href='"+o+"'  />");
+			link.load(function(){
+				$("#viewport-container").css("top",$("#navbar").outerHeight()+"px");
+			});
+			$("head").append(link);
 		});
 	});
 	
