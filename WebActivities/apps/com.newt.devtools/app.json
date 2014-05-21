@@ -1,0 +1,23 @@
+{
+	"id" : "com.newt.devtools",
+	"name" : "Dev Tools",
+	"icon" : "/icons/code.png",
+	"main" : "editor",
+	"version" : "1.0.0",
+	"activities" : [
+		 {
+		 	"name" : "editor",
+			"startable" : true,
+			"description" : "Editor",
+			"icon" : "/icons/edit.png",
+			"activator" : "Editor",
+			"seamless" : false	
+		}
+	],
+	"resources" : [
+		"/res/jquery-2.1.1.min.js",
+		"/app.js"
+    ],
+    "settings" : {
+    }
+}
