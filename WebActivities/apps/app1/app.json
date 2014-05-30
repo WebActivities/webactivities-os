@@ -19,6 +19,13 @@
 			"icon" : "/res/activity.png",
 			"activator" : "Activity3",
 			"seamless" : true	
+		},{
+			"name": "activity4",
+			"startable" : true,
+			"description" : "Attività sandboxed",
+			"icon" : "/res/activity.png",
+			"url" : "http://www.repubblica.it",
+			"sandboxed" : true	
 		}
 	],
 	"resources" : [

@@ -81,7 +81,11 @@ var Activity = function(framework, application, activityDef, closeDefer, $q) {
 	this.start = function(parameters, startMode, startOptions) {
 		return startMode(this, startOptions).then(function() {
 			self.status = Activity.status.CREATED;
-			self.instance = self.instantiate(self.context, parameters);
+			if (!self.activityDef.sandboxed) {
+				self.instance = self.instantiate(self.context, parameters);
+			} else {
+				self.prepareSandboxedView();
+			}
 			self.eventBus.broadcast('activityStarted', self);
 		});
 	};
@@ -93,7 +97,7 @@ var Activity = function(framework, application, activityDef, closeDefer, $q) {
 	
 	this.stop = function() {
 		
-		var promises = [ $q.when(this.context.getStop()()) ];
+		var promises = [ $q.when(this.context.callStop()) ];
 
 		for (var i in this.fragments) {
 			promises.push($q.when(this.fragments[i].stop()));
@@ -133,7 +137,7 @@ var Activity = function(framework, application, activityDef, closeDefer, $q) {
 		}
 		
 		stopAction.then(function() {
-			self.context.getCloseDefer().resolve(self.context.getResult());
+			self.context.resolveCloseDefer();
 		});
 		
 		stopAction.then(function() {
@@ -217,6 +221,22 @@ var Activity = function(framework, application, activityDef, closeDefer, $q) {
 		});
 	};
 	
+	this.prepareSandboxedView = function() {
+		var self = this;
+		this.iframe = $("<iframe>",{
+			src: this.activityDef.url
+		})[0];
+		var jIframe = $(this.iframe);
+		jIframe.on("attached", function() {
+			jIframe.load(function() {
+				self.eventBus.broadcast("iframeLoaded", {});
+			});
+			self.context.initChannel();
+			//self.writeActivityStartingDoc();
+		});
+		this.doDisplayView();
+	};
+	
 	this.prepareView = function(url) {
 		var self = this;
 		var viewDeferred = $q.defer();
@@ -248,7 +268,7 @@ var Activity = function(framework, application, activityDef, closeDefer, $q) {
 			activity : self
 		}).then(function() {
 			self.status = Activity.status.ACTIVE;
-			$q.when(self.context.getShow()()).then(function() {
+			$q.when(self.context.callShow()).then(function() {
 				self.eventBus.broadcast("activityDisplayed", {});
 			});
 		});

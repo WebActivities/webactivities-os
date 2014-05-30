@@ -60,9 +60,13 @@ var Application = function(framework, appDefinition, $q) {
 		doc.open();
 		doc.write("<script type=\"text/javascript\">var top = null; var opener = null; var parent = null; window.opener = null; window.parent = null;</script>" + resourcesIncluded);
 		doc.close();
-		iframe.load(function() {
-			afterIframeLoadCallback();
-		});
+		if (resourcesIncluded!="") {
+			iframe.load(function() {
+				afterIframeLoadCallback();
+			});
+		} else {
+			setTimeout(afterIframeLoadCallback,0);
+		}
 		return iframe;
 	};
 

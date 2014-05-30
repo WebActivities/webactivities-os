@@ -390,6 +390,7 @@ angular.module('webActivitiesApp.controllers', [])
 	framework.applicationRegistry.installApplication("apps/maps/app.json");
 	framework.applicationRegistry.installApplication("apps/com.newt.demo/manifest.json");
 	framework.applicationRegistry.installApplication("apps/com.newt.devtools/app.json");
+	framework.applicationRegistry.installApplication("apps/com.newt.sandboxedapp/app.json");
 
 
 } ])

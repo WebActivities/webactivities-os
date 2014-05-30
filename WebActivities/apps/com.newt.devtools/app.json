@@ -12,6 +12,16 @@
 			"icon" : "/icons/edit.png",
 			"activator" : "Editor",
 			"seamless" : false	
+		},{
+		 	"name" : "newtApidocs",
+			"startable" : true,
+			"description" : "Api Docs of Newt",
+			"icon" : "/icons/edit.png",
+			"activator" : "IframeLoader",
+			"seamless" : false,
+			"params": {
+				"url": "/../../apidocs"
+			}
 		}
 	],
 	"resources" : [

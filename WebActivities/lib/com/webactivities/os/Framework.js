@@ -31,7 +31,11 @@ var Framework = function($q) {
 	};
 
 	this.createContext = function(activity, closeDefer, $q) {
-		return new ActivityContext(this, activity, closeDefer, $q);
+		if (!activity.sandboxed) {			
+			return new ActivityContext(this, activity, closeDefer, $q);
+		} else {
+			return new ActivityGateway(this, activity, closeDefer, $q);
+		}
 	};
 	
 	this.getCurrentActivity = function() {

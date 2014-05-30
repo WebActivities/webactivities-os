@@ -25,13 +25,18 @@ var Editor = function(ctx) {
 			    bottom: '0px',
 			    left: '0px',
 			    right: '0px'
-		    });
-			
+		    });			
 		});
-		
-		
-		
-		
+
+	});
+	
+};
+
+
+var IframeLoader = function(ctx) {
+	
+	ctx.prepareView().then(function(ui) {
+		ui.ownerDocument.defaultView.location = ctx.resolveUrl(ctx.activity.activityDef.params.url);	
 	});
 	
 };

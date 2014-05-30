@@ -60,6 +60,10 @@ var ActivityContext = function(framework, activity, _closeDefer, $q) {
 	this.getCloseDefer = function() {
 		return _closeDefer;
 	};
+	
+	this.resolveCloseDefer = function() {		
+		this.getCloseDefer().resolve(this.getResult());
+	};
 
 	/**
 	 * This method is used for set the activity result. Can be changed any time
@@ -81,12 +85,20 @@ var ActivityContext = function(framework, activity, _closeDefer, $q) {
 		_stop = fn;
 	};
 
+	this.callStop = function() {
+		return this.getStop()();
+	};
+	
 	this.getStop = function() {
 		return _stop;
 	};
 
 	this.onShow = function(fn) {
 		_show = fn;
+	};
+	
+	this.callShow = function() {
+		return this.getShow()();
 	};
 
 	this.getShow = function() {
