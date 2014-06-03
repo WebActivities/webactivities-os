@@ -149,7 +149,7 @@ var Activity = function(framework, application, activityDef, closeDefer, $q) {
 	
 	this.pause = function(options) {
 		
-		var promises = [ $q.when(this.context.getPause()()) ];
+		var promises = [ $q.when(this.context.callPause()) ];
 		
 		for (var i in this.fragments) {
 			promises.push($q.when(this.fragments[i].pause()));
@@ -178,7 +178,7 @@ var Activity = function(framework, application, activityDef, closeDefer, $q) {
 	
 	this.resume = function(options) {
 		
-		var promises = [ $q.when(this.context.getResume()()) ];
+		var promises = [ $q.when(this.context.callResume()) ];
 		
 		for (var i in this.fragments) {
 			promises.push($q.when(this.fragments[i].resume()));

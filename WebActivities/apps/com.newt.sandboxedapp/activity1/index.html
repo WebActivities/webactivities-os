@@ -3,14 +3,18 @@
 <head>
 <meta charset="utf-8">
 <title data-ng-bind="page.title"></title>
-	<script type="text/javascript" src="newt.js"></script>
+	<script type="text/javascript" src="/WebActivities/api/newt.js"></script>
 	<script type="text/javascript" src="jquery-2.1.1.min.js"></script>
 </head>
 <body>
 	
 	<h2 id="header">This is a sandboxed app!</h2>
+	<div id="container"></div>
 	
 	<button id="chiudi" > Chiudi </button>
+	<button id="openRoot" > Apri come Root </button>
+	<button id="openChild" > Apri come Child </button>
+	<button id="openPopup" > Apri come Popup </button>
 	
 	
 	<script type="text/javascript">
@@ -19,7 +23,7 @@
 	$(function() {
 		
 		newt.onActivityStarting(function() {
-			alert("on onActivityStarting");
+			$("#container").append("on onActivityStarting");
 		});
 		
 		newt.onActivityStop(function(callback) {
@@ -32,6 +36,27 @@
 		
 		$("#chiudi").click(function(callback) {
 			newt.stop();
+		});
+
+		$("#openRoot").click(function(callback) {
+			var i = newt.newActivityIntentAsRoot("it.test.app.one", "activity1");
+			i.start().then(function(result) {
+				$("#container").append("The result is " + result);
+			});
+		});
+		
+		$("#openChild").click(function(callback) {
+			var i = newt.newActivityIntent("it.test.app.one", "activity1");
+			i.start().then(function(result) {
+				$("#container").append("The result is " + result);
+			});
+		});
+		
+		$("#openPopup").click(function(callback) {
+			var i = newt.newActivityIntentAsPopup("it.test.app.one", "activity1");
+			i.start().then(function(result) {
+				$("#container").append("The result is " + result);
+			});
 		});
 		
 	});

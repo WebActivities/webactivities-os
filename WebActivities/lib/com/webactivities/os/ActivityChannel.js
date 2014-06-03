@@ -27,7 +27,18 @@ var ActivityChannel = function(activity,$q) {
 		} else {
 			var handler = commandsHandlers[event.data.commandName];
 			if (handler) {
-				handler(event.data);
+				
+				var replayCallback = function(result) {
+					var msg = {};
+					msg['_channelId']=channelId;
+					msg.replayTo= event.data._conversationId;
+					msg.result= result;
+					if (activity.iframe && activity.iframe.contentWindow) {
+						activity.iframe.contentWindow.postMessage(msg,"*");
+					}
+				};
+				
+				handler(event.data,replayCallback);
 			}
 		}
 	}, false);

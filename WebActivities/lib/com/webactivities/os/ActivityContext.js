@@ -116,12 +116,20 @@ var ActivityContext = function(framework, activity, _closeDefer, $q) {
 		_resume = fn;
 	};
 
+	this.callResume = function() {
+		return this.getResume()();
+	};
+	
 	this.getResume = function() {
 		return _resume;
 	};
 
 	this.onPause = function(fn) {
 		_pause = fn;
+	};
+	
+	this.callPause = function() {
+		return this.getPause()();
 	};
 
 	this.getPause = function() {

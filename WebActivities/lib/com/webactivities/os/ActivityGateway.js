@@ -43,6 +43,11 @@ var ActivityGateway = function(framework, activity, _closeDefer, $q) {
 		framework.stopActivity();
 	});
 	
+	activityChannel.on("executeIntent",function(data,replayCallback) {
+		framework.executeIntent(data.intent,data.options).then(function(result) {
+			replayCallback(result);
+		});
+	});
 	
 	this.callShow = function() {
 		return activityChannel.sendAndReceive({
@@ -55,6 +60,19 @@ var ActivityGateway = function(framework, activity, _closeDefer, $q) {
 			commandName: "onStop"
 		});
 	};
+	
+	this.callPause = function() {
+		return activityChannel.sendAndReceive({
+			commandName: "onPause"
+		});
+	};
+	
+	this.callResume = function() {
+		return activityChannel.sendAndReceive({
+			commandName: "onResume"
+		});
+	};
+	
 	
 	this.resolveCloseDefer = function() {		
 		//this.getCloseDefer().resolve(this.getResult());
