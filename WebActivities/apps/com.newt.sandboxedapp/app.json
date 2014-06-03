@@ -1,0 +1,19 @@
+{
+	"id" : "com.newt.sandboxedapp",
+	"name" : "Application Sandboxed",
+	"icon" : "/res/app.png",
+	"main" : "activity1",
+	"version" : "1.0.0",
+	"activities" : [
+		 {
+		 	"name" : "activity1",
+			"startable" : true,
+			"description" : "Attività number one",
+			"icon" : "/res/activity.png",
+			"url" : "http://localhost:9191/WebActivities/apps/com.newt.sandboxedapp/activity1/index.html",
+			"sandboxed" : true	
+		}
+	],
+    "settings" : {
+    }
+}

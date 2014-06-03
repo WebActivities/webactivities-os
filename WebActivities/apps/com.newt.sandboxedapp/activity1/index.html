@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title data-ng-bind="page.title"></title>
+	<script type="text/javascript" src="newt.js"></script>
+	<script type="text/javascript" src="jquery-2.1.1.min.js"></script>
+</head>
+<body>
+	
+	<h2 id="header">This is a sandboxed app!</h2>
+	
+	<button id="chiudi" > Chiudi </button>
+	
+	
+	<script type="text/javascript">
+	
+	
+	$(function() {
+		
+		newt.onActivityStarting(function() {
+			alert("on onActivityStarting");
+		});
+		
+		newt.onActivityStop(function(callback) {
+			$("#header").text("Application will be stopped in 2 seconds...");
+			setTimeout(function() {
+				callback();
+			}, 2000);
+		});
+		
+		
+		$("#chiudi").click(function(callback) {
+			newt.stop();
+		});
+		
+	});
+	
+	
+	
+	
+	</script>
+	
+
+</body>
+</html>
