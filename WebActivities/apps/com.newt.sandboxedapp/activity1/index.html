@@ -3,18 +3,35 @@
 <head>
 <meta charset="utf-8">
 <title data-ng-bind="page.title"></title>
+
+	<link rel="stylesheet" data-newt-theme href="/WebActivities/css/yeti.bootstrap.min.css"  />
+	<link rel="stylesheet" href="/WebActivities/css/font-awesome.min.css" />
+
+	<script src="/WebActivities/lib/jquery/jquery-2.1.1.min.js"></script>
+	<script src="/WebActivities/lib/angular/angular.js"></script>
+	<script src="/WebActivities/lib/angular/i18n/angular-locale_it.js"></script>
+	<script src="/WebActivities/lib/angular/angular-route.js"></script>
+	<script src="/WebActivities/lib/uibootstrap/ui-bootstrap-tpls-0.11.0.min.js"></script>
+	<script src="/WebActivities/lib/uibootstrap/bootstrap.min.js"></script>
+	<script src="/WebActivities/lib/uibootstrap/ui-utils.min.js"></script>
+	
 	<script type="text/javascript" src="/WebActivities/api/newt.js"></script>
-	<script type="text/javascript" src="jquery-2.1.1.min.js"></script>
 </head>
 <body>
 	
 	<h2 id="header">This is a sandboxed app!</h2>
 	<div id="container"></div>
 	
-	<button id="chiudi" > Chiudi </button>
-	<button id="openRoot" > Apri come Root </button>
-	<button id="openChild" > Apri come Child </button>
-	<button id="openPopup" > Apri come Popup </button>
+	<button id="chiudi" class="btn btn-sm btn-primary"> Chiudi </button>
+	<button id="openRoot" class="btn btn-sm btn-primary"> Apri come Root </button>
+	<button id="openChild" class="btn btn-sm btn-primary"> Apri come Child </button>
+	<button id="openPopup" class="btn btn-sm btn-primary"> Apri come Popup </button>
+	<button id="openPopupRelative" class="btn btn-sm btn-primary"> Apri come Popup Relativo (non funziona con il sandbox)</button>
+	<button id="map" class="btn btn-sm btn-primary"> Avvia Map Intent Filter</button>
+	<button id="notify-info" class="btn btn-sm btn-primary"> Show Notify info</button>
+	<button id="notify-warning" class="btn btn-sm btn-primary"> Show Notify warning</button>
+	<button id="notify-error" class="btn btn-sm btn-primary"> Show Notify error</button>
+	<button id="notify-success" class="btn btn-sm btn-primary"> Show Notify success</button>
 	
 	
 	<script type="text/javascript">
@@ -56,6 +73,29 @@
 			var i = newt.newActivityIntentAsPopup("it.test.app.one", "activity1");
 			i.start().then(function(result) {
 				$("#container").append("The result is " + result);
+			});
+		});
+		
+		$("#openPopupRelative").click(function() {
+			var i = newt.newActivityIntentAsPopup("it.test.app.one", "activity1");
+			i.start({
+				relativeTo : this
+			}).then(function(result) {
+				$("#container").append("The result is " + result);
+			});
+		});
+		
+		$("#map").click(function() {
+			var i = newt.newIntent("map");
+			i.start().then(function(result) {
+				$("#container").append("The result is " + result);
+			});
+		});
+		
+		var types = [ "info", "warning", "error", "success" ];
+		$.each(types,function(i,t) {
+			$("#notify-"+t).click(function() {				
+				newt.notify(t, "Questo è un messaggio di "+t);
 			});
 		});
 		

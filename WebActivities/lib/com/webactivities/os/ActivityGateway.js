@@ -49,6 +49,10 @@ var ActivityGateway = function(framework, activity, _closeDefer, $q) {
 		});
 	});
 	
+	activityChannel.on("notify",function(data) {
+		framework.notifyManager.notify(data.type, data.message, data.options);
+	});
+	
 	this.callShow = function() {
 		return activityChannel.sendAndReceive({
 			commandName: "onShow"
